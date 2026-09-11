@@ -48,6 +48,7 @@ import pandas as pd
 import streamlit as st
 
 import analytics_core as ac
+import business_engine as be
 import conversation as cv
 import exec_views as ev
 
@@ -65,6 +66,8 @@ ROUTE_BY_KIND = {
     "engine": "business_analysis",
     "clarification": "needs_clarification",
     "refusal": "insufficient_data",
+    "greeting": "greeting_identity",
+    "out_of_domain": "out_of_domain",
 }
 
 CSS = """
@@ -163,10 +166,29 @@ def _archive_current(turns: List[Dict[str, Any]]) -> None:
     })
     try:
         os.makedirs(os.path.dirname(ARCHIVE_FILE), exist_ok=True)
+    _save_archives(archives)
+
+
+def _save_archives(archives: List[Dict[str, Any]]) -> None:
+    """Persist conversation archive list to disk."""
+    try:
+        os.makedirs(os.path.dirname(ARCHIVE_FILE), exist_ok=True)
         with open(ARCHIVE_FILE, "w", encoding="utf-8") as f:
-            json.dump(archives[-25:], f, indent=2, ensure_ascii=False, default=str)
+            json.dump(archives[-30:], f, indent=2, ensure_ascii=False, default=str)
     except Exception as e:
         print(f"[archive save] {e}")
+
+
+def _clear_all_chat_history() -> None:
+    """Wipe active chat history and all archived conversations."""
+    _save_history([])
+    _save_archives([])
+    for fpath in (HISTORY_FILE, ARCHIVE_FILE):
+        if os.path.exists(fpath):
+            try:
+                os.remove(fpath)
+            except Exception:
+                pass
 
 
 # =====================================================================
@@ -956,12 +978,22 @@ def render() -> None:
 
         st.divider()
         st.caption(f"{len(conv)} turns in this conversation")
-        if st.button("Start a new conversation", width="stretch"):
-            _archive_current(st.session_state["chat_log"])
-            conv.reset()
-            st.session_state["chat_log"] = []
-            _save_history([])
-            st.rerun()
+        c_new, c_clr = st.columns([1, 1])
+        with c_new:
+            if st.button("➕ New Chat", width="stretch", help="Archive current chat and start a fresh session"):
+                _archive_current(st.session_state["chat_log"])
+                conv.reset()
+                st.session_state["chat_log"] = []
+                _save_history([])
+                st.session_state.pop("chat_last_processed", None)
+                st.rerun()
+        with c_clr:
+            if st.button("🗑️ Clear Chat", width="stretch", help="Delete current conversation without saving"):
+                conv.reset()
+                st.session_state["chat_log"] = []
+                _save_history([])
+                st.session_state.pop("chat_last_processed", None)
+                st.rerun()
 
         # ---- past conversations, resumable
         #
@@ -972,16 +1004,22 @@ def render() -> None:
         archives = _load_archives()
         if archives:
             st.divider()
-            st.markdown("### Past conversations")
+            c_arc_title, c_arc_del = st.columns([2, 1])
+            with c_arc_title:
+                st.markdown("### Past conversations")
+            with c_arc_del:
+                if st.button("Clear All", key="clr_all_arc", help="Delete all archived conversations"):
+                    _save_archives([])
+                    st.rerun()
+
             for i, arc in enumerate(reversed(archives[-10:])):
                 turns = arc.get("turns") or []
                 if not turns:
                     continue
                 first = turns[0].get("query") or turns[0].get("question", "")
-                label = (first[:38] + "…") if len(first) > 38 else first
-                if st.button(f"{label}", key=f"arc_{i}", width="stretch",
-                             help=f"{arc.get('saved_at','')} · {len(turns)} turns — "
-                                  f"click to reopen and continue"):
+                label = (first[:32] + "…") if len(first) > 32 else first
+                if st.button(f"💬 {label}", key=f"arc_{i}", width="stretch",
+                             help=f"{arc.get('saved_at','')} · {len(turns)} turns — click to reopen"):
                     _archive_current(st.session_state["chat_log"])
                     st.session_state["chat_log"] = turns
                     st.session_state["chat_conv"] = cv.Conversation.from_list(
@@ -989,6 +1027,16 @@ def render() -> None:
                     st.session_state.pop("chat_last_processed", None)
                     _save_history(turns)
                     st.rerun()
+
+        if st.session_state.get("chat_log") or archives:
+            st.divider()
+            if st.button("⚠️ Wipe All Chat History", key="wipe_all_history",
+                         help="Delete active chat log and all archives permanently", width="stretch"):
+                conv.reset()
+                st.session_state["chat_log"] = []
+                st.session_state.pop("chat_last_processed", None)
+                _clear_all_chat_history()
+                st.rerun()
 
         st.divider()
     st.markdown("## Insurance Analytics — Conversation")
@@ -1037,7 +1085,13 @@ def render() -> None:
 
     # ---- route
     headline, evidence, tables = "", [], []
-    if _is_forecast(resolved, question):
+    if be.is_greeting_or_identity(question):
+        kind = "greeting"
+        state, headline, evidence, tables = _render_engine_turn(question, turn_no, question)
+    elif be.check_domain(question)[0] and not (turn_no > 1 and (resolved.entity is not None or resolved.inherited_from is not None)):
+        kind = "out_of_domain"
+        state, headline, evidence, tables = _render_engine_turn(question, turn_no, question)
+    elif _is_forecast(resolved, question):
         kind = "refusal"
         state, headline = _render_refusal(question, resolved, resolved.entity, ctx, turn_no)
     elif turn_no > 1 and resolved.needs_clarification and resolved.entity is not None:

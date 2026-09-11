@@ -124,6 +124,14 @@ def get_groq_model() -> str:
 
 DEFAULT_MODEL = get_default_model()
 
+DEFAULT_SYSTEM_PROMPT = (
+    "You are ExcelSense, a specialized Enterprise Life Insurance Analytics AI. "
+    "You ONLY answer questions related to life insurance policy analytics, persistency, sales performance, claims, "
+    "and customer demographics based strictly on verified data. If a user asks questions outside the life insurance domain "
+    "(such as general trivia, coding, other insurance types like health/auto, or unrelated topics), "
+    "politely state that you are dedicated exclusively to Life Insurance data analytics and cannot answer out-of-domain requests."
+)
+
 
 # ---------------------------------------------------------------------------
 # Groq inference
@@ -139,10 +147,8 @@ def _generate_groq_response(
     if not key:
         return None
 
-    messages = []
-    if system_prompt:
-        messages.append({"role": "system", "content": system_prompt})
-    messages.append({"role": "user", "content": prompt})
+    sys_p = system_prompt or DEFAULT_SYSTEM_PROMPT
+    messages = [{"role": "system", "content": sys_p}, {"role": "user", "content": prompt}]
 
     payload = {
         "model": GROQ_DEFAULT_MODEL,
@@ -218,10 +224,8 @@ def _generate_ollama_response(
     """Internal: call Ollama /api/chat."""
     target_model = model or get_default_model()
 
-    messages = []
-    if system_prompt:
-        messages.append({"role": "system", "content": system_prompt})
-    messages.append({"role": "user", "content": prompt})
+    sys_p = system_prompt or DEFAULT_SYSTEM_PROMPT
+    messages = [{"role": "system", "content": sys_p}, {"role": "user", "content": prompt}]
 
     payload = {
         "model": target_model,

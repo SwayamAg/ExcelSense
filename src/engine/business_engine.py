@@ -46,6 +46,8 @@ ROUTE_BUSINESS = "business_analysis"
 ROUTE_ADHOC = "adhoc_analysis"
 ROUTE_SIMPLE = "simple_retrieval"
 ROUTE_INSUFFICIENT = "insufficient_data"
+ROUTE_GREETING = "greeting_identity"
+ROUTE_OUT_OF_DOMAIN = "out_of_domain"
 
 # Concepts the dataset genuinely cannot speak to. Asking about these gets an
 # honest refusal rather than a confident-looking table.
@@ -74,6 +76,91 @@ OUT_OF_SCOPE = {
     "credit score": "credit-bureau data",
     "kyc": "KYC or onboarding-document data",
 }
+
+GREETING_PATTERNS = {
+    "tell me about u", "tell me about you", "tell me about yourself",
+    "who are you", "who r u", "what are you", "what r u", "what is this",
+    "what is excelsense", "what can you do", "what do you do",
+    "help", "help me", "how does this work", "how to use",
+    "hi", "hello", "hey", "good morning", "good afternoon", "good evening",
+    "greetings", "introduce yourself", "what is your purpose", "what is your job",
+    "start", "menu"
+}
+
+OUT_OF_DOMAIN_PATTERNS = [
+    # General trivia / science / tech / coding / creative
+    "capital of", "president of", "prime minister", "weather", "forecast for tomorrow",
+    "recipe", "how to cook", "write code", "python script", "javascript", "write a poem",
+    "tell a joke", "tell me a joke", "movie", "song", "lyrics", "cricket", "football",
+    "who won", "world cup", "olympics", "photosynthesis", "quantum", "gravity", "elon musk",
+    "translate to", "write an essay", "how to make",
+    # Non-life insurance / other financial products
+    "car insurance", "auto insurance", "motor insurance", "bike insurance", "vehicle insurance",
+    "health insurance", "mediclaim", "dental coverage", "home insurance", "property insurance",
+    "travel insurance", "crypto", "cryptocurrency", "bitcoin", "ethereum", "stock market",
+    "stock price", "credit card", "personal loan", "home loan", "gold loan", "fixed deposit",
+    "mutual fund", "sip return", "demat"
+]
+
+CORE_INSURANCE_TERMS = (
+    "policy", "policies", "premium", "premiums", "persistency", "lapse", "lapsed", "lapsing",
+    "surrender", "surrendered", "claim", "claims", "payout", "payouts", "sum assured", "term",
+    "rider", "agent", "agents", "advisor", "advisors", "sales", "salesperson", "branch",
+    "channel", "banca", "customer", "customers", "client", "clients", "demographic", "income",
+    "marital", "settlement", "repudiation", "death", "turnaround", "tat", "pivc", "rcu",
+    "tenure", "zone", "product", "products", "ulip", "endowment", "pension", "fortune",
+    "wealth", "smart guaranteed", "assured income", "saving", "savings", "hhi", "loss ratio",
+    "ticket size", "conversion", "breakdown", "distribution", "portfolio", "book", "retention",
+    "cohort", "kpi", "13m", "25m", "37m", "p13m", "p25m", "p37m"
+)
+
+
+def is_greeting_or_identity(question: str) -> bool:
+    """Detect introductory, identity, or greeting questions."""
+    q = question.lower().strip().rstrip("?.!,")
+    if q in GREETING_PATTERNS:
+        return True
+    if any(q == p or q.startswith(p + " ") or q.endswith(" " + p) for p in GREETING_PATTERNS):
+        return True
+    if any(phrase in q for phrase in ("tell me about you", "tell me about u", "who are you", "what can you do", "introduce yourself")):
+        return True
+    return False
+
+
+def check_domain(question: str) -> Tuple[bool, Optional[str]]:
+    """Determine if a question falls outside the life insurance analytics domain.
+    Returns (is_out_of_domain, reason_or_category)."""
+    if is_greeting_or_identity(question):
+        return False, None
+
+    q = question.lower().strip()
+
+    # 1. Explicit out of domain patterns
+    for p in OUT_OF_DOMAIN_PATTERNS:
+        if p in q:
+            return True, f"queries regarding {p}"
+
+    # 2. Entity ID patterns (e.g. POL0001, CLI0001, AGT0001, CLM0001)
+    import re
+    if re.search(r"\b(pol|cli|agt|clm|app|sal)\d+\b", q, re.IGNORECASE):
+        return False, None
+
+    # 3. Ontology concepts
+    concepts = bi.concepts_in(question)
+    if concepts:
+        return False, None
+
+    # 4. Core domain vocabulary
+    if any(re.search(rf"\b{re.escape(term)}\b", q) for term in CORE_INSURANCE_TERMS):
+        return False, None
+
+    # 5. Conversational follow-ups
+    followup_cues = ("why", "how come", "what about", "and for", "drill down", "show more",
+                     "explain", "compare", "breakdown", "rank", "list", "filter", "which one")
+    if any(q == fc or q.startswith(fc + " ") for fc in followup_cues):
+        return False, None
+
+    return True, "general non-life-insurance queries"
 
 
 @dataclass
@@ -156,9 +243,17 @@ class BusinessAnalyticsEngine:
 
     # ---- routing ------------------------------------------------------
     def route(self, question: str) -> Dict[str, Any]:
+        if is_greeting_or_identity(question):
+            return {"route": ROUTE_GREETING, "hit": None, "top5": []}
+
         missing = self.check_scope(question)
         if missing:
             return {"route": ROUTE_INSUFFICIENT, "missing": missing,
+                    "hit": None, "top5": []}
+
+        is_ood, ood_reason = check_domain(question)
+        if is_ood:
+            return {"route": ROUTE_OUT_OF_DOMAIN, "reason": ood_reason,
                     "hit": None, "top5": []}
 
         best, top5 = self.retriever.best_business(question)
@@ -191,6 +286,58 @@ class BusinessAnalyticsEngine:
         resp = EngineResponse(question=question, route=decision["route"])
         resp.retrieval = [h.as_dict() for h in decision.get("top5", [])]
         resp.timings_ms["routing"] = round(t_route, 1)
+
+        if decision["route"] == ROUTE_GREETING:
+            resp.message = (
+                "I am **ExcelSense**, an AI analytics engine specialized exclusively for **Life Insurance Portfolio Data**.\n\n"
+                "I compute verified metrics across 5 core production domains:\n"
+                "- 📋 **Policies**: Product performance, premium volumes, term distributions, sum assured.\n"
+                "- ⏳ **Persistency & Lapse**: 13M, 25M, and 37M persistency rates, early lapse warnings, renewal behavior.\n"
+                "- 🏥 **Claims**: Claim frequency, payout amounts, settlement ratios, repudiation patterns.\n"
+                "- 👥 **Customers & Demographics**: Policyholder age bands, income tiers, marital status, risk profiles.\n"
+                "- 🧑‍💼 **Agents & Sales**: Salesperson persistency rankings, ticket sizes, tenure bands, concentration risk."
+            )
+            resp.answer = BusinessAnswer(
+                question=question,
+                headline="👋 Welcome to ExcelSense — Enterprise Life Insurance Analytics",
+                evidence=[
+                    "Specialized domain: Life Insurance portfolio, persistency, claims, customer profiles, and agent sales performance.",
+                    "5 production tables: Policy_Details, Persistency_Details, Claims_Details, Owner_Details, and Sales_Details.",
+                    "Deterministic computations: Every metric is calculated directly from verified data records.",
+                ],
+                analysis=[
+                    "Ask any analytical question about your life insurance book (e.g. 'Which product has the highest lapse rate?', 'Rank agents by persistency', or 'What is driving claims in the North zone?')."
+                ],
+                recommendation=[
+                    "Try asking: 'Which products have the highest 13th-month lapse rate?'",
+                    "Try asking: 'Show top 10 agents by persistency risk'",
+                    "Try asking: 'What is the relationship between customer income and claims payout?'"
+                ]
+            )
+            return resp
+
+        if decision["route"] == ROUTE_OUT_OF_DOMAIN:
+            resp.message = (
+                "I am **ExcelSense**, an AI assistant specialized strictly for **Life Insurance portfolio analytics**.\n\n"
+                "I cannot answer general knowledge, coding, creative, or non-life-insurance questions "
+                "(such as health/auto insurance, general trivia, weather, or creative writing).\n\n"
+                "Please ask a question related to life insurance policies, claims, persistency, customer demographics, or agent performance."
+            )
+            resp.answer = BusinessAnswer(
+                question=question,
+                headline="⛔ Out of Domain Request",
+                evidence=[
+                    "ExcelSense is strictly restricted to Life Insurance portfolio data and policy analytics.",
+                    "General trivia, coding, other insurance types (health/motor), and unrelated topics are outside the domain boundary."
+                ],
+                analysis=[
+                    "Domain guardrail intercepted the query before analytical execution to prevent inaccurate or out-of-domain answers."
+                ],
+                recommendation=[
+                    "Please rephrase your query to focus on Life Insurance policies, claims, persistency, customers, or sales performance."
+                ]
+            )
+            return resp
 
         if decision["route"] == ROUTE_INSUFFICIENT:
             resp.message = (
