@@ -164,8 +164,6 @@ def _archive_current(turns: List[Dict[str, Any]]) -> None:
         "title": first[:120],
         "turns": turns,
     })
-    try:
-        os.makedirs(os.path.dirname(ARCHIVE_FILE), exist_ok=True)
     _save_archives(archives)
 
 
