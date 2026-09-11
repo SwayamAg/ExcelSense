@@ -216,27 +216,35 @@ def _load_engine():
 # CLASSIFICATION
 # =====================================================================
 
-_AGENT_SUBJECT_CUES = ("sales person", "salesperson", "sales persons", "salespersons",
-                       "sales people", "advisor", "advisors", "agent", "agents", "rep ",
-                       "reps")
+_AGENT_SUBJECT_CUES = (
+    "sales person", "salesperson", "sales persons", "salespersons",
+    "sales people", "advisor", "advisors", "agent", "agents", "rep",
+    "reps", "producer", "producers"
+)
+_AGENT_RISK_METRIC_CUES = (
+    "persistency", "claim rate", "early claim", "surrender rate", "lapse", "risk"
+)
+_SUPERLATIVE_CUES = (
+    "lowest", "highest", "worst", "best", "poorest", "top", "bottom",
+    "high", "low", "severe", "poor", "risk", "risky", "rank", "ranking"
+)
 _IMPROVE_CUES = ("improve", "increase", "raise", "lift", "better", "fix", "reduce",
                  "boost", "uplift", "what distinguishes", "what separates")
 
 
 def _is_agent_risk_question(question: str) -> bool:
-    q = (question or "").lower()
-    return (any(c in q for c in _AGENT_RISK_CUES)
-            and any(c in q for c in _SUPERLATIVE_CUES))
+    import re
+    q = re.sub(r'[\'"`“”‘’]', ' ', str(question or '')).lower()
+    has_agent = any(c in q for c in _AGENT_SUBJECT_CUES)
+    has_risk_metric = any(c in q for c in _AGENT_RISK_METRIC_CUES)
+    has_superlative = any(c in q for c in _SUPERLATIVE_CUES)
+    return has_agent and has_risk_metric and has_superlative
 
 
 def _is_agent_improvement_question(question: str) -> bool:
-    """Asking how sales people improve is a question about people, not products.
-
-    Without this, "how to improve persistency of other sales persons" had no
-    superlative, fell through to the generic planner, and came back with a
-    ranking of *plans* by lapse rate - an answer to a different question.
-    """
-    q = (question or "").lower()
+    """Asking how sales people improve is a question about people, not products."""
+    import re
+    q = re.sub(r'[\'"`“”‘’]', ' ', str(question or '')).lower()
     return (any(c in q for c in _AGENT_SUBJECT_CUES)
             and any(c in q for c in _IMPROVE_CUES))
 
@@ -1057,8 +1065,7 @@ def render() -> None:
 
     # ---- input
     pending = st.session_state.pop("chat_pending", None)
-    question = st.chat_input("Ask a question, or follow up on the answer above")
-    question = pending or question
+    question = (pending or question).strip().strip('"').strip("'").strip("“").strip("”").strip()
     if not question:
         if not conv.turns:
             st.info("Start with a question — try one from the sidebar.")
