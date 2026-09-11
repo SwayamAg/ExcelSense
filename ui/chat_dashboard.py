@@ -101,10 +101,14 @@ CSS = """
 # handing to the PS planner. Compound agent-risk superlatives are exactly the
 # shape the planner handles worst: it picks one metric and ranks on it.
 _AGENT_RISK_CUES = (
-    "persistency", "claim rate", "early claim", "surrender rate",
-    "salesperson", "sales person", "advisor", "agent",
+    "persistency", "claim rate", "early claim", "surrender rate", "lapse",
+    "salesperson", "sales person", "salespersons", "advisor", "advisors",
+    "agent", "agents", "rep", "reps", "producer", "producers"
 )
-_SUPERLATIVE_CUES = ("lowest", "highest", "worst", "best", "poorest", "top", "bottom")
+_SUPERLATIVE_CUES = (
+    "lowest", "highest", "worst", "best", "poorest", "top", "bottom",
+    "high", "low", "severe", "poor", "risk", "risky", "rank", "ranking"
+)
 
 
 # =====================================================================
