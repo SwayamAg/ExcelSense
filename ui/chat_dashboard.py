@@ -1082,7 +1082,7 @@ def render() -> None:
     with st.spinner("Reading your question..."):
         resolved = resolver.resolve(question, conv)
 
-    if turn_no > 1:
+    if turn_no > 1 and not be.is_greeting_or_identity(question) and not be.check_domain(question)[0]:
         ev.render_proof(resolved, key=f"t{turn_no}proof")
 
     # ---- route
@@ -1090,7 +1090,7 @@ def render() -> None:
     if be.is_greeting_or_identity(question):
         kind = "greeting"
         state, headline, evidence, tables = _render_engine_turn(question, turn_no, question)
-    elif be.check_domain(question)[0] and not (turn_no > 1 and (resolved.entity is not None or resolved.inherited_from is not None)):
+    elif be.check_domain(question)[0]:
         kind = "out_of_domain"
         state, headline, evidence, tables = _render_engine_turn(question, turn_no, question)
     elif _is_forecast(resolved, question):

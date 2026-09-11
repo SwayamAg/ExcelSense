@@ -116,14 +116,30 @@ CORE_INSURANCE_TERMS = (
 
 
 def is_greeting_or_identity(question: str) -> bool:
-    """Detect introductory, identity, or greeting questions."""
-    q = question.lower().strip().rstrip("?.!,")
-    if q in GREETING_PATTERNS:
+    """Detect introductory, identity, or greeting questions, handling quotes and combined phrases."""
+    import re
+    # Normalize: strip quotes, punctuation, extra whitespace
+    q = re.sub(r'[\'"`“”‘’]', ' ', str(question or '')).lower().strip()
+    q = re.sub(r'\s+', ' ', q).rstrip('?.!,')
+
+    # Core phrases that mean identity/intro/help
+    greeting_phrases = (
+        "tell me about you", "tell me about u", "tell me about yourself",
+        "who are you", "who r u", "what are you", "what r u", "what is this",
+        "what is excelsense", "what can you do", "what do you do",
+        "introduce yourself", "what is your purpose", "what is your job",
+        "help me", "how does this work", "how to use this", "how to use",
+        "what are your capabilities", "explain yourself"
+    )
+    if any(phrase in q for phrase in greeting_phrases):
         return True
-    if any(q == p or q.startswith(p + " ") or q.endswith(" " + p) for p in GREETING_PATTERNS):
+
+    # Standalone single words/short greetings
+    single_greetings = {"hi", "hello", "hey", "start", "menu", "help", "greetings", "good morning", "good afternoon", "good evening"}
+    words = [w for w in q.split() if w not in {"or", "and", "the", "a", "an"}]
+    if q in single_greetings or (words and words[0] in single_greetings and len(words) <= 3):
         return True
-    if any(phrase in q for phrase in ("tell me about you", "tell me about u", "who are you", "what can you do", "introduce yourself")):
-        return True
+
     return False
 
 
@@ -133,7 +149,9 @@ def check_domain(question: str) -> Tuple[bool, Optional[str]]:
     if is_greeting_or_identity(question):
         return False, None
 
-    q = question.lower().strip()
+    import re
+    q = re.sub(r'[\'"`“”‘’]', ' ', str(question or '')).lower().strip()
+    q = re.sub(r'\s+', ' ', q)
 
     # 1. Explicit out of domain patterns
     for p in OUT_OF_DOMAIN_PATTERNS:
@@ -141,7 +159,6 @@ def check_domain(question: str) -> Tuple[bool, Optional[str]]:
             return True, f"queries regarding {p}"
 
     # 2. Entity ID patterns (e.g. POL0001, CLI0001, AGT0001, CLM0001)
-    import re
     if re.search(r"\b(pol|cli|agt|clm|app|sal)\d+\b", q, re.IGNORECASE):
         return False, None
 
