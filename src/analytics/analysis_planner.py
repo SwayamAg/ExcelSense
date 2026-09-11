@@ -306,36 +306,50 @@ def extract_query_semantics(question: str) -> Dict[str, Any]:
     """Extract explicit metrics, dimensions, and operational intents from natural query."""
     q = f" {question.lower()} "
     
-    # 1. Metrics
+    # 1. Metrics - prioritize specific negative/lapse metrics over generic persistency
     metrics = []
-    if "surrender" in q:
+    if "lapse" in q:
+        metrics.append("lapse_rate")
+    elif "surrender" in q:
         metrics.append("surrender_rate")
-    if "13th" in q or "13m" in q:
+    elif "13th" in q or "13m" in q:
         metrics.append("persistency_13m_rate")
     elif "25th" in q or "25m" in q:
         metrics.append("persistency_25m_rate")
+    elif "37th" in q or "37m" in q:
+        metrics.append("persistency_37m_rate")
     elif "persistency" in q or "renewal" in q:
         metrics.append("persistency_rate")
     
-    if "lapse" in q:
-        metrics.append("lapse_rate")
     if "pivc" in q:
-        metrics.append("pivc_mismatch_rate")
+        if "concern" in q:
+            metrics.append("pivc_concern_rate")
+        else:
+            metrics.append("pivc_mismatch_rate")
     if "rcu" in q:
         metrics.append("rcu_rejection_rate")
-    if "claim" in q or "settlement ratio" in q:
-        if "tat" in q or "turnaround" in q or "speed" in q:
+    if "early claim" in q:
+        metrics.append("early_claim_rate")
+    elif "claim" in q or "settlement ratio" in q or "death" in q:
+        if "tat" in q or "turnaround" in q or "speed" in q or "delay" in q:
             metrics.append("avg_settlement_tat")
-        elif "repudiat" in q or "reject" in q:
-            metrics.append("claim_repudiation_rate")
+        elif "repudiat" in q or "reject" in q or "wip" in q:
+            metrics.append("repudiation_rate")
+        elif "death" in q:
+            metrics.append("risk_claim_rate")
+        elif "amount" in q or "size" in q:
+            metrics.append("avg_claim_amount")
         else:
             metrics.append("claim_settlement_ratio")
-    if any(w in q for w in ("ticket", "ape", "premium amount", "avg premium")):
+    if any(w in q for w in ("ticket", "ape", "premium amount", "avg premium", "annual premium")):
         metrics.append("avg_ape")
     if "sum assured" in q or "coverage" in q:
         metrics.append("avg_sum_assured")
     if "loss ratio" in q:
-        metrics.append("loss_ratio")
+        if "risk" in q:
+            metrics.append("risk_loss_ratio")
+        else:
+            metrics.append("loss_ratio")
 
     # 2. Dimensions
     dims = []
@@ -408,7 +422,18 @@ class BusinessPlanner:
             target_metric = sem["metrics"][0] if sem["metrics"] else None
             target_dim = sem["dimensions"][0] if sem["dimensions"] else None
 
-            # 1. Correlation adaptation: ensure exact metrics requested
+            # 1. Metric alignment: if user requested a specific metric, align comparison steps
+            if target_metric:
+                for s in steps:
+                    if s.op in ("compare_to_baseline", "metric_by_dimension", "rank_entities"):
+                        if "metric" in s.params and s.params["metric"] != target_metric:
+                            s.params["metric"] = target_metric
+                            m_label = ac.METRICS[target_metric].label if target_metric in ac.METRICS else target_metric
+                            if "by" in s.title:
+                                dim_part = s.title.split("by")[-1]
+                                s.title = f"{m_label} by{dim_part}"
+
+            # 2. Correlation adaptation: ensure exact metrics requested
             if sem["has_correlation"] and len(sem["metrics"]) >= 2:
                 for s in steps:
                     if s.op == "correlation_analysis":
@@ -417,7 +442,7 @@ class BusinessPlanner:
                         if target_dim:
                             s.params["dimension"] = target_dim
 
-            # 2. Dimensional comparison adaptation: if user asks for specific dimension (e.g. area/state)
+            # 3. Dimensional comparison adaptation: if user asks for specific dimension (e.g. area/state)
             if target_dim:
                 has_dim_step = any(s.params.get("dimension") == target_dim for s in steps)
                 if not has_dim_step:
@@ -435,7 +460,7 @@ class BusinessPlanner:
                     insert_pos = 1 if (steps and steps[0].op == "portfolio_overview") else 0
                     steps.insert(insert_pos, new_step)
 
-            # 3. Diagnostic "why" adaptation: ensure driver_scan step exists
+            # 4. Diagnostic "why" adaptation: ensure driver_scan step exists
             if sem["has_why"] and not any(s.op in ("driver_scan", "segment_profile") for s in steps):
                 m_scan = target_metric or "persistency_rate"
                 steps.append(AnalysisStep(
@@ -446,7 +471,7 @@ class BusinessPlanner:
                     purpose="Decompose drivers across dimensions to answer why."
                 ))
 
-            # 4. Prescriptive "how to improve" adaptation: ensure driver_scan or compare steps for levers
+            # 5. Prescriptive "how to improve" adaptation: ensure driver_scan or compare steps for levers
             if sem["has_how"] and not any(s.op in ("driver_scan", "compare_to_baseline") for s in steps):
                 m_presc = target_metric or "persistency_rate"
                 steps.append(AnalysisStep(
@@ -494,26 +519,38 @@ class BusinessPlanner:
         q = question.lower()
 
         metric = "lapse_rate"
-        if "surrender" in q:
+        if "lapse" in q:
+            metric = "lapse_rate"
+        elif "surrender" in q:
             metric = "surrender_rate"
         elif "13th" in q or "13m" in q:
             metric = "persistency_13m_rate"
         elif "25th" in q or "25m" in q:
             metric = "persistency_25m_rate"
+        elif "37th" in q or "37m" in q:
+            metric = "persistency_37m_rate"
         elif "persistency" in q or "renewal" in q:
             metric = "persistency_rate"
         elif "pivc" in q:
-            metric = "pivc_mismatch_rate"
+            metric = "pivc_concern_rate" if "concern" in q else "pivc_mismatch_rate"
         elif "rcu" in q:
             metric = "rcu_rejection_rate"
+        elif "early claim" in q:
+            metric = "early_claim_rate"
         elif "tat" in q or "settlement speed" in q:
             metric = "avg_settlement_tat"
+        elif "repudiat" in q:
+            metric = "repudiation_rate"
+        elif "death" in q:
+            metric = "risk_claim_rate"
         elif "claim" in q:
             metric = "claim_settlement_ratio"
-        elif any(w in q for w in ("value", "premium", "ape", "ticket")):
+        elif any(w in q for w in ("value", "premium", "ape", "ticket", "annual premium")):
             metric = "avg_ape"
         elif "sum assured" in q or "coverage" in q:
             metric = "avg_sum_assured"
+        elif "loss ratio" in q:
+            metric = "risk_loss_ratio" if "risk" in q else "loss_ratio"
 
         dimension = None
         for dname in ("product", "plan_name", "trad_ulip", "product_category", "state", "zone",

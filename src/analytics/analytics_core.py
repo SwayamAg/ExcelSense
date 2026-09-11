@@ -1085,6 +1085,8 @@ def metric_by_dimension(
     sort_descending: Optional[bool] = None,
 ) -> pd.DataFrame:
     """Computes a single metric broken down by a dimension."""
+    if metric in DIMENSIONS and dimension in METRICS:
+        metric, dimension = dimension, metric
     check_dimension(dimension)
     spec = METRICS[metric]
     df = _apply_filters(ctx.frame(spec.base), filters)
@@ -1128,6 +1130,8 @@ def compare_to_baseline(
     min_n: int = DEFAULT_MIN_N,
 ) -> pd.DataFrame:
     """Compares each segment against the portfolio overall baseline."""
+    if metric in DIMENSIONS and dimension in METRICS:
+        metric, dimension = dimension, metric
     spec = METRICS[metric]
     base_df = _apply_filters(ctx.frame(spec.base), filters)
     baseline = spec.compute(base_df)
@@ -1167,6 +1171,8 @@ def rank_entities(
     order: Optional[str] = None,
 ) -> pd.DataFrame:
     """Returns top-K best or worst entities on a metric."""
+    if dimension in METRICS and metric in DIMENSIONS:
+        dimension, metric = metric, dimension
     spec = METRICS[metric]
     if order is not None:
         sort_desc = (order.lower() == "desc")

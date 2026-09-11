@@ -728,60 +728,97 @@ class AnswerComposer:
         df = primary.result
         dcol = dim_column_of(df)
         q_lower = (plan.question or "").lower()
-        wants_lowest = bool(re.search(r"\b(lowest|worst|bottom|least|poor|poorest|underperforming|lagging|minimum|min)\b", q_lower))
+        wants_lowest = bool(re.search(r"\b(lowest|bottom|least|minimum|min)\b", q_lower))
+        wants_highest = bool(re.search(r"\b(highest|maximum|max|most|top|leading|leads)\b", q_lower))
+        wants_worst = bool(re.search(r"\b(worst|poorest|poor|underperforming|lagging|high risk|severe|critical)\b", q_lower))
+        wants_best = bool(re.search(r"\b(best|cleanest|top performing)\b", q_lower))
 
         if primary.step.op == "compare_to_baseline":
             m = primary.step.params["metric"]
+            spec = ac.METRICS.get(m)
+            higher_is_better = spec.higher_is_better if spec else True
+
             rel = df[df["reliable"].fillna(False).astype(bool)] if "reliable" in df else df
             rel = rel if not rel.empty else df
 
-            sorted_df = df.sort_values(by=m, ascending=True)
-            sorted_rel = rel.sort_values(by=m, ascending=True)
-
-            obs_lowest = sorted_df.iloc[0]
-            rel_lowest = sorted_rel.iloc[0]
-
+            # Determine sort direction:
+            # Ascending (True) = smallest numerical values first
+            # Descending (False) = largest numerical values first
             if wants_lowest:
-                obs_n = obs_lowest.get(f'{m}_n', obs_lowest.get('sample_size', float('nan')))
-                rel_n = rel_lowest.get(f'{m}_n', rel_lowest.get('sample_size', float('nan')))
-                if str(obs_lowest[dcol]) != str(rel_lowest[dcol]) and pd.notna(obs_n) and obs_n < 20:
-                    ans.headline = (f"**{obs_lowest[dcol]}** has the lowest observed {metric_label(m).lower()} at "
-                                    f"{fmt_metric(m, obs_lowest[m])} (n={obs_n:,.0f}, below sample threshold); "
-                                    f"among reliable segments (n >= 30), **{rel_lowest[dcol]}** has the lowest at "
-                                    f"{fmt_metric(m, rel_lowest[m])} ({gap_phrase(m, rel_lowest['diff_vs_baseline'])} baseline).")
-                else:
-                    ans.headline = (f"**{rel_lowest[dcol]}** has the lowest {metric_label(m).lower()} at "
-                                    f"{fmt_metric(m, rel_lowest[m])}, {gap_phrase(m, rel_lowest['diff_vs_baseline'])} "
-                                    f"the portfolio baseline of {fmt_metric(m, rel_lowest['baseline'])} (n={rel_n:,.0f}).")
-                for _, row in sorted_rel.head(5).iterrows():
-                    ans.evidence.append(
-                        f"**{row[dcol]}**: {fmt_metric(m, row[m])} "
-                        f"({gap_phrase(m, row['diff_vs_baseline'])} baseline, "
-                        f"n={row.get(f'{m}_n', row.get('sample_size', float('nan'))):,.0f})")
-                if str(obs_lowest[dcol]) != str(rel_lowest[dcol]):
-                    ans.evidence.append(
-                        f"⚠️ **{obs_lowest[dcol]}** (small sample caution): {fmt_metric(m, obs_lowest[m])} "
-                        f"(n={obs_n:,.0f}, below reliability threshold).")
+                sort_ascending = True
+                intent_word = "lowest"
+            elif wants_highest:
+                sort_ascending = False
+                intent_word = "highest"
+            elif wants_worst:
+                sort_ascending = True if higher_is_better else False
+                intent_word = "worst"
+            elif wants_best:
+                sort_ascending = False if higher_is_better else True
+                intent_word = "best"
             else:
-                top, bottom = rel.iloc[0], rel.iloc[-1]
-                ans.headline = (f"**{top[dcol]}** leads on {metric_label(m).lower()} at "
-                                f"{fmt_metric(m, top[m])}, {gap_phrase(m, top['diff_vs_baseline'])} "
-                                f"the portfolio baseline of {fmt_metric(m, top['baseline'])}.")
-                for _, row in rel.head(5).iterrows():
-                    ans.evidence.append(
-                        f"**{row[dcol]}**: {fmt_metric(m, row[m])} "
-                        f"({gap_phrase(m, row['diff_vs_baseline'])} baseline, "
-                        f"n={row.get(f'{m}_n', float('nan')):,.0f})")
-                if len(rel) > 1:
-                    ans.evidence.append(
-                        f"Lowest: **{bottom[dcol]}** at {fmt_metric(m, bottom[m])} "
-                        f"({gap_phrase(m, bottom['diff_vs_baseline'])} baseline).")
-            spec = ac.METRICS.get(m)
+                # Default: for positive metrics sort descending (best first); for negative metrics sort descending (highest risk first)
+                sort_ascending = False
+                intent_word = "highest" if not higher_is_better else "leading"
+
+            sorted_df = df.sort_values(by=m, ascending=sort_ascending)
+            sorted_rel = rel.sort_values(by=m, ascending=sort_ascending)
+
+            obs_target = sorted_df.iloc[0]
+            rel_target = sorted_rel.iloc[0]
+            rel_opposite = sorted_rel.iloc[-1]
+
+            obs_n = obs_target.get(f'{m}_n', obs_target.get('sample_size', float('nan')))
+            rel_n = rel_target.get(f'{m}_n', rel_target.get('sample_size', float('nan')))
+
+            if intent_word in ("lowest", "min"):
+                verb_phrase = f"has the lowest {metric_label(m).lower()}"
+            elif intent_word in ("highest", "max"):
+                if higher_is_better:
+                    verb_phrase = f"leads on {metric_label(m).lower()}"
+                else:
+                    verb_phrase = f"has the highest {metric_label(m).lower()}"
+            elif intent_word == "worst":
+                verb_phrase = f"has the worst {metric_label(m).lower()}"
+            elif intent_word == "best":
+                verb_phrase = f"has the best {metric_label(m).lower()}"
+            else:
+                if higher_is_better:
+                    verb_phrase = f"leads on {metric_label(m).lower()}"
+                else:
+                    verb_phrase = f"has the highest {metric_label(m).lower()}"
+
+            if str(obs_target[dcol]) != str(rel_target[dcol]) and pd.notna(obs_n) and obs_n < 20:
+                ans.headline = (f"**{obs_target[dcol]}** {verb_phrase} at "
+                                f"{fmt_metric(m, obs_target[m])} (n={obs_n:,.0f}, below sample threshold); "
+                                f"among reliable segments (n >= 30), **{rel_target[dcol]}** {verb_phrase} at "
+                                f"{fmt_metric(m, rel_target[m])} ({gap_phrase(m, rel_target['diff_vs_baseline'])} baseline).")
+            else:
+                ans.headline = (f"**{rel_target[dcol]}** {verb_phrase} at "
+                                f"{fmt_metric(m, rel_target[m])}, {gap_phrase(m, rel_target['diff_vs_baseline'])} "
+                                f"the portfolio baseline of {fmt_metric(m, rel_target['baseline'])} (n={rel_n:,.0f}).")
+
+            for _, row in sorted_rel.head(5).iterrows():
+                ans.evidence.append(
+                    f"**{row[dcol]}**: {fmt_metric(m, row[m])} "
+                    f"({gap_phrase(m, row['diff_vs_baseline'])} baseline, "
+                    f"n={row.get(f'{m}_n', row.get('sample_size', float('nan'))):,.0f})")
+
+            if str(obs_target[dcol]) != str(rel_target[dcol]):
+                ans.evidence.append(
+                    f"⚠️ **{obs_target[dcol]}** (small sample caution): {fmt_metric(m, obs_target[m])} "
+                    f"(n={obs_n:,.0f}, below reliability threshold).")
+            elif len(sorted_rel) > 1:
+                opposite_word = "Lowest" if sort_ascending is False else "Highest"
+                ans.evidence.append(
+                    f"{opposite_word}: **{rel_opposite[dcol]}** at {fmt_metric(m, rel_opposite[m])} "
+                    f"({gap_phrase(m, rel_opposite['diff_vs_baseline'])} baseline).")
+
             if spec:
                 ans.analysis.append(f"{spec.label} is defined as: {spec.definition}")
             ans.analysis.append(
-                f"The spread between best and worst is "
-                f"{gap_phrase(m, float(rel.iloc[0][m]) - float(rel.iloc[-1][m])).replace(' above', '').replace(' below', '')}.")
+                f"The spread across reliable segments is "
+                f"{gap_phrase(m, float(sorted_rel[m].max()) - float(sorted_rel[m].min())).replace(' above', '').replace(' below', '')}.")
         else:
             metrics = [c for c in df.columns if c in ac.METRICS or c in ac.SHARE_METRICS]
             lead = metrics[0] if metrics else None
