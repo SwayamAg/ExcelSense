@@ -262,15 +262,3 @@ python -m unittest tests/test_business_analytics.py
 
 ✅ 18/18 tests pass deterministically.
 
----
-
-## 👤 Author
-
-**Swayam Agarwal**
-[![GitHub](https://img.shields.io/badge/GitHub-SwayamAg-black?logo=github)](https://github.com/SwayamAg)
-
----
-
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE) for details.
