@@ -846,8 +846,53 @@ def _render_engine_turn(question: str, turn_no: int, asked: Optional[str] = None
             if isinstance(m, str) and m in ac.METRICS and m not in metrics_used:
                 metrics_used.append(m)
 
+    # Extract focus entity if present in question or resolved entities
+    focus_ent = cv.extract_entity(question)
+    if focus_ent is None and getattr(resp, "resolved_entities", None):
+        for k, v in resp.resolved_entities.items():
+            if k in ("sales_id", "agent"):
+                focus_ent = cv.FocusEntity(type="agent", id=str(v), label=f"Agent {v}")
+                break
+            elif k in ("app_id", "policy"):
+                focus_ent = cv.FocusEntity(type="policy", id=str(v), label=f"Policy {v}")
+                break
+            elif k in ("plan_name", "product"):
+                focus_ent = cv.FocusEntity(type="product", id=str(v), label=str(v))
+                break
+            elif k in ("zone", "region"):
+                focus_ent = cv.FocusEntity(type="zone", id=str(v), label=f"{v} zone")
+                break
+
+    # If no explicit resolved entity, check the primary comparison/ranking step result
+    if focus_ent is None and resp.step_results:
+        prim_step = next((sr for sr in resp.step_results if getattr(sr, "ok", False) and getattr(sr.step, "op", "") in ("compare_to_baseline", "rank_entities", "composite_score")), None)
+        if prim_step is None:
+            prim_step = next((sr for sr in resp.step_results if getattr(sr, "ok", False) and isinstance(getattr(sr, "result", None), pd.DataFrame) and not sr.result.empty), None)
+
+        if prim_step and isinstance(prim_step.result, pd.DataFrame) and not prim_step.result.empty:
+            m = prim_step.step.params.get("metric")
+            df_res = prim_step.result
+            dcol = next((c for c in ("plan_name", "sales_id", "zone", "state", "channel") if c in df_res.columns), None)
+            if dcol:
+                q_l = question.lower()
+                w_high = bool(re.search(r"\b(highest|max|top|worst)\b", q_l))
+                w_low = bool(re.search(r"\b(lowest|min|bottom|best)\b", q_l))
+                if m and m in df_res.columns:
+                    if w_low:
+                        sorted_res = df_res.sort_values(by=m, ascending=True)
+                    elif w_high:
+                        sorted_res = df_res.sort_values(by=m, ascending=False)
+                    else:
+                        sorted_res = df_res
+                else:
+                    sorted_res = df_res
+                top_val = str(sorted_res.iloc[0][dcol])
+                etype = "product" if dcol == "plan_name" else ("agent" if dcol == "sales_id" else "segment")
+                focus_ent = cv.FocusEntity(type=etype, id=top_val, label=top_val)
+
     state = cv.TurnState(
         question=question,
+        focus_entity=focus_ent,
         focus_metrics=metrics_used[:4],
         active_filters=dict(getattr(resp, "resolved_entities", {}) or {}),
         ops_run=[s.step.op for s in (resp.step_results or []) if getattr(s, "ok", False)],

@@ -65,6 +65,7 @@ ENTITY_PATTERNS: List[Tuple[str, str, str]] = [
     ("policy", r"\b(?:appid|app id|policy(?:\s*(?:no|number|id))?)\s*#?\s*(\d{8,12})\b", "Policy"),
     ("customer", r"\b(?:clientid|client id|client|customer|owner)\s*#?\s*(\d{8,12})\b", "Customer"),
     ("claim", r"\b(?:claim(?:\s*(?:no|number|id))?)\s*#?\s*(\d{1,8})\b", "Claim"),
+    ("zone", r"\b(western|eastern|northern|southern|central|north|south|east|west)\s*(?:zone|region)?\b", "Zone"),
 ]
 
 # A question carrying one of these, and no entity of its own, is a continuation.
@@ -261,7 +262,12 @@ def extract_entity(question: str) -> Optional[FocusEntity]:
         m = re.search(pattern, question, re.IGNORECASE)
         if m:
             ident = m.group(1)
-            return FocusEntity(type=etype, id=ident, label=f"{label_prefix} {ident}")
+            if etype == "zone":
+                ident = ident.capitalize()
+                lbl = f"{ident} zone"
+            else:
+                lbl = f"{label_prefix} {ident}"
+            return FocusEntity(type=etype, id=ident, label=lbl)
     return None
 
 
@@ -623,7 +629,8 @@ class FollowUpResolver:
     @staticmethod
     def _entity_filters(entity: FocusEntity) -> Dict[str, Any]:
         col = {"agent": "sales_id", "policy": "app_id",
-               "customer": "client_id", "claim": "claim_no"}.get(entity.type)
+               "customer": "client_id", "claim": "claim_no",
+               "zone": "zone", "state": "state", "product": "plan_name"}.get(entity.type)
         return {col: entity.id} if col else {}
 
 

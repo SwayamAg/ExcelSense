@@ -21,7 +21,9 @@ Routing is explicit and visible, which is the architectural point:
 
 from __future__ import annotations
 
+import html
 import os
+import re
 import sys
 import time
 from dataclasses import dataclass, field
@@ -282,9 +284,10 @@ class BusinessAnalyticsEngine:
         entities = self.planner.resolver.resolve(question)
         names_an_id = any(k in entities for k in
                           ("app_id", "client_id", "sales_id", "claim_no"))
+        is_list_records = bool(re.search(r"\b(list|show|get)\s+(the\s+)?top\s+\d+", question.lower())) and any(w in question.lower() for w in ("claim", "policy", "policies", "agent", "customer"))
 
-        if style == "lookup" or (names_an_id and style != "business"):
-            return {"route": ROUTE_SIMPLE, "hit": None, "top5": top5, "style": style}
+        if is_list_records or style == "lookup" or (names_an_id and style != "business"):
+            return {"route": ROUTE_SIMPLE, "hit": None, "top5": top5, "style": "lookup"}
 
         if best is not None:
             return {"route": ROUTE_BUSINESS, "hit": best, "top5": top5, "style": style}
@@ -592,6 +595,14 @@ class BusinessAnalyticsEngine:
             return resp
 
         resp.legacy_output = result.to_markdown()
+        if result.ok and result.answer:
+            resp.answer = BusinessAnswer(
+                question=question,
+                headline=result.answer,
+                evidence=[f"Top record: {result.frame.iloc[0].to_dict()}" if not result.frame.empty else result.answer],
+                analysis=["Data retrieved directly from deterministic fact tables."],
+                tables=[("Retrieved Records", result.frame)] if not result.frame.empty else [],
+            )
         return resp
 
     # ---- convenience ---------------------------------------------------

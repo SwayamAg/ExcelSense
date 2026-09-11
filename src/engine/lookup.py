@@ -218,11 +218,112 @@ def lookup_aggregate(ctx: ac.DataContext, question: str) -> LookupResult:
                         {"base": base, "status": status, "n": len(filtered)})
 
 
+def lookup_top_records(ctx: ac.DataContext, question: str) -> LookupResult:
+    """List top N individual records (claims, policies, agents) with optional filters."""
+    q = (question or "").lower()
+    is_top_request = bool(re.search(r"\b(top|highest|largest|list|show|first)\s*(\d+)?\b", q)) and any(
+        w in q for w in ("claim", "policy", "policies", "agent", "advisor", "customer")
+    )
+    if not is_top_request and not ("highest value" in q or "top value" in q or "largest claim" in q):
+        return LookupResult("unsupported", "")
+
+    m_n = re.search(r"\b(?:top|first|largest|highest)\s*(\d+)\b", q)
+    n = int(m_n.group(1)) if m_n else 10
+    n = min(max(n, 1), 100)
+
+    # 1. Claims
+    if "claim" in q:
+        df = ctx.frame("claim").copy()
+        if df.empty:
+            return LookupResult("entity", "No claims records found.")
+        
+        # Check zone/state filter
+        scope_parts = []
+        if "western" in q or "west zone" in q or "west region" in q or ("west" in q and "west bengal" not in q):
+            zone_match = df["zone"].astype(str).str.lower().isin(["west", "western"]) if "zone" in df.columns else pd.Series(False, index=df.index)
+            state_match = df["state"].isin(["Maharashtra", "Gujarat", "Goa", "Rajasthan", "Madhya Pradesh", "Chhattisgarh"]) & (df["state"] != "West Bengal")
+            df = df[zone_match | state_match]
+            scope_parts.append("Western zone")
+        elif "north" in q:
+            zone_match = df["zone"].astype(str).str.lower().isin(["north", "northern"]) if "zone" in df.columns else pd.Series(False, index=df.index)
+            state_match = df["state"].isin(["Delhi", "Punjab", "Haryana", "Uttar Pradesh", "Himachal Pradesh", "Uttarakhand", "Jammu & Kashmir"])
+            df = df[zone_match | state_match]
+            scope_parts.append("Northern zone")
+        elif "south" in q:
+            zone_match = df["zone"].astype(str).str.lower().isin(["south", "southern"]) if "zone" in df.columns else pd.Series(False, index=df.index)
+            state_match = df["state"].isin(["Karnataka", "Tamil Nadu", "Kerala", "Andhra Pradesh", "Telangana"])
+            df = df[zone_match | state_match]
+            scope_parts.append("Southern zone")
+        elif "east" in q:
+            zone_match = df["zone"].astype(str).str.lower().isin(["east", "eastern"]) if "zone" in df.columns else pd.Series(False, index=df.index)
+            state_match = df["state"].isin(["West Bengal", "Bihar", "Odisha", "Jharkhand", "Assam", "Sikkim", "Tripura", "Meghalaya"])
+            df = df[zone_match | state_match]
+            scope_parts.append("Eastern zone")
+
+        status = _status_filter(question)
+        if status and "claim_status" in df.columns:
+            df = df[df["claim_status"] == status]
+            scope_parts.append(f"status '{status}'")
+
+        if df.empty:
+            return LookupResult("entity", f"No claims found matching {' and '.join(scope_parts)}.")
+
+        sorted_df = df.sort_values(by="claim_amount", ascending=False).head(n)
+        cols_present = [c for c in ["claim_no", "app_id", "cause_of_death", "claim_amount", "amount_paid", "claim_status", "state"] if c in sorted_df.columns]
+        table_df = sorted_df[cols_present].copy()
+        
+        total_top_amt = float(table_df["claim_amount"].sum())
+        scope_str = f" in {' and '.join(scope_parts)}" if scope_parts else ""
+        answer_text = f"**Top {len(table_df)} highest value claims**{scope_str}, totaling **₹{total_top_amt:,.0f}** across records (highest is Claim #{table_df.iloc[0]['claim_no']} at ₹{table_df.iloc[0]['claim_amount']:,.0f})."
+        
+        # Format table columns for presentation
+        col_rename = {
+            "claim_no": "Claim No",
+            "app_id": "App ID",
+            "cause_of_death": "Cause of Death",
+            "claim_amount": "Claim Amount",
+            "amount_paid": "Amount Paid",
+            "claim_status": "Status",
+            "state": "State",
+        }
+        table_df = table_df.rename(columns=col_rename)
+        for col in ["Claim Amount", "Amount Paid"]:
+            if col in table_df.columns:
+                table_df[col] = table_df[col].apply(lambda v: f"₹{v:,.0f}" if pd.notna(v) else "-")
+
+        return LookupResult("entity", answer_text, table_df, {"base": "claim", "n": len(table_df), "scope": scope_parts})
+
+    # 2. Policies
+    if "policy" in q or "policies" in q:
+        df = ctx.frame("policy").copy()
+        sort_col = "ape" if "sum assured" not in q else "sum_assured"
+        sorted_df = df.sort_values(by=sort_col, ascending=False).head(n)
+        cols_present = [c for c in ["app_id", "plan_name", "policy_status", "trad_ulip", "ape", "sum_assured", "state"] if c in sorted_df.columns]
+        table_df = sorted_df[cols_present].copy()
+        col_rename = {
+            "app_id": "App ID",
+            "plan_name": "Plan Name",
+            "policy_status": "Status",
+            "trad_ulip": "Category",
+            "ape": "Annual Premium (APE)",
+            "sum_assured": "Sum Assured",
+            "state": "State",
+        }
+        table_df = table_df.rename(columns=col_rename)
+        answer_text = f"**Top {len(table_df)} policies** by {sort_col.replace('_', ' ').upper()} across the portfolio."
+        return LookupResult("entity", answer_text, table_df, {"base": "policy", "n": len(table_df)})
+
+    return LookupResult("unsupported", "")
+
+
 def answer(ctx: ac.DataContext, question: str) -> LookupResult:
-    """Entity lookup first, then a simple aggregate."""
+    """Entity lookup first, then top-records listing, then simple aggregate."""
     hit = resolve_entity(question)
     if hit:
         return lookup_entity(ctx, hit[0], hit[1])
+    top_res = lookup_top_records(ctx, question)
+    if top_res.ok:
+        return top_res
     return lookup_aggregate(ctx, question)
 
 
@@ -235,4 +336,4 @@ def _fmt(v: Any) -> str:
 
 
 __all__ = ["LookupResult", "answer", "resolve_entity",
-           "lookup_entity", "lookup_aggregate"]
+           "lookup_entity", "lookup_top_records", "lookup_aggregate"]
