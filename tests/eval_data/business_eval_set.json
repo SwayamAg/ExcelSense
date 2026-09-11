@@ -1,0 +1,1759 @@
+[
+ {
+  "id": "BEV-001",
+  "question": "Give me a board-level read on the state of the book right now.",
+  "expected_intent": "PORTFOLIO_HEALTH",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate",
+   "persistency_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Persistency rate",
+   "Lapse rate"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-002",
+  "question": "If I had to name the three things most likely to hurt this portfolio, what are they?",
+  "expected_intent": "PORTFOLIO_HEALTH",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "compare_to_baseline",
+   "concentration"
+  ],
+  "expected_metrics": [
+   "lapse_rate",
+   "loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-003",
+  "question": "Where would you point the executive committee first?",
+  "expected_intent": "PORTFOLIO_HEALTH",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "composite_score"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-004",
+  "question": "What is working and what is not in this book?",
+  "expected_intent": "PORTFOLIO_HEALTH",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "composite_score",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "persistency_rate",
+   "loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-005",
+  "question": "Break the book down by what we sell, how we sell it and where.",
+  "expected_intent": "PORTFOLIO_HEALTH",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "policy_share"
+  ],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-006",
+  "question": "Rank the product line on a scorecard, not on one number.",
+  "expected_intent": "PRODUCT_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table",
+   "composite_score"
+  ],
+  "expected_metrics": [
+   "persistency_rate",
+   "loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-007",
+  "question": "Which of our products is quietly bleeding policyholders?",
+  "expected_intent": "PRODUCT_PERFORMANCE",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Annuity"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-008",
+  "question": "Which products sell in volume but do not stay on the books?",
+  "expected_intent": "PRODUCT_PERFORMANCE",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "policy_share",
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-009",
+  "question": "Which product lines look economically unattractive to keep pushing?",
+  "expected_intent": "PRODUCT_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Term Life"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-010",
+  "question": "Give me a full read on the Whole Life book.",
+  "expected_intent": "PRODUCT_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "segment_profile",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Whole Life"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-011",
+  "question": "Do savings products hold up better than protection products?",
+  "expected_intent": "PRODUCT_PERFORMANCE",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": false,
+  "answer_must_mention": [
+   "Savings"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-012",
+  "question": "Does it matter whether a plan is regular pay or limited pay?",
+  "expected_intent": "PRODUCT_PERFORMANCE",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Limited"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-013",
+  "question": "Which route to market actually earns its keep once persistency is counted?",
+  "expected_intent": "CHANNEL_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table",
+   "composite_score"
+  ],
+  "expected_metrics": [
+   "persistency_rate",
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-014",
+  "question": "Where do our large cases come from?",
+  "expected_intent": "CHANNEL_PERFORMANCE",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "avg_sum_assured"
+  ],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-015",
+  "question": "Is any distribution partner writing business that does not stick?",
+  "expected_intent": "CHANNEL_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Online"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-016",
+  "question": "Should the sales head be worried about any particular channel?",
+  "expected_intent": "CHANNEL_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "composite_score"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-017",
+  "question": "Does the same channel work equally well for every product?",
+  "expected_intent": "CHANNEL_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "crosstab_metric"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-018",
+  "question": "How does the bank channel stack up against the rest of the book?",
+  "expected_intent": "CHANNEL_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "segment_profile"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Bancassurance"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-019",
+  "question": "Who actually pays the bills around here?",
+  "expected_intent": "CUSTOMER_SEGMENTATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers"
+  ],
+  "expected_operations": [
+   "multi_metric_table",
+   "entity_shortlist"
+  ],
+  "expected_metrics": [
+   "premium_share"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-020",
+  "question": "Which slices of the customer base are most likely to walk away?",
+  "expected_intent": "CUSTOMER_SEGMENTATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers"
+  ],
+  "expected_operations": [
+   "compare_to_baseline",
+   "driver_scan"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-021",
+  "question": "Paint me a picture of our most valuable policyholder.",
+  "expected_intent": "CUSTOMER_SEGMENTATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers"
+  ],
+  "expected_operations": [
+   "segment_profile",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "avg_annual_premium"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-022",
+  "question": "What does a customer who stops paying tend to look like?",
+  "expected_intent": "CUSTOMER_SEGMENTATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers"
+  ],
+  "expected_operations": [
+   "segment_profile"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-023",
+  "question": "Does earning more change how a policyholder behaves?",
+  "expected_intent": "CUSTOMER_SEGMENTATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers"
+  ],
+  "expected_operations": [
+   "multi_metric_table",
+   "compare_to_baseline"
+  ],
+  "expected_metrics": [
+   "lapse_rate",
+   "avg_sum_assured"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-024",
+  "question": "Do tobacco users cost us more than non-users?",
+  "expected_intent": "CUSTOMER_SEGMENTATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "risk_claim_rate",
+   "risk_loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Smoker"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-025",
+  "question": "Is anyone paying more premium than they can realistically afford?",
+  "expected_intent": "CUSTOMER_SEGMENTATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers"
+  ],
+  "expected_operations": [
+   "multi_metric_table",
+   "entity_shortlist"
+  ],
+  "expected_metrics": [
+   "avg_premium_to_income"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-026",
+  "question": "What sits behind the policies we lose to non-payment?",
+  "expected_intent": "LAPSE_ANALYSIS",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "driver_scan",
+   "portfolio_overview"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-027",
+  "question": "Does how often someone is billed change whether they keep paying?",
+  "expected_intent": "LAPSE_ANALYSIS",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "compare_to_baseline",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Payment mode"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-028",
+  "question": "Are the policies we lose bunched into particular corners of the book?",
+  "expected_intent": "LAPSE_ANALYSIS",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "crosstab_metric"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-029",
+  "question": "Give me a persistency improvement agenda I can take to the exec.",
+  "expected_intent": "LAPSE_ANALYSIS",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "retention"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "driver_scan",
+   "composite_score"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-030",
+  "question": "Which part of the country loses the most policies?",
+  "expected_intent": "LAPSE_ANALYSIS",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "compare_to_baseline"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "zone"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-031",
+  "question": "Do policies fail early or late in their life?",
+  "expected_intent": "LAPSE_ANALYSIS",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "compare_to_baseline"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-032",
+  "question": "Do riders or a medical check make any difference to whether a policy survives?",
+  "expected_intent": "LAPSE_ANALYSIS",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "compare_to_baseline"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-033",
+  "question": "Why are people cashing out of their policies?",
+  "expected_intent": "SURRENDER_ANALYSIS",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "surrenders"
+  ],
+  "expected_operations": [
+   "multi_metric_table",
+   "driver_scan"
+  ],
+  "expected_metrics": [
+   "surrender_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-034",
+  "question": "Which products lose the most policies to early exit?",
+  "expected_intent": "SURRENDER_ANALYSIS",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies",
+   "surrenders"
+  ],
+  "expected_operations": [
+   "compare_to_baseline"
+  ],
+  "expected_metrics": [
+   "surrender_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Money Back"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-035",
+  "question": "Are we losing our biggest policies to cash-outs?",
+  "expected_intent": "SURRENDER_ANALYSIS",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "surrenders"
+  ],
+  "expected_operations": [
+   "segment_profile",
+   "compare_to_baseline"
+  ],
+  "expected_metrics": [
+   "surrender_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-036",
+  "question": "How much money has gone out of the door through cash-outs?",
+  "expected_intent": "SURRENDER_ANALYSIS",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies",
+   "surrenders"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "total_surrender_value_paid"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-037",
+  "question": "Which live policies should we protect from being cashed out?",
+  "expected_intent": "SURRENDER_ANALYSIS",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "surrenders"
+  ],
+  "expected_operations": [
+   "entity_shortlist",
+   "segment_profile"
+  ],
+  "expected_metrics": [
+   "surrender_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-038",
+  "question": "What is the best way to reach someone before they drop out?",
+  "expected_intent": "RETENTION_STRATEGY",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "retention"
+  ],
+  "expected_operations": [
+   "multi_metric_table",
+   "compare_to_baseline"
+  ],
+  "expected_metrics": [
+   "retention_success_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "SMS"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-039",
+  "question": "Are some policyholders simply easier to talk round than others?",
+  "expected_intent": "RETENTION_STRATEGY",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "retention",
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "retention_success_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-040",
+  "question": "Give the save team a call list for Monday morning.",
+  "expected_intent": "RETENTION_STRATEGY",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "retention"
+  ],
+  "expected_operations": [
+   "entity_shortlist",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-041",
+  "question": "Are we spending sensibly on saving policies?",
+  "expected_intent": "RETENTION_STRATEGY",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "retention"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "incentive_per_retained_policy",
+   "retention_success_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-042",
+  "question": "Where should the save budget go next year?",
+  "expected_intent": "RETENTION_STRATEGY",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "retention",
+   "policies"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "multi_metric_table",
+   "composite_score"
+  ],
+  "expected_metrics": [
+   "retention_success_rate",
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-043",
+  "question": "Which reinstatement offer actually persuades people?",
+  "expected_intent": "RETENTION_STRATEGY",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "retention"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "retention_success_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-044",
+  "question": "What sits behind the money we pay out on claims?",
+  "expected_intent": "CLAIMS_RISK",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "multi_metric_table",
+   "compare_to_baseline"
+  ],
+  "expected_metrics": [
+   "risk_claim_rate",
+   "risk_loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-045",
+  "question": "Which products see more claim activity than they should?",
+  "expected_intent": "CLAIMS_RISK",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "claim_rate",
+   "risk_claim_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-046",
+  "question": "What kind of claims come off each product?",
+  "expected_intent": "CLAIMS_RISK",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "crosstab_metric"
+  ],
+  "expected_metrics": [
+   "claim_count"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-047",
+  "question": "Do we see claims coming in suspiciously soon after a policy is written?",
+  "expected_intent": "CLAIMS_RISK",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "early_claim_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-048",
+  "question": "Is anyone selecting against us on the underwriting side?",
+  "expected_intent": "CLAIMS_RISK",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table",
+   "portfolio_overview"
+  ],
+  "expected_metrics": [
+   "risk_claim_rate",
+   "early_claim_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-049",
+  "question": "Where should the claims function be spending its review time?",
+  "expected_intent": "CLAIMS_RISK",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "composite_score"
+  ],
+  "expected_metrics": [
+   "risk_loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-050",
+  "question": "Which products cost us the most in claims per rupee of premium?",
+  "expected_intent": "PROFITABILITY",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "loss_ratio",
+   "risk_loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Term Life"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-051",
+  "question": "Which parts of the book look worth writing and which do not?",
+  "expected_intent": "PROFITABILITY",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "composite_score",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-052",
+  "question": "Where does claims spend run ahead of what we take in?",
+  "expected_intent": "PROFITABILITY",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "compare_to_baseline",
+   "driver_scan"
+  ],
+  "expected_metrics": [
+   "loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-053",
+  "question": "Does checking someone medically actually earn its cost?",
+  "expected_intent": "PROFITABILITY",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "risk_loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-054",
+  "question": "Which region runs the tightest ship?",
+  "expected_intent": "GEOGRAPHIC",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table",
+   "composite_score"
+  ],
+  "expected_metrics": [
+   "persistency_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-055",
+  "question": "Is anywhere in the country carrying more claims than it should?",
+  "expected_intent": "GEOGRAPHIC",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-056",
+  "question": "Do different regions sell different things?",
+  "expected_intent": "GEOGRAPHIC",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "crosstab_metric"
+  ],
+  "expected_metrics": [
+   "policy_count"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-057",
+  "question": "Which offices should the regional director visit first?",
+  "expected_intent": "GEOGRAPHIC",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "composite_score",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-058",
+  "question": "Who are the advisors worth keeping, once book quality is counted?",
+  "expected_intent": "AGENT_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "sales",
+   "policies"
+  ],
+  "expected_operations": [
+   "entity_shortlist",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "persistency_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-059",
+  "question": "Is anyone writing a lot of business that falls over afterwards?",
+  "expected_intent": "AGENT_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "sales",
+   "policies"
+  ],
+  "expected_operations": [
+   "entity_shortlist",
+   "outliers"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-060",
+  "question": "Does anyone in the sales force look statistically odd?",
+  "expected_intent": "AGENT_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "sales",
+   "policies"
+  ],
+  "expected_operations": [
+   "outliers"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-061",
+  "question": "Is our incentive scheme buying volume at the cost of quality?",
+  "expected_intent": "AGENT_PERFORMANCE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "sales",
+   "policies"
+  ],
+  "expected_operations": [
+   "entity_shortlist",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-062",
+  "question": "Is there anything in this book that just looks wrong?",
+  "expected_intent": "ANOMALY_CONCENTRATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "outliers",
+   "concentration"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-063",
+  "question": "How much of the book rests on very few things?",
+  "expected_intent": "ANOMALY_CONCENTRATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "concentration",
+   "top_entity_concentration"
+  ],
+  "expected_metrics": [
+   "total_sum_assured"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-064",
+  "question": "Do a handful of claims account for most of the payout?",
+  "expected_intent": "ANOMALY_CONCENTRATION",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "claims",
+   "policies"
+  ],
+  "expected_operations": [
+   "top_entity_concentration",
+   "concentration"
+  ],
+  "expected_metrics": [
+   "total_claim_amount"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-065",
+  "question": "Put every distribution channel side by side on everything that matters.",
+  "expected_intent": "COMPARATIVE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "retention"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate",
+   "retention_success_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-066",
+  "question": "Set Whole Life and Term Life against each other.",
+  "expected_intent": "COMPARATIVE",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate",
+   "loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Whole Life",
+   "Term Life"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-067",
+  "question": "How do monthly payers compare with annual payers?",
+  "expected_intent": "COMPARATIVE",
+  "expected_tier": "analytical",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Monthly",
+   "Annual"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-068",
+  "question": "Talk me through why Whole Life is a problem.",
+  "expected_intent": "ROOT_CAUSE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "segment_profile",
+   "compare_to_baseline",
+   "driver_scan"
+  ],
+  "expected_metrics": [
+   "lapse_rate",
+   "loss_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Whole Life"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-069",
+  "question": "Why does the Online channel keep losing policies?",
+  "expected_intent": "ROOT_CAUSE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "retention"
+  ],
+  "expected_operations": [
+   "segment_profile",
+   "compare_to_baseline",
+   "driver_scan"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [
+   "Online"
+  ],
+  "note": null
+ },
+ {
+  "id": "BEV-070",
+  "question": "Unpack our headline lapse number for me.",
+  "expected_intent": "ROOT_CAUSE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "driver_scan",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate",
+   "policy_share"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-071",
+  "question": "What separates the parts of the book that work from the parts that do not?",
+  "expected_intent": "ROOT_CAUSE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "composite_score",
+   "multi_metric_table",
+   "driver_scan"
+  ],
+  "expected_metrics": [
+   "persistency_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-072",
+  "question": "Give me the live policies we can least afford to lose.",
+  "expected_intent": "CUSTOMER_TARGETING",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers"
+  ],
+  "expected_operations": [
+   "entity_shortlist"
+  ],
+  "expected_metrics": [
+   "avg_annual_premium"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-073",
+  "question": "Which customers have already started drifting away from us?",
+  "expected_intent": "CUSTOMER_TARGETING",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers"
+  ],
+  "expected_operations": [
+   "entity_shortlist"
+  ],
+  "expected_metrics": [
+   "retention_success_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-074",
+  "question": "Who has room to buy more cover from us?",
+  "expected_intent": "CUSTOMER_TARGETING",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "customers"
+  ],
+  "expected_operations": [
+   "entity_shortlist",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "avg_sum_assured"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-075",
+  "question": "How can I improve persistency rate across our portfolio?",
+  "expected_intent": "PRESCRIPTIVE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "compare_to_baseline",
+   "driver_scan"
+  ],
+  "expected_metrics": [
+   "persistency_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-076",
+  "question": "What actions would reduce lapse rate for middle-aged policyholders?",
+  "expected_intent": "PRESCRIPTIVE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "compare_to_baseline",
+   "driver_scan"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-077",
+  "question": "How can we improve 13th month persistency across sales channels?",
+  "expected_intent": "PRESCRIPTIVE",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "portfolio_overview",
+   "compare_to_baseline",
+   "driver_scan"
+  ],
+  "expected_metrics": [
+   "persistency_13m_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-078",
+  "question": "What is the relation between claims and persistency rate?",
+  "expected_intent": "CROSS_DOMAIN",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "claims"
+  ],
+  "expected_operations": [
+   "correlation_analysis",
+   "composite_score"
+  ],
+  "expected_metrics": [
+   "lapse_rate",
+   "claim_settlement_ratio"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-079",
+  "question": "Is there a relationship between PIVC mismatch and lapse rate?",
+  "expected_intent": "CROSS_DOMAIN",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "correlation_analysis"
+  ],
+  "expected_metrics": [
+   "pivc_mismatch_rate",
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-080",
+  "question": "Does higher agent attrition correlate with lower persistency?",
+  "expected_intent": "CROSS_DOMAIN",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies",
+   "agents"
+  ],
+  "expected_operations": [
+   "correlation_analysis"
+  ],
+  "expected_metrics": [
+   "attrition_rate",
+   "persistency_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-081",
+  "question": "Which area is having lowest persistency rate and why?",
+  "expected_intent": "GEOGRAPHIC",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "leaderboard",
+   "driver_scan",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "persistency_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-082",
+  "question": "Which states have the worst lapse rate and what is driving it?",
+  "expected_intent": "GEOGRAPHIC",
+  "expected_tier": "multi_step_business",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [
+   "leaderboard",
+   "driver_scan",
+   "multi_metric_table"
+  ],
+  "expected_metrics": [
+   "lapse_rate"
+  ],
+  "requires_multi_step": true,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-083",
+  "question": "How many customers are smokers?",
+  "expected_intent": "SIMPLE_RETRIEVAL",
+  "expected_tier": "simple_retrieval",
+  "expected_tables": [
+   "customers"
+  ],
+  "expected_operations": [],
+  "expected_metrics": [],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-084",
+  "question": "How many policies are currently In-Force?",
+  "expected_intent": "SIMPLE_RETRIEVAL",
+  "expected_tier": "simple_retrieval",
+  "expected_tables": [
+   "policies"
+  ],
+  "expected_operations": [],
+  "expected_metrics": [],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-085",
+  "question": "What is the total surrender value paid out?",
+  "expected_intent": "SIMPLE_RETRIEVAL",
+  "expected_tier": "simple_retrieval",
+  "expected_tables": [
+   "surrenders"
+  ],
+  "expected_operations": [],
+  "expected_metrics": [],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-086",
+  "question": "How many surrender records are there?",
+  "expected_intent": "SIMPLE_RETRIEVAL",
+  "expected_tier": "simple_retrieval",
+  "expected_tables": [
+   "surrenders"
+  ],
+  "expected_operations": [],
+  "expected_metrics": [],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-087",
+  "question": "How do we compare with our competitors on market share?",
+  "expected_intent": "OUT_OF_SCOPE",
+  "expected_tier": "simple_retrieval",
+  "expected_tables": [],
+  "expected_operations": [],
+  "expected_metrics": [],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-088",
+  "question": "What is our solvency ratio?",
+  "expected_intent": "OUT_OF_SCOPE",
+  "expected_tier": "simple_retrieval",
+  "expected_tables": [],
+  "expected_operations": [],
+  "expected_metrics": [],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-089",
+  "question": "What will our lapse rate be next year?",
+  "expected_intent": "OUT_OF_SCOPE",
+  "expected_tier": "simple_retrieval",
+  "expected_tables": [],
+  "expected_operations": [],
+  "expected_metrics": [],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-090",
+  "question": "What is our expense ratio by product?",
+  "expected_intent": "OUT_OF_SCOPE",
+  "expected_tier": "simple_retrieval",
+  "expected_tables": [],
+  "expected_operations": [],
+  "expected_metrics": [],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ },
+ {
+  "id": "BEV-091",
+  "question": "What do customers say in their complaints?",
+  "expected_intent": "OUT_OF_SCOPE",
+  "expected_tier": "simple_retrieval",
+  "expected_tables": [],
+  "expected_operations": [],
+  "expected_metrics": [],
+  "requires_multi_step": false,
+  "answer_must_mention": [],
+  "note": null
+ }
+]

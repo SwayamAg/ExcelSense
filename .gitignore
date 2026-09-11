@@ -1,0 +1,29 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.env
+.venv
+env/
+venv/
+*.egg-info/
+dist/
+build/
+.DS_Store
+*.db
+*.sqlite
+
+# Runtime conversation state - session artifacts, not source
+data/history/chat_history.json
+data/history/chat_archive.json
+
+# Backups written by builders/migrate_ps_to_v4_schema.py
+*.pre_v4.bak
+
+# Streamlit secrets (real file — example template is committed)
+.streamlit/secrets.toml
+
+# Agent skill files — local only, not for version control
+*_Skill.md
+SKILL.md

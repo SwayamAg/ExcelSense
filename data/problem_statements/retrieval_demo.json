@@ -1,0 +1,171 @@
+[
+  {
+    "query": "Which product has the most lapsed policies?",
+    "results": [
+      {
+        "problem_id": "PS-123",
+        "problem_statement": "Which product has the highest proportion of lapsed policies?",
+        "confidence_score": 0.4866,
+        "evidence": {
+          "matched_tables": [
+            "policies"
+          ],
+          "matched_columns": [
+            "product_name",
+            "policy_status"
+          ],
+          "intent_type": "Conditional/Ratio/Ranking"
+        },
+        "cypher_executed": "MATCH (p:Policy) RETURN p.product_name, ROUND(100.0*SUM(case when p.policy_status='Lapsed' THEN 1 ELSE 0 END)/count(p), 2) AS lapse_pct ORDER BY lapse_pct DESC LIMIT 1",
+        "answer": "                                                                    product_name  lapse_pct\nCanara HSBC Life Insurance Guaranteed Fortune Plan - Guaranteed Savings OptionV1      26.07"
+      },
+      {
+        "problem_id": "PS-107",
+        "problem_statement": "What is the trend in lapsed policies by issuance year?",
+        "confidence_score": 0.345,
+        "evidence": {
+          "matched_tables": [
+            "policies"
+          ],
+          "matched_columns": [
+            "policy_status",
+            "issuance_date"
+          ],
+          "intent_type": "Time-Series/Trend"
+        },
+        "cypher_executed": "MATCH (p:Policy) WHERE p.policy_status='Lapsed' RETURN SUBSTR(issuance_date, p.1, 4) AS year, count(p) AS lapsed ORDER BY year",
+        "answer": "2737"
+      },
+      {
+        "problem_id": "PS-204",
+        "problem_statement": "What is the average premiums paid count for In-Force vs Lapsed policies?",
+        "confidence_score": 0.3373,
+        "evidence": {
+          "matched_tables": [
+            "policies"
+          ],
+          "matched_columns": [
+            "policy_status",
+            "premiums_paid_count"
+          ],
+          "intent_type": "Filtering/GroupBy/Comparison"
+        },
+        "cypher_executed": "MATCH (p:Policy) WHERE p.policy_status IN ('In-Force','Lapsed') RETURN p.policy_status, ROUND(AVG(p.premiums_paid_count), 2) AS avg_ppc",
+        "answer": "policy_status  avg_ppc\n       Lapsed      0.0"
+      }
+    ]
+  },
+  {
+    "query": "How do smokers compare to non-smokers in terms of premiums?",
+    "results": [
+      {
+        "problem_id": "PS-013",
+        "problem_statement": "How does a continuous attribute vary across demographic groups?",
+        "confidence_score": 0.3696,
+        "evidence": {
+          "matched_tables": [
+            "customers"
+          ],
+          "matched_columns": [
+            "age",
+            "is_smoker"
+          ],
+          "intent_type": "GroupBy/Comparison"
+        },
+        "cypher_executed": "MATCH (c:Customer) RETURN c.is_smoker, ROUND(AVG(c.age), 2) AS avg_age",
+        "answer": "is_smoker  avg_age\n     None      NaN"
+      },
+      {
+        "problem_id": "PS-256",
+        "problem_statement": "What proportion of each gender are smokers?",
+        "confidence_score": 0.2474,
+        "evidence": {
+          "matched_tables": [
+            "customers"
+          ],
+          "matched_columns": [
+            "is_smoker",
+            "gender"
+          ],
+          "intent_type": "GroupBy/Conditional/Ratio"
+        },
+        "cypher_executed": "MATCH (c:Customer) RETURN c.gender, ROUND(100.0*SUM(case when c.is_smoker='Y' THEN 1 ELSE 0 END)/count(c), 2) AS smoker_pct",
+        "answer": "gender  smoker_pct\n     M         0.0\n     F         0.0\n     C         0.0"
+      },
+      {
+        "problem_id": "PS-186",
+        "problem_statement": "How does the lapse rate compare across income tiers?",
+        "confidence_score": 0.1288,
+        "evidence": {
+          "matched_tables": [
+            "customers",
+            "policies"
+          ],
+          "matched_columns": [
+            "annual_income",
+            "policy_status"
+          ],
+          "intent_type": "Join/Conditional/Comparison"
+        },
+        "cypher_executed": "MATCH (c:Customer)-[:HOLDS]->(p:Policy) RETURN case when p.c.annual_income < 1000000 THEN 'Low' WHEN c.annual_income < 3000000 THEN 'Mid' ELSE 'High' END AS income_tier, ROUND(100.0*sum(case when p.p.policy_status = 'Lapsed' then 1 else 0 end)/count(p), 2) AS lapse_pct ORDER BY lapse_pct DESC",
+        "answer": "0.0"
+      }
+    ]
+  },
+  {
+    "query": "Top performing agents by NBP achieved",
+    "results": [
+      {
+        "problem_id": "PS-052",
+        "problem_statement": "Who are the top/bottom performing agents by a given KPI?",
+        "confidence_score": 0.5762,
+        "evidence": {
+          "matched_tables": [
+            "sales"
+          ],
+          "matched_columns": [
+            "full_name",
+            "nbp_achieved"
+          ],
+          "intent_type": "Ranking/TopN"
+        },
+        "cypher_executed": "MATCH (a:Agent) RETURN a.full_name, a.nbp_achieved ORDER BY nbp_achieved DESC LIMIT 5",
+        "answer": "full_name nbp_achieved\n     None         None"
+      },
+      {
+        "problem_id": "PS-143",
+        "problem_statement": "What is the total NBP achieved or target per branch?",
+        "confidence_score": 0.3665,
+        "evidence": {
+          "matched_tables": [
+            "sales"
+          ],
+          "matched_columns": [
+            "nbp_achieved",
+            "branch_id"
+          ],
+          "intent_type": "GroupBy/Sum"
+        },
+        "cypher_executed": "MATCH (a:Agent) RETURN a.branch_id, ROUND(SUM(a.nbp_achieved), 2) AS total_nbp ORDER BY total_nbp DESC",
+        "answer": "branch_id  total_nbp\n    64699        0.0\n    13393        0.0\n    82339        0.0\n    99833        0.0\n    77488        0.0"
+      },
+      {
+        "problem_id": "PS-198",
+        "problem_statement": "What is the total NBP achieved vs target for all agents?",
+        "confidence_score": 0.328,
+        "evidence": {
+          "matched_tables": [
+            "sales"
+          ],
+          "matched_columns": [
+            "nbp_target",
+            "nbp_achieved"
+          ],
+          "intent_type": "Aggregation/Derived-Metric"
+        },
+        "cypher_executed": "MATCH (a:Agent) RETURN ROUND(SUM(a.nbp_achieved), 2) AS total_nbp_achieved, ROUND(SUM(a.nbp_target), 2) AS total_nbp_target, ROUND(100.0*SUM(a.nbp_achieved)/SUM(a.nbp_target), 2) AS overall_achievement_pct",
+        "answer": " total_nbp_achieved  total_nbp_target\n                0.0               0.0"
+      }
+    ]
+  }
+]

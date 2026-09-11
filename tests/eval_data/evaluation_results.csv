@@ -1,0 +1,37 @@
+query,target_ps,retrieved_top5,hit@1,hit@3,hit@5
+What is the total surrender value paid out?,['PS-262'],"['PS-262', 'PS-197', 'PS-165', 'PS-037', 'PS-244']",True,True,True
+What is the average surrender charge per policy?,['PS-263'],"['PS-263', 'PS-270', 'PS-167', 'PS-121', 'PS-260']",True,True,True
+Which product category has the highest surrender rate?,['PS-264'],"['PS-264', 'PS-078', 'PS-121', 'PS-057', 'PS-195']",True,True,True
+How many policies were successfully retained?,['PS-266'],"['PS-266', 'PS-168', 'PS-021', 'PS-094', 'PS-261']",True,True,True
+What is the average annual income of customers with lapsed policies and what is their average BMI?,"['PS-087', 'PS-007']","['PS-087', 'PS-182', 'PS-088', 'PS-173', 'PS-214']",True,True,True
+Which channel was most effective for retaining policies?,['PS-269'],"['PS-269', 'PS-190', 'PS-234', 'PS-247', 'PS-252']",True,True,True
+How many total insurance policies are there?,['PS-001'],"['PS-261', 'PS-190', 'PS-241', 'PS-017', 'PS-151']",False,False,False
+Count of policies that have lapsed,['PS-016'],"['PS-016', 'PS-021', 'PS-204', 'PS-087', 'PS-123']",True,True,True
+Which sales channel sold the most policies?,['PS-019'],"['PS-019', 'PS-089', 'PS-234', 'PS-159', 'PS-148']",True,True,True
+Average BMI of customers who smoke,['PS-007'],"['PS-173', 'PS-226', 'PS-114', 'PS-083', 'PS-007']",False,False,True
+Top agent by number of policies sold,['PS-051'],"['PS-216', 'PS-148', 'PS-019', 'PS-190', 'PS-051']",False,False,True
+Total sum assured for Term Life product,['PS-193'],"['PS-145', 'PS-193', 'PS-241', 'PS-017', 'PS-147']",False,True,True
+How many claims were settled?,['PS-041'],"['PS-218', 'PS-118', 'PS-041', 'PS-152', 'PS-037']",False,True,True
+Average income of customers with surrendered policies,['PS-087'],"['PS-240', 'PS-261', 'PS-182', 'PS-088', 'PS-087']",False,False,True
+Which year had maximum claim filings?,['PS-104'],"['PS-170', 'PS-045', 'PS-044', 'PS-257', 'PS-101']",False,False,False
+Most common health diagnosis,['PS-047'],"['PS-047', 'PS-250', 'PS-097', 'PS-029', 'PS-215']",True,True,True
+Percentage of policies sold through online channel,['PS-148'],"['PS-148', 'PS-033', 'PS-229', 'PS-234', 'PS-190']",True,True,True
+Average policy tenure for Whole Life product,['PS-192'],"['PS-192', 'PS-206', 'PS-167', 'PS-048', 'PS-027']",True,True,True
+Claims count by claim type,['PS-038'],"['PS-039', 'PS-218', 'PS-260', 'PS-175', 'PS-140']",False,False,False
+Which zone has most policies?,['PS-023'],"['PS-130', 'PS-163', 'PS-162', 'PS-241', 'PS-255']",False,False,False
+How does claim amount differ for male and female customers?,['PS-077'],"['PS-077', 'PS-236', 'PS-003', 'PS-256', 'PS-043']",True,True,True
+Agents who missed their NBP target,['PS-054'],"['PS-132', 'PS-054', 'PS-228', 'PS-063', 'PS-085']",False,True,True
+Average annual premium for ULIP policies,['PS-178'],"['PS-178', 'PS-225', 'PS-169', 'PS-214', 'PS-222']",True,True,True
+Which product has highest average claim?,['PS-039'],"['PS-225', 'PS-257', 'PS-245', 'PS-080', 'PS-092']",False,False,False
+Count of early claims filed,['PS-042'],"['PS-036', 'PS-202', 'PS-235', 'PS-043', 'PS-166']",False,False,False
+How has number of new policies changed each year?,['PS-101'],"['PS-101', 'PS-108', 'PS-104', 'PS-028', 'PS-103']",True,True,True
+Proportion of smoker vs non-smoker customers,['PS-002'],"['PS-156', 'PS-119', 'PS-074', 'PS-237', 'PS-200']",False,False,False
+Which city has the most policyholders?,['PS-009'],"['PS-009', 'PS-084', 'PS-183', 'PS-026', 'PS-091']",True,True,True
+Total premium paid by in-force policies,['PS-259'],"['PS-259', 'PS-165', 'PS-240', 'PS-076', 'PS-092']",True,True,True
+Distribution of customers by age group,['PS-109'],"['PS-114', 'PS-109', 'PS-011', 'PS-013', 'PS-201']",False,True,True
+What is the loss ratio for each product?,['PS-151'],"['PS-151', 'PS-128', 'PS-121', 'PS-179', 'PS-264']",True,True,True
+How many agents are post graduate?,['PS-060'],"['PS-223', 'PS-050', 'PS-055', 'PS-051', 'PS-052']",False,False,False
+Average annual premium by payment mode,['PS-169'],"['PS-169', 'PS-258', 'PS-217', 'PS-178', 'PS-225']",True,True,True
+How many policies have riders?,['PS-025'],"['PS-025', 'PS-117', 'PS-233', 'PS-142', 'PS-030']",True,True,True
+Top 5 states by number of policies,['PS-093'],"['PS-216', 'PS-093', 'PS-125', 'PS-104', 'PS-142']",False,True,True
+Surrender rate by product,['PS-121'],"['PS-121', 'PS-264', 'PS-115', 'PS-065', 'PS-057']",True,True,True
