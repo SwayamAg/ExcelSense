@@ -1065,7 +1065,9 @@ def render() -> None:
 
     # ---- input
     pending = st.session_state.pop("chat_pending", None)
-    question = (pending or question).strip().strip('"').strip("'").strip("“").strip("”").strip()
+    raw_input = st.chat_input("Ask a question, or follow up on the answer above")
+    raw = pending or raw_input
+    question = raw.strip().strip('"').strip("'").strip("“").strip("”").strip() if raw else ""
     if not question:
         if not conv.turns:
             st.info("Start with a question — try one from the sidebar.")
