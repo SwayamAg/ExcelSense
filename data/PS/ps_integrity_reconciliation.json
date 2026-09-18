@@ -1,0 +1,720 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_integrity_reconciliation",
+  "business_domains": [
+    "Integrity & Reconciliation"
+  ],
+  "problem_count": 5,
+  "problem_ids": [
+    "PS-065",
+    "PS-095",
+    "PS-096",
+    "PS-098",
+    "PS-103"
+  ],
+  "routing_hints": {
+    "tables": [
+      "claims",
+      "owner",
+      "persistency",
+      "policy",
+      "sales"
+    ],
+    "concepts": [
+      "agent metrics",
+      "data integrity",
+      "data quality",
+      "grounding",
+      "limitations",
+      "reconciliation",
+      "referential integrity",
+      "refusal",
+      "scope",
+      "scope check",
+      "transparency"
+    ],
+    "intent_structures": [
+      "Reconciliation"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-065",
+      "problem_statement": "Do the agents with claims match the agent-level early claim rates?",
+      "intent_type": "Reconciliation/Integrity",
+      "business_intent": "Check the supplied agent metric against the claim records.",
+      "business_domain": "Integrity & Reconciliation",
+      "business_objective": "Reconcile Sales_Details.Early Claim Rate against claims actually observed for each agent.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Does the early claim rate match the claims data?",
+        "Reconcile agent early claim rates",
+        "Check agent claim metrics",
+        "Do agent rates agree with claim records?",
+        "Validate early claim rate"
+      ],
+      "relevant_tables": [
+        "policy",
+        "claims",
+        "sales"
+      ],
+      "relevant_columns": [
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.Inforce.Date",
+        "claims.AppID",
+        "claims.Date.of.Death",
+        "claims.days_from_inforce_to_death",
+        "sales.SALES_ID",
+        "sales.Early Claim Rate",
+        "sales.Type"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "date_diff",
+        "derive_column",
+        "GROUP BY",
+        "COUNT",
+        "ratio",
+        "reconcile",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "agent_early_claim_rate",
+        "claim_count",
+        "policy_count",
+        "claim_incidence_rate",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_claims",
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_claims",
+          "policy_sales"
+        ],
+        "group_by": "SALES_ID",
+        "derive": [
+          {
+            "kind": "date_diff",
+            "name": "days_from_inforce_to_death",
+            "end": "claims_Date.of.Death",
+            "start": "Inforce.Date"
+          },
+          {
+            "kind": "flag",
+            "name": "has_claim",
+            "column": "claims_Claim_No"
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "claims": [
+            "has_claim",
+            "sum"
+          ],
+          "supplied_early_claim_rate": [
+            "sales_Early Claim Rate",
+            "mean"
+          ]
+        },
+        "rates": {
+          "observed_claim_rate": {
+            "numerator": "claims",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": 30,
+        "rank_by": "observed_claim_rate",
+        "top_n": 25
+      },
+      "concepts": [
+        "reconciliation",
+        "data integrity",
+        "agent metrics"
+      ],
+      "analytical_steps": [
+        "Join claims to policies and derive days from inforce to death.",
+        "Aggregate observed early claims per SALES_ID over their policy base.",
+        "Join Sales_Details to obtain the supplied Early Claim Rate.",
+        "Compare the computed rate against the supplied rate per agent.",
+        "Report agreement, disagreement and the agents where only one source has data.",
+        "State plainly that the two may be measured on different bases."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{agreeing} agents agree between computed and supplied early claim rates; {differing} differ.",
+      "parameters": {},
+      "population": "Agents with at least one policy; 134 claims across 1,956 agents.",
+      "caveat": "Sales_Details rates are supplied aggregates with no stated definition, denominator or measurement window. A mismatch is therefore evidence of a different basis, not necessarily an error in either source. With 134 claims across 1,956 agents, almost every agent has zero observed claims.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = claims.AppID; policy.SALES_ID = sales.SALES_ID",
+        "calculations": [
+          "computed early claim rate per agent"
+        ],
+        "comparison_baseline": "supplied Early Claim Rate",
+        "limitations": [
+          "supplied metric definition unknown",
+          "near-zero claims per agent"
+        ],
+        "tables_used": [
+          "policy",
+          "claims",
+          "sales"
+        ],
+        "columns_used": [
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.Inforce.Date",
+          "claims.AppID",
+          "claims.Date.of.Death",
+          "claims.days_from_inforce_to_death",
+          "sales.SALES_ID",
+          "sales.Early Claim Rate",
+          "sales.Type"
+        ],
+        "population_definition": "Agents with at least one policy; 134 claims across 1,956 agents."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "scatter",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [
+        "Cannot conclude which source is correct; reports divergence only."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-095",
+      "problem_statement": "Do the five datasets reconcile with each other?",
+      "intent_type": "Reconciliation/Integrity",
+      "business_intent": "Prove the datasets are mutually consistent before trusting any analysis.",
+      "business_domain": "Integrity & Reconciliation",
+      "business_objective": "Run every cross-table reconciliation the schema permits and report the result.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Do the datasets reconcile?",
+        "Data integrity check",
+        "Are the tables consistent?",
+        "Run a reconciliation",
+        "Check data quality across tables",
+        "Validate the data"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner",
+        "claims",
+        "persistency",
+        "sales"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.POLICY.STATUS",
+        "policy.SALES_ID",
+        "owner.AppID",
+        "owner.ClientID",
+        "claims.AppID",
+        "claims.Status.of.Claim",
+        "persistency.AppID",
+        "persistency.POLICY.STATUS",
+        "persistency.Renewal_Status",
+        "persistency.Renewal_Paid_Date",
+        "persistency.SALES_ID",
+        "sales.SALES_ID"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "ANTI JOIN",
+        "COUNT",
+        "DISTINCT",
+        "CASE WHEN",
+        "reconcile",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "claim_count",
+        "renewal_count",
+        "agent_count",
+        "distinct_count"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_claims",
+        "policy_persistency",
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "reconcile",
+        "checks": [
+          {
+            "name": "every claim resolves to a policy",
+            "kind": "subset",
+            "tables": [
+              "claims",
+              "policy"
+            ],
+            "left_table": "claims",
+            "left_column": "AppID",
+            "right_table": "policy",
+            "right_column": "AppID"
+          },
+          {
+            "name": "death-status policies match the claims set exactly",
+            "kind": "set_equal",
+            "tables": [
+              "policy",
+              "claims"
+            ],
+            "left_table": "policy",
+            "left_column": "AppID",
+            "left_filter_column": "POLICY.STATUS",
+            "left_filter_values": [
+              "Death"
+            ],
+            "right_table": "claims",
+            "right_column": "AppID"
+          },
+          {
+            "name": "every policy resolves to an agent",
+            "kind": "subset",
+            "tables": [
+              "policy",
+              "sales"
+            ],
+            "left_table": "policy",
+            "left_column": "SALES_ID",
+            "right_table": "sales",
+            "right_column": "SALES_ID"
+          },
+          {
+            "name": "every policy resolves to an owner",
+            "kind": "subset",
+            "tables": [
+              "policy",
+              "owner"
+            ],
+            "left_table": "policy",
+            "left_column": "AppID",
+            "right_table": "owner",
+            "right_column": "AppID"
+          },
+          {
+            "name": "policy status agrees between Policy and Persistency",
+            "kind": "column_agreement",
+            "tables": [
+              "policy",
+              "persistency"
+            ],
+            "left_table": "policy",
+            "right_table": "persistency",
+            "key": "AppID",
+            "left_column": "POLICY.STATUS",
+            "right_column": "POLICY.STATUS"
+          },
+          {
+            "name": "renewal paid status matches a present paid date",
+            "kind": "equivalence",
+            "tables": [
+              "persistency"
+            ],
+            "table": "persistency",
+            "left_column": "Renewal_Status",
+            "left_value": "Paid",
+            "right_column": "Renewal_Paid_Date"
+          }
+        ]
+      },
+      "concepts": [
+        "reconciliation",
+        "referential integrity",
+        "data quality"
+      ],
+      "analytical_steps": [
+        "Check that every claims AppID exists in Policy_Details.",
+        "Check that policies with POLICY.STATUS = 'Death' match the claims set exactly.",
+        "Check that POLICY.STATUS agrees between Policy and Persistency on joined rows.",
+        "Check that Renewal_Status = 'Paid' is equivalent to a present Renewal_Paid_Date.",
+        "Check that every policy SALES_ID exists in Sales_Details.",
+        "Identify orphan keys in each direction and report them individually.",
+        "Report each check as pass or fail with the exact counts involved."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{passed} of {total} reconciliation checks pass; {failed} require attention.",
+      "parameters": {},
+      "population": "All five datasets in full: 25,000 policies, 25,000 owners, 1,956 agents, 134 claims and 24,542 persistency rows.",
+      "caveat": "The known defect is the single AppID stored as '1.50E+10' in Owner and Persistency (DQ-001), which orphans exactly one policy in each of those two joins. It is reported, not repaired, so the reconciliation reflects the source data as delivered.",
+      "evidence_requirements": {
+        "join_path": "all four documented joins plus anti-joins",
+        "calculations": [
+          "per-check pass/fail with counts"
+        ],
+        "records": "orphan keys listed individually",
+        "data_quality_notes": [
+          "DQ-001",
+          "DQ-006",
+          "DQ-007"
+        ],
+        "tables_used": [
+          "policy",
+          "owner",
+          "claims",
+          "persistency",
+          "sales"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.POLICY.STATUS",
+          "policy.SALES_ID",
+          "owner.AppID",
+          "owner.ClientID",
+          "claims.AppID",
+          "claims.Status.of.Claim",
+          "persistency.AppID",
+          "persistency.POLICY.STATUS",
+          "persistency.Renewal_Status",
+          "persistency.Renewal_Paid_Date",
+          "persistency.SALES_ID",
+          "sales.SALES_ID"
+        ],
+        "population_definition": "All five datasets in full: 25,000 policies, 25,000 owners, 1,956 agents, 134 claims and 24,542 persistency rows."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-096",
+      "problem_statement": "What data quality issues should I know about?",
+      "intent_type": "Reconciliation/Integrity",
+      "business_intent": "Make the analyst aware of defects before they draw conclusions.",
+      "business_domain": "Integrity & Reconciliation",
+      "business_objective": "Report every recorded data-quality finding with its evidence and impact.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "What data quality problems exist?",
+        "Known data issues",
+        "Data quality report",
+        "What should I be careful about in this data?",
+        "List the data defects"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner",
+        "claims",
+        "persistency",
+        "sales"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.Login.Date",
+        "policy.Inforce.Date",
+        "policy.CHANNEL",
+        "policy.Mode",
+        "policy.Inforce.month",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Earned.Income",
+        "claims.Claim.Amount",
+        "claims.Amount.Paid",
+        "claims.Settlement.Date",
+        "claims.Status.of.Claim",
+        "persistency.AppID",
+        "persistency.POLICY.STATUS",
+        "sales.First Year Persistency Rate"
+      ],
+      "required_operations": [
+        "COUNT",
+        "CASE WHEN",
+        "multi_metric_table",
+        "reconcile"
+      ],
+      "required_metrics": [
+        "distinct_count",
+        "policy_count",
+        "claim_count",
+        "agent_count"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_claims",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "quality_report"
+      },
+      "concepts": [
+        "data quality",
+        "transparency",
+        "limitations"
+      ],
+      "analytical_steps": [
+        "Load the recorded findings from the data contract.",
+        "Join the tables named by each finding on their documented keys so the cross-table findings can be re-checked.",
+        "Re-verify each finding's evidence counts against the live CSVs.",
+        "Report each finding with its severity, affected tables and columns, impact and the handling rule applied.",
+        "Flag any finding whose evidence no longer matches, which would mean the data has changed since profiling."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{finding_count} data-quality findings are recorded: {high} high, {medium} medium, {low} low severity.",
+      "parameters": {},
+      "population": "All five datasets as profiled in Phase 0, re-verified against the live CSVs at execution time.",
+      "caveat": "Findings are descriptive. None of the underlying source files is modified by this system.Renewal metrics cover only the Persistency-eligible population, which excludes surrendered and death policies (DQ-006), so they rest on a different denominator from the policy-level figures reported alongside them.",
+      "evidence_requirements": {
+        "data_quality_notes": [
+          "all recorded findings"
+        ],
+        "calculations": [
+          "live re-verification of each finding's counts"
+        ],
+        "tables_used": [
+          "policy",
+          "owner",
+          "claims",
+          "persistency",
+          "sales"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.Login.Date",
+          "policy.Inforce.Date",
+          "policy.CHANNEL",
+          "policy.Mode",
+          "policy.Inforce.month",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Earned.Income",
+          "claims.Claim.Amount",
+          "claims.Amount.Paid",
+          "claims.Settlement.Date",
+          "claims.Status.of.Claim",
+          "persistency.AppID",
+          "persistency.POLICY.STATUS",
+          "sales.First Year Persistency Rate"
+        ],
+        "population_definition": "All five datasets as profiled in Phase 0, re-verified against the live CSVs at execution time."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-098",
+      "problem_statement": "What questions can this data not answer?",
+      "intent_type": "Reconciliation/Integrity",
+      "business_intent": "Set expectations honestly about analytical scope.",
+      "business_domain": "Integrity & Reconciliation",
+      "business_objective": "State the domains the five CSVs cannot support and why.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "What can't this data tell me?",
+        "What are the limitations?",
+        "Which questions are out of scope?",
+        "What is missing from the data?",
+        "Data limitations"
+      ],
+      "relevant_tables": [
+        "policy",
+        "sales",
+        "claims"
+      ],
+      "relevant_columns": [
+        "policy.CHANNEL",
+        "policy.Mode",
+        "policy.Prod_No",
+        "sales.SALES_ID",
+        "sales.Type",
+        "claims.Status.of.Claim",
+        "claims.Cause.of.Death"
+      ],
+      "required_operations": [
+        "DISTINCT",
+        "COUNT",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "distinct_count",
+        "policy_count",
+        "claim_count"
+      ],
+      "relationships": [],
+      "independent_tables": "Each table is inspected separately for the presence and cardinality of its own columns. No join is performed because the question is about the schema, not about linked records.",
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "scope_check"
+      },
+      "concepts": [
+        "scope",
+        "limitations",
+        "transparency"
+      ],
+      "analytical_steps": [
+        "Load the recorded unanswerable domains from the data contract.",
+        "For each, state the missing column or the single-valued column that blocks it.",
+        "Verify the blocking evidence against the live data.",
+        "Return the list with reasons, so an unsupported question gets a grounded refusal rather than a fabricated answer."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{domain_count} analytical domains cannot be supported by these five datasets.",
+      "parameters": {},
+      "population": "The schema of all five datasets rather than their rows: column presence and cardinality determine what is answerable.",
+      "caveat": "This list is derived from the observed schema. It covers the domains the reference material implied but the data cannot support, including channel comparison, profitability, underwriting and fund performance.",
+      "evidence_requirements": {
+        "calculations": [
+          "verification of each blocking reason"
+        ],
+        "limitations": [
+          "the full unanswerable-domain list"
+        ],
+        "tables_used": [
+          "policy",
+          "sales",
+          "claims"
+        ],
+        "columns_used": [
+          "policy.CHANNEL",
+          "policy.Mode",
+          "policy.Prod_No",
+          "sales.SALES_ID",
+          "sales.Type",
+          "claims.Status.of.Claim",
+          "claims.Cause.of.Death"
+        ],
+        "population_definition": "The schema of all five datasets rather than their rows: column presence and cardinality determine what is answerable."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-103",
+      "problem_statement": "Is this question something the data can answer?",
+      "intent_type": "Reconciliation/Integrity",
+      "business_intent": "Refuse unsupported questions with a grounded reason instead of guessing.",
+      "business_domain": "Integrity & Reconciliation",
+      "business_objective": "Determine whether a question maps to available columns and explain the gap when it does not.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Can you answer questions about profitability?",
+        "Do you have commission data?",
+        "Can you compare channels?",
+        "Is smoker information available?",
+        "What about fund performance?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "sales",
+        "claims",
+        "owner",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.CHANNEL",
+        "policy.Mode",
+        "policy.Prod_No",
+        "sales.SALES_ID",
+        "sales.Type",
+        "claims.Status.of.Claim",
+        "owner.Owner.Occupation",
+        "persistency.Payment_Mode"
+      ],
+      "required_operations": [
+        "DISTINCT",
+        "COUNT",
+        "reconcile"
+      ],
+      "required_metrics": [
+        "distinct_count"
+      ],
+      "relationships": [
+        "policy_sales",
+        "policy_claims",
+        "policy_owner",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": "This PS exists to refuse unsupported questions. Its example queries name concepts the data lacks on purpose, so the router can be trained to reject them with a grounded reason rather than approximate an answer.",
+      "execution": {
+        "pattern": "scope_check"
+      },
+      "concepts": [
+        "scope check",
+        "refusal",
+        "grounding"
+      ],
+      "analytical_steps": [
+        "Extract the concepts the question depends on.",
+        "Resolve each concept against the schema, including columns only reachable by a documented join, so a join-only concept is not wrongly refused.",
+        "Attempt to map each concept onto an actual column in the data contract.",
+        "If every concept maps, route the question to the appropriate PS.",
+        "If any concept does not map, identify the missing column or the single-valued column that blocks it.",
+        "Return a grounded refusal naming what is missing and, where one exists, the nearest supported question."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "This question requires {missing_concepts}, which the five datasets do not contain.",
+      "parameters": {},
+      "population": "The schema itself rather than the data rows.",
+      "caveat": "The correct response to an unsupported question is a grounded refusal that names the missing field. Approximating with a loosely related column would produce a confidently wrong answer, which is the failure mode this PS exists to prevent.Renewal metrics cover only the Persistency-eligible population, which excludes surrendered and death policies (DQ-006), so they rest on a different denominator from the policy-level figures reported alongside them.",
+      "evidence_requirements": {
+        "limitations": [
+          "the specific missing columns"
+        ],
+        "columns_used": [
+          "the concepts that could not be mapped"
+        ],
+        "tables_used": [
+          "policy",
+          "sales",
+          "claims",
+          "owner",
+          "persistency"
+        ],
+        "population_definition": "The schema itself rather than the data rows."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [],
+      "limitations": [
+        "Returns a refusal with reasons; performs no data analysis."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

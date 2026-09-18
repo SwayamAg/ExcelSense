@@ -1,0 +1,1538 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_claims",
+  "business_domains": [
+    "Claims & Risk",
+    "Claims Operations"
+  ],
+  "problem_count": 11,
+  "problem_ids": [
+    "PS-052",
+    "PS-053",
+    "PS-054",
+    "PS-055",
+    "PS-056",
+    "PS-058",
+    "PS-059",
+    "PS-060",
+    "PS-061",
+    "PS-063",
+    "PS-064"
+  ],
+  "routing_hints": {
+    "tables": [
+      "claims",
+      "owner",
+      "policy"
+    ],
+    "concepts": [
+      "age banding",
+      "anti-selection",
+      "cause of death",
+      "claim incidence",
+      "claim integrity",
+      "claims",
+      "claims operations",
+      "claims service",
+      "distribution",
+      "early claim",
+      "lag",
+      "large loss",
+      "mortality",
+      "payout",
+      "payout ratio",
+      "product risk",
+      "reconciliation",
+      "risk",
+      "seasonality",
+      "settlement",
+      "settlement integrity",
+      "sum assured",
+      "time series",
+      "top N",
+      "turnaround"
+    ],
+    "intent_structures": [
+      "Aggregation",
+      "Conditional",
+      "Derived-Metric",
+      "GroupBy",
+      "Join",
+      "Ranking",
+      "Time-Series"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-052",
+      "problem_statement": "How many claims have been made and what is their total value?",
+      "intent_type": "Aggregation/Count/Sum",
+      "business_intent": "Establish the headline claims position.",
+      "business_domain": "Claims & Risk",
+      "business_objective": "Report claim volume, total claimed and total paid.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "How many claims do we have?",
+        "Total claim value",
+        "Claims summary",
+        "What have we paid out in claims?",
+        "Number and value of claims"
+      ],
+      "relevant_tables": [
+        "claims"
+      ],
+      "relevant_columns": [
+        "claims.Claim_No",
+        "claims.Claim.Amount",
+        "claims.Amount.Paid",
+        "claims.Status.of.Claim"
+      ],
+      "required_operations": [
+        "COUNT",
+        "SUM",
+        "AVG",
+        "CASE WHEN"
+      ],
+      "required_metrics": [
+        "claim_count",
+        "total_claim_amount",
+        "total_amount_paid",
+        "avg_claim_amount"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "claims",
+        "measures": {
+          "claim_count": [
+            null,
+            "count_all"
+          ],
+          "total_claim_amount": [
+            "Claim.Amount",
+            "sum"
+          ],
+          "total_amount_paid": [
+            "Amount.Paid",
+            "sum"
+          ],
+          "avg_claim_amount": [
+            "Claim.Amount",
+            "mean"
+          ]
+        },
+        "condition_counts": {
+          "settled": {
+            "column": "Status.of.Claim",
+            "values": [
+              "Paid"
+            ]
+          }
+        }
+      },
+      "concepts": [
+        "claims",
+        "payout"
+      ],
+      "analytical_steps": [
+        "Count rows in Claims_Details.",
+        "Sum Claim.Amount, stripping thousands separators before coercion.",
+        "Sum Amount.Paid over settled claims only.",
+        "Report volume, claimed total and paid total."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{claim_count} claims totalling {total_claim_amount} claimed, {total_amount_paid} paid.",
+      "parameters": {},
+      "population": "All 134 claims. Every claim in Claims_Details corresponds to a policy with POLICY.STATUS = 'Death'. There is no claim-type column, no maturity, surrender, health or rider claim, so all claim analysis is death-claim analysis.",
+      "caveat": "One claim is unsettled and carries the literal 'WIP' in Status.of.Claim, Amount.Paid and Settlement.Date (DQ-004). It is excluded from settlement and payout metrics and the exclusion is reported. Claim amounts use Indian lakh grouping and must be parsed with separator stripping (DQ-003).",
+      "evidence_requirements": {
+        "aggregates": [
+          "claim_count",
+          "total_claim_amount",
+          "total_amount_paid"
+        ],
+        "data_quality_notes": [
+          "DQ-003",
+          "DQ-004"
+        ],
+        "tables_used": [
+          "claims"
+        ],
+        "columns_used": [
+          "claims.Claim_No",
+          "claims.Claim.Amount",
+          "claims.Amount.Paid",
+          "claims.Status.of.Claim"
+        ],
+        "population_definition": "All 134 claims. Every claim in Claims_Details corresponds to a policy with POLICY.STATUS = 'Death'. There is no claim-type column, no maturity, surrender, health or rider claim, so all claim analysis is death-claim analysis."
+      },
+      "visualization_recommended": false,
+      "visualization_type": null,
+      "formula_ids": [
+        "F-COUNT",
+        "F-SUM"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-053",
+      "problem_statement": "What are the leading causes of death in our claims?",
+      "intent_type": "GroupBy/Distribution",
+      "business_intent": "Understand mortality drivers in the claimed book.",
+      "business_domain": "Claims & Risk",
+      "business_objective": "Rank causes of death by claim count and value.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Top causes of death",
+        "What are people dying from?",
+        "Cause of death breakdown",
+        "Claims by cause",
+        "Leading mortality causes"
+      ],
+      "relevant_tables": [
+        "claims"
+      ],
+      "relevant_columns": [
+        "claims.Cause.of.Death",
+        "claims.Claim_No",
+        "claims.Claim.Amount"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "ORDER BY",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "claim_count",
+        "total_claim_amount",
+        "avg_claim_amount",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "claims",
+        "group_by": "Cause.of.Death",
+        "measures": {
+          "claims": [
+            null,
+            "count_all"
+          ],
+          "total_amount": [
+            "Claim.Amount",
+            "sum"
+          ],
+          "avg_amount": [
+            "Claim.Amount",
+            "mean"
+          ]
+        },
+        "shares": {
+          "share_pct": "claims"
+        },
+        "rank_by": "claims"
+      },
+      "concepts": [
+        "cause of death",
+        "mortality",
+        "distribution"
+      ],
+      "analytical_steps": [
+        "Group Claims_Details by Cause.of.Death.",
+        "Count claims and sum claim amount per cause.",
+        "Compute each cause share of total claims.",
+        "Rank by count descending."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_cause} is the leading cause with {top_count} claims ({top_share}%).",
+      "parameters": {},
+      "population": "All 134 claims across 45 distinct cause values.",
+      "caveat": "Cause.of.Death is free text with 45 distinct values across 134 claims, including near-duplicates such as 'NATURAL DEATH' and 'NATURAL'. It is not a coded taxonomy, so grouping is by literal value and similar causes are not merged. The field records the cause attributed at claim stage; it is not evidence of a mortality driver in the wider book and cannot establish any causal relationship with product, agent or customer attributes. The book contains 134 claims against 25,000 policies. Any breakdown of claims by a dimension produces small cells, so counts are reported alongside every rate and minimum cell sizes are enforced.",
+      "evidence_requirements": {
+        "aggregates": [
+          "count and amount by cause"
+        ],
+        "limitations": [
+          "free-text cause, not a coded taxonomy"
+        ],
+        "sample_sizes": "claim count per cause",
+        "tables_used": [
+          "claims"
+        ],
+        "columns_used": [
+          "claims.Cause.of.Death",
+          "claims.Claim_No",
+          "claims.Claim.Amount"
+        ],
+        "population_definition": "All 134 claims across 45 distinct cause values."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-054",
+      "problem_statement": "What proportion of claims have been settled?",
+      "intent_type": "Conditional/Ratio",
+      "business_intent": "Measure claims processing completion.",
+      "business_domain": "Claims Operations",
+      "business_objective": "Compute the settled share of claims.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Claim settlement rate",
+        "How many claims are still open?",
+        "How many claims were settled?",
+        "What percentage of claims are paid?",
+        "Settled versus pending claims",
+        "Claims settlement status"
+      ],
+      "relevant_tables": [
+        "claims"
+      ],
+      "relevant_columns": [
+        "claims.Status.of.Claim",
+        "claims.Claim_No"
+      ],
+      "required_operations": [
+        "CASE WHEN",
+        "COUNT",
+        "ratio"
+      ],
+      "required_metrics": [
+        "settlement_rate",
+        "claim_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "claims",
+        "measures": {
+          "claim_count": [
+            null,
+            "count_all"
+          ]
+        },
+        "condition_counts": {
+          "settled": {
+            "column": "Status.of.Claim",
+            "values": [
+              "Paid"
+            ]
+          }
+        },
+        "rates": {
+          "settlement_rate": {
+            "numerator": "settled",
+            "denominator": "claim_count"
+          }
+        }
+      },
+      "concepts": [
+        "settlement",
+        "claims operations"
+      ],
+      "analytical_steps": [
+        "Count claims with Status.of.Claim = 'Paid'.",
+        "Count claims with any other status.",
+        "Compute the settled share."
+      ],
+      "expected_answer_type": "scalar",
+      "answer_template": "{paid_count} of {claim_count} claims are settled, a rate of {settlement_rate}%.",
+      "parameters": {},
+      "population": "All 134 claims in Claims_Details.",
+      "caveat": "Status.of.Claim has exactly two values, 'Paid' and 'WIP'. There is no repudiated, rejected or contested status in the data, so claim-decision analysis is not possible.",
+      "evidence_requirements": {
+        "calculations": [
+          "settlement_rate"
+        ],
+        "aggregates": [
+          "count by status"
+        ],
+        "data_quality_notes": [
+          "DQ-004"
+        ],
+        "limitations": [
+          "no repudiation or rejection status exists"
+        ],
+        "tables_used": [
+          "claims"
+        ],
+        "columns_used": [
+          "claims.Status.of.Claim",
+          "claims.Claim_No"
+        ],
+        "population_definition": "All 134 claims in Claims_Details."
+      },
+      "visualization_recommended": false,
+      "visualization_type": null,
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-055",
+      "problem_statement": "Do we pay claims in full?",
+      "intent_type": "Derived-Metric/Ratio",
+      "business_intent": "Check whether settled amounts match amounts claimed.",
+      "business_domain": "Claims Operations",
+      "business_objective": "Compute the payout ratio and identify claims settled above or below the claimed amount.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Do we pay the full claim amount?",
+        "Payout ratio",
+        "Are claims settled in full?",
+        "Amount paid versus amount claimed",
+        "Claim payment variance"
+      ],
+      "relevant_tables": [
+        "claims"
+      ],
+      "relevant_columns": [
+        "claims.Claim.Amount",
+        "claims.Amount.Paid",
+        "claims.payout_ratio",
+        "claims.Claim_No",
+        "claims.Status.of.Claim"
+      ],
+      "required_operations": [
+        "WHERE",
+        "derive_column",
+        "CASE WHEN",
+        "COUNT",
+        "AVG",
+        "MEDIAN",
+        "SUM",
+        "ratio",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "payout_ratio",
+        "claim_count",
+        "total_claim_amount",
+        "total_amount_paid"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "claims",
+        "filters": [
+          [
+            "Status.of.Claim",
+            "eq",
+            "Paid"
+          ]
+        ],
+        "group_by": "payment_outcome",
+        "derive": [
+          {
+            "kind": "ratio",
+            "name": "payout_ratio",
+            "numerator": "Amount.Paid",
+            "denominator": "Claim.Amount"
+          },
+          {
+            "kind": "band",
+            "name": "payment_outcome",
+            "column": "payout_ratio",
+            "bins": [
+              -1,
+              0.9999,
+              1.0001,
+              1000
+            ],
+            "labels": [
+              "paid_less",
+              "paid_in_full",
+              "paid_more"
+            ]
+          }
+        ],
+        "measures": {
+          "claims": [
+            null,
+            "count_all"
+          ],
+          "total_claimed": [
+            "Claim.Amount",
+            "sum"
+          ],
+          "total_paid": [
+            "Amount.Paid",
+            "sum"
+          ]
+        },
+        "shares": {
+          "share_pct": "claims"
+        },
+        "rank_by": "claims"
+      },
+      "concepts": [
+        "payout ratio",
+        "settlement integrity"
+      ],
+      "analytical_steps": [
+        "Restrict to settled claims, excluding the WIP row.",
+        "Parse both money columns with thousands-separator stripping.",
+        "Derive payout_ratio as Amount.Paid divided by Claim.Amount.",
+        "Count claims paid exactly, below and above the claimed amount.",
+        "Report the aggregate payout ratio and the exceptions."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{exact_count} of {settled_count} settled claims paid exactly as claimed; {under_count} paid less and {over_count} more.",
+      "parameters": {},
+      "population": "The 133 settled claims. One claim is unsettled and carries the literal 'WIP' in Status.of.Claim, Amount.Paid and Settlement.Date (DQ-004). It is excluded from settlement and payout metrics and the exclusion is reported.",
+      "caveat": "The data holds no deduction, rider, interest or ex-gratia column, so a difference between claimed and paid cannot be explained from the CSVs. Differences are reported as observations, not as errors.",
+      "evidence_requirements": {
+        "calculations": [
+          "payout_ratio per claim"
+        ],
+        "records": "claims where paid differs from claimed",
+        "data_quality_notes": [
+          "DQ-003",
+          "DQ-004"
+        ],
+        "limitations": [
+          "no explanation column for payment differences"
+        ],
+        "tables_used": [
+          "claims"
+        ],
+        "columns_used": [
+          "claims.Claim.Amount",
+          "claims.Amount.Paid",
+          "claims.payout_ratio",
+          "claims.Claim_No",
+          "claims.Status.of.Claim"
+        ],
+        "population_definition": "The 133 settled claims. One claim is unsettled and carries the literal 'WIP' in Status.of.Claim, Amount.Paid and Settlement.Date (DQ-004). It is excluded from settlement and payout metrics and the exclusion is reported."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "histogram",
+      "formula_ids": [
+        "F-RATIO"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-056",
+      "problem_statement": "How long does it take to intimate and settle a claim?",
+      "intent_type": "Derived-Metric/Distribution",
+      "business_intent": "Measure claims service turnaround.",
+      "business_domain": "Claims Operations",
+      "business_objective": "Compute intimation lag and settlement lag distributions.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Claim settlement turnaround",
+        "How long do claims take?",
+        "Time from death to intimation",
+        "Claim processing time",
+        "Settlement speed"
+      ],
+      "relevant_tables": [
+        "claims"
+      ],
+      "relevant_columns": [
+        "claims.Date.of.Death",
+        "claims.Date.of.Intimation",
+        "claims.Settlement.Date",
+        "claims.intimation_lag_days",
+        "claims.settlement_lag_days",
+        "claims.Claim_No",
+        "claims.Status.of.Claim"
+      ],
+      "required_operations": [
+        "date_diff",
+        "derive_column",
+        "WHERE",
+        "AVG",
+        "MEDIAN",
+        "MIN",
+        "MAX",
+        "PERCENTILE",
+        "COUNT"
+      ],
+      "required_metrics": [
+        "intimation_lag_days",
+        "settlement_lag_days",
+        "claim_count",
+        "percentile"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "distribution",
+        "base": "claims",
+        "column": "settlement_lag_days",
+        "filters": [
+          [
+            "Status.of.Claim",
+            "eq",
+            "Paid"
+          ]
+        ],
+        "derive": [
+          {
+            "kind": "date_diff",
+            "name": "intimation_lag_days",
+            "end": "Date.of.Intimation",
+            "start": "Date.of.Death"
+          },
+          {
+            "kind": "date_diff",
+            "name": "settlement_lag_days",
+            "end": "Settlement.Date",
+            "start": "Date.of.Intimation"
+          }
+        ],
+        "bins": [
+          -1,
+          7,
+          14,
+          30,
+          60,
+          400
+        ],
+        "labels": [
+          "upto_7d",
+          "8_14d",
+          "15_30d",
+          "31_60d",
+          "over_60d"
+        ]
+      },
+      "concepts": [
+        "turnaround",
+        "claims service",
+        "lag"
+      ],
+      "analytical_steps": [
+        "Parse the three claim date columns using the contract's format list, which covers both '%d-%b-%y' and the few '%m/%d/%Y' values.",
+        "Derive intimation_lag_days as intimation minus death.",
+        "Derive settlement_lag_days as settlement minus intimation.",
+        "Exclude the unsettled claim from settlement-lag statistics.",
+        "Report median, mean and the tail percentiles for each lag."
+      ],
+      "expected_answer_type": "distribution",
+      "answer_template": "Median intimation lag is {median_intimation} days; median settlement lag is {median_settlement} days.",
+      "parameters": {},
+      "population": "All 134 claims for intimation lag; the 133 settled claims for settlement lag.",
+      "caveat": "One claim is unsettled and carries the literal 'WIP' in Status.of.Claim, Amount.Paid and Settlement.Date (DQ-004). It is excluded from settlement and payout metrics and the exclusion is reported. Intimation lag reaches 483 days in the tail, so the median is reported as the representative figure rather than the mean.",
+      "evidence_requirements": {
+        "calculations": [
+          "intimation_lag_days",
+          "settlement_lag_days"
+        ],
+        "aggregates": [
+          "lag distributions"
+        ],
+        "data_quality_notes": [
+          "DQ-004"
+        ],
+        "tables_used": [
+          "claims"
+        ],
+        "columns_used": [
+          "claims.Date.of.Death",
+          "claims.Date.of.Intimation",
+          "claims.Settlement.Date",
+          "claims.intimation_lag_days",
+          "claims.settlement_lag_days",
+          "claims.Claim_No",
+          "claims.Status.of.Claim"
+        ],
+        "population_definition": "All 134 claims for intimation lag; the 133 settled claims for settlement lag."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "box",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-MEDIAN",
+        "F-PERCENTILE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-058",
+      "problem_statement": "How many deaths occurred soon after the policy went in force?",
+      "intent_type": "Join/Multi-Condition/Count",
+      "business_intent": "Surface early-claim exposure, a classic anti-selection signal.",
+      "business_domain": "Claims & Risk",
+      "business_objective": "Count and profile claims where death occurred within a short window of inforce.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Early claims",
+        "Deaths soon after policy issue",
+        "How many claims within the first year?",
+        "Early death claims",
+        "Anti-selection exposure"
+      ],
+      "relevant_tables": [
+        "claims",
+        "policy"
+      ],
+      "relevant_columns": [
+        "claims.AppID",
+        "claims.Date.of.Death",
+        "claims.Claim.Amount",
+        "claims.Cause.of.Death",
+        "claims.days_from_inforce_to_death",
+        "policy.AppID",
+        "policy.Inforce.Date",
+        "policy.Sum.Assured",
+        "policy.Prod_No",
+        "policy.SALES_ID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "JOIN",
+        "date_diff",
+        "derive_column",
+        "WHERE",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "GROUP BY",
+        "ratio",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "claim_count",
+        "days_to_death_from_inforce",
+        "total_claim_amount",
+        "claim_incidence_rate",
+        "avg_claim_amount"
+      ],
+      "relationships": [
+        "policy_claims"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "claims",
+        "joins": [
+          "policy_claims"
+        ],
+        "derive": [
+          {
+            "kind": "date_diff",
+            "name": "days_from_inforce_to_death",
+            "end": "Date.of.Death",
+            "start": "policy_Inforce.Date"
+          },
+          {
+            "kind": "band",
+            "name": "claim_timing",
+            "column": "days_from_inforce_to_death",
+            "bins": [
+              -1,
+              365,
+              730,
+              5000
+            ],
+            "labels": [
+              "within_1y",
+              "1_2y",
+              "over_2y"
+            ]
+          }
+        ],
+        "group_by": "claim_timing",
+        "measures": {
+          "claims": [
+            null,
+            "count_all"
+          ],
+          "total_amount": [
+            "Claim.Amount",
+            "sum"
+          ],
+          "avg_amount": [
+            "Claim.Amount",
+            "mean"
+          ],
+          "median_days": [
+            "days_from_inforce_to_death",
+            "median"
+          ]
+        },
+        "shares": {
+          "share_pct": "claims"
+        },
+        "sort_by_group": "claim_timing"
+      },
+      "concepts": [
+        "early claim",
+        "anti-selection",
+        "risk"
+      ],
+      "analytical_steps": [
+        "Join Claims_Details to Policy_Details on AppID.",
+        "Parse both date columns under the contract's format rules.",
+        "Derive days_from_inforce_to_death.",
+        "Filter to claims within the configured early-claim window, default 365 days.",
+        "Count them, sum their value and profile them by product and agent.",
+        "Report the early-claim share of all claims."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{early_count} of {claim_count} claims occurred within {window_days} days of inforce, worth {early_value}.",
+      "parameters": {
+        "window_days": {
+          "type": "integer",
+          "default": 365,
+          "min": 30,
+          "max": 1095
+        }
+      },
+      "population": "All 134 claims joined to their policy; every claim joins successfully.",
+      "caveat": "The observed minimum is 15 days from inforce to death and 58 claims fall within 365 days. Early death is not evidence of fraud or misrepresentation; the data holds no underwriting, medical or investigation field to assess that. Sales_Details carries an agent-level Early Claim Rate on a different basis.",
+      "evidence_requirements": {
+        "join_path": "claims.AppID = policy.AppID",
+        "calculations": [
+          "days_from_inforce_to_death"
+        ],
+        "records": "early claim rows",
+        "limitations": [
+          "no underwriting or investigation data"
+        ],
+        "data_quality_notes": [
+          "DQ-002"
+        ],
+        "tables_used": [
+          "claims",
+          "policy"
+        ],
+        "columns_used": [
+          "claims.AppID",
+          "claims.Date.of.Death",
+          "claims.Claim.Amount",
+          "claims.Cause.of.Death",
+          "claims.days_from_inforce_to_death",
+          "policy.AppID",
+          "policy.Inforce.Date",
+          "policy.Sum.Assured",
+          "policy.Prod_No",
+          "policy.SALES_ID",
+          "policy.APE"
+        ],
+        "population_definition": "All 134 claims joined to their policy; every claim joins successfully."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "histogram",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-RATE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-059",
+      "problem_statement": "Which products carry the highest claim incidence?",
+      "intent_type": "Join/GroupBy/Ratio",
+      "business_intent": "Locate mortality exposure by product.",
+      "business_domain": "Claims & Risk",
+      "business_objective": "Compute claim incidence per product against the exposed policy base.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Claim rate by product",
+        "Which product has most claims?",
+        "Product claim incidence",
+        "Mortality by plan",
+        "Claims per product"
+      ],
+      "relevant_tables": [
+        "policy",
+        "claims"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.AppID",
+        "policy.Sum.Assured",
+        "claims.AppID",
+        "claims.Claim.Amount"
+      ],
+      "required_operations": [
+        "LEFT JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "ratio",
+        "ORDER BY",
+        "small_sample_guard",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "claim_incidence_rate",
+        "claim_count",
+        "policy_count",
+        "total_claim_amount",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_claims"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_claims"
+        ],
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "claims": [
+            "claims_Claim_No",
+            "count"
+          ],
+          "claim_amount": [
+            "claims_Claim.Amount",
+            "sum"
+          ]
+        },
+        "rates": {
+          "claim_incidence_rate": {
+            "numerator": "claims",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": 50,
+        "rank_by": "claim_incidence_rate"
+      },
+      "concepts": [
+        "claim incidence",
+        "mortality",
+        "product risk"
+      ],
+      "analytical_steps": [
+        "Left join Claims_Details onto Policy_Details on AppID so unclaimed policies remain in the denominator.",
+        "Group by product.",
+        "Count claims and policies per product and compute incidence.",
+        "Compare against the portfolio incidence rate.",
+        "Flag products whose claim count is below the minimum cell size."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_product} has the highest claim incidence at {top_rate}% versus {baseline_rate}% overall.",
+      "parameters": {},
+      "population": "All 25,000 policies as the denominator; 134 claims as the numerator.",
+      "caveat": "The book contains 134 claims against 25,000 policies. Any breakdown of claims by a dimension produces small cells, so counts are reported alongside every rate and minimum cell sizes are enforced. With 134 claims across 10 products, several products have fewer than 10 claims and their rates are not stable. Incidence is also not exposure-adjusted: products sold earlier have been exposed to risk for longer.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = claims.AppID (left)",
+        "aggregates": [
+          "claim incidence by product"
+        ],
+        "comparison_baseline": "portfolio claim incidence",
+        "sample_sizes": "claim and policy counts per product",
+        "limitations": [
+          "not exposure-adjusted",
+          "small cells"
+        ],
+        "tables_used": [
+          "policy",
+          "claims"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.AppID",
+          "policy.Sum.Assured",
+          "claims.AppID",
+          "claims.Claim.Amount"
+        ],
+        "population_definition": "All 25,000 policies as the denominator; 134 claims as the numerator."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-060",
+      "problem_statement": "How does claim amount compare to the policy sum assured?",
+      "intent_type": "Join/Derived-Metric/Comparison",
+      "business_intent": "Check that claims settle in line with the cover written.",
+      "business_domain": "Claims & Risk",
+      "business_objective": "Compare Claim.Amount against the policy's Sum.Assured on the joined claim set.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Claim amount versus sum assured",
+        "Do claims match the cover?",
+        "Is the claim the same as sum assured?",
+        "Claim to sum assured ratio",
+        "Cover versus payout"
+      ],
+      "relevant_tables": [
+        "claims",
+        "policy"
+      ],
+      "relevant_columns": [
+        "claims.AppID",
+        "claims.Claim.Amount",
+        "claims.Amount.Paid",
+        "claims.Claim_No",
+        "claims.Status.of.Claim",
+        "policy.AppID",
+        "policy.Sum.Assured",
+        "policy.Prod_No",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "JOIN",
+        "derive_column",
+        "CASE WHEN",
+        "COUNT",
+        "AVG",
+        "MEDIAN",
+        "ratio",
+        "ORDER BY",
+        "reconcile"
+      ],
+      "required_metrics": [
+        "total_claim_amount",
+        "total_sum_assured",
+        "payout_ratio",
+        "claim_count",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_claims"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "claims",
+        "joins": [
+          "policy_claims"
+        ],
+        "group_by": "claim_vs_cover",
+        "derive": [
+          {
+            "kind": "ratio",
+            "name": "claim_to_sum_assured",
+            "numerator": "Claim.Amount",
+            "denominator": "policy_Sum.Assured"
+          },
+          {
+            "kind": "band",
+            "name": "claim_vs_cover",
+            "column": "claim_to_sum_assured",
+            "bins": [
+              -1,
+              0.9999,
+              1.0001,
+              1000
+            ],
+            "labels": [
+              "below_cover",
+              "equals_cover",
+              "above_cover"
+            ]
+          }
+        ],
+        "measures": {
+          "claims": [
+            null,
+            "count_all"
+          ],
+          "total_claim": [
+            "Claim.Amount",
+            "sum"
+          ],
+          "total_cover": [
+            "policy_Sum.Assured",
+            "sum"
+          ]
+        },
+        "shares": {
+          "share_pct": "claims"
+        },
+        "rank_by": "claims"
+      },
+      "concepts": [
+        "reconciliation",
+        "sum assured",
+        "claim integrity"
+      ],
+      "analytical_steps": [
+        "Join Claims_Details to Policy_Details on AppID.",
+        "Parse both money columns with separator stripping.",
+        "Compute the ratio of Claim.Amount to Sum.Assured per claim.",
+        "Count claims equal to, below and above the sum assured.",
+        "Return the exceptions with both values for inspection."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "{equal_count} of {claim_count} claims equal the sum assured; {above_count} exceed it.",
+      "parameters": {},
+      "population": "All 134 claims joined to their policy.",
+      "caveat": "A claim above the sum assured is not necessarily an error: the data has no rider, bonus, accrued-benefit or interest column that could explain a higher settlement. Differences are surfaced for review, not judged.",
+      "evidence_requirements": {
+        "join_path": "claims.AppID = policy.AppID",
+        "calculations": [
+          "claim to sum assured ratio"
+        ],
+        "records": "claims differing from sum assured",
+        "limitations": [
+          "no rider or bonus data to explain differences"
+        ],
+        "tables_used": [
+          "claims",
+          "policy"
+        ],
+        "columns_used": [
+          "claims.AppID",
+          "claims.Claim.Amount",
+          "claims.Amount.Paid",
+          "claims.Claim_No",
+          "claims.Status.of.Claim",
+          "policy.AppID",
+          "policy.Sum.Assured",
+          "policy.Prod_No",
+          "policy.APE"
+        ],
+        "population_definition": "All 134 claims joined to their policy."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "scatter",
+      "formula_ids": [
+        "F-RATIO"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-061",
+      "problem_statement": "Which are the largest claims?",
+      "intent_type": "Ranking/TopN",
+      "business_intent": "Surface the biggest individual losses.",
+      "business_domain": "Claims & Risk",
+      "business_objective": "List the top N claims by amount with their policy context.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Biggest claims",
+        "Top 10 claims by value",
+        "Largest payouts",
+        "Highest claim amounts",
+        "Our most expensive claims"
+      ],
+      "relevant_tables": [
+        "claims",
+        "policy"
+      ],
+      "relevant_columns": [
+        "claims.Claim_No",
+        "claims.AppID",
+        "claims.Claim.Amount",
+        "claims.Amount.Paid",
+        "claims.Cause.of.Death",
+        "claims.Status.of.Claim",
+        "claims.Date.of.Death",
+        "policy.AppID",
+        "policy.Prod_No",
+        "policy.Sum.Assured",
+        "policy.Inforce.Date"
+      ],
+      "required_operations": [
+        "JOIN",
+        "ORDER BY",
+        "LIMIT",
+        "SELECT",
+        "SUM",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "total_claim_amount",
+        "claim_count",
+        "share_of_portfolio"
+      ],
+      "relationships": [
+        "policy_claims"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "top_n",
+        "base": "claims",
+        "joins": [
+          "policy_claims"
+        ],
+        "measure": "Claim.Amount",
+        "default_n": 10,
+        "columns": [
+          "Claim_No",
+          "AppID",
+          "Claim.Amount",
+          "Amount.Paid",
+          "Cause.of.Death",
+          "Status.of.Claim",
+          "policy_Prod_No",
+          "policy_Sum.Assured"
+        ]
+      },
+      "concepts": [
+        "top N",
+        "large loss"
+      ],
+      "analytical_steps": [
+        "Join Claims_Details to Policy_Details on AppID.",
+        "Sort by parsed Claim.Amount descending.",
+        "Take the top N, defaulting to 10.",
+        "Report the combined share of total claim value."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "The top {n} claims total {topn_value}, {topn_share}% of all claim value.",
+      "parameters": {
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 1,
+          "max": 50
+        }
+      },
+      "population": "All 134 claims ranked by claim amount.",
+      "caveat": "Claims are identified by Claim_No and AppID. Owner identity is personal data and is withheld by default. One claim is unsettled and carries the literal 'WIP' in Status.of.Claim, Amount.Paid and Settlement.Date (DQ-004). It is excluded from settlement and payout metrics and the exclusion is reported.",
+      "evidence_requirements": {
+        "records": "top N claim rows",
+        "ranking": "claim amount desc",
+        "join_path": "claims.AppID = policy.AppID",
+        "data_quality_notes": [
+          "DQ-003"
+        ],
+        "tables_used": [
+          "claims",
+          "policy"
+        ],
+        "columns_used": [
+          "claims.Claim_No",
+          "claims.AppID",
+          "claims.Claim.Amount",
+          "claims.Amount.Paid",
+          "claims.Cause.of.Death",
+          "claims.Status.of.Claim",
+          "claims.Date.of.Death",
+          "policy.AppID",
+          "policy.Prod_No",
+          "policy.Sum.Assured",
+          "policy.Inforce.Date"
+        ],
+        "population_definition": "All 134 claims ranked by claim amount."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-063",
+      "problem_statement": "Is there a seasonal pattern in claims?",
+      "intent_type": "Time-Series/Seasonality",
+      "business_intent": "Detect timing patterns in mortality events.",
+      "business_domain": "Claims & Risk",
+      "business_objective": "Produce a monthly series of claims by date of death.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Claims by month",
+        "Is there seasonality in claims?",
+        "When do most deaths occur?",
+        "Claim timing pattern",
+        "Monthly claim trend"
+      ],
+      "relevant_tables": [
+        "claims"
+      ],
+      "relevant_columns": [
+        "claims.Date.of.Death",
+        "claims.Claim_No",
+        "claims.Claim.Amount"
+      ],
+      "required_operations": [
+        "date_bucket",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "claim_count",
+        "total_claim_amount"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "timeseries",
+        "base": "claims",
+        "date_column": "Date.of.Death",
+        "grain": "month",
+        "trend_measure": "claims",
+        "measures": {
+          "claims": [
+            null,
+            "count_all"
+          ],
+          "total_amount": [
+            "Claim.Amount",
+            "sum"
+          ]
+        }
+      },
+      "concepts": [
+        "seasonality",
+        "time series",
+        "mortality"
+      ],
+      "analytical_steps": [
+        "Parse Date.of.Death under the contract's format list.",
+        "Derive the calendar month and the year-month period.",
+        "Count claims and sum value per period.",
+        "Present the series with counts visible so thin months are obvious."
+      ],
+      "expected_answer_type": "timeseries",
+      "answer_template": "Claims by month of death range from {min_count} to {max_count} per month.",
+      "parameters": {},
+      "population": "All 134 claims, spanning August 2023 to April 2026 by date of death.",
+      "caveat": "134 claims spread over 33 months averages four per month, which is far too thin to establish seasonality. The series is reported as an observation and no seasonal conclusion is drawn. The book contains 134 claims against 25,000 policies. Any breakdown of claims by a dimension produces small cells, so counts are reported alongside every rate and minimum cell sizes are enforced.",
+      "evidence_requirements": {
+        "aggregates": [
+          "claims by month"
+        ],
+        "limitations": [
+          "sample far too small for a seasonality claim"
+        ],
+        "tables_used": [
+          "claims"
+        ],
+        "columns_used": [
+          "claims.Date.of.Death",
+          "claims.Claim_No",
+          "claims.Claim.Amount"
+        ],
+        "population_definition": "All 134 claims, spanning August 2023 to April 2026 by date of death."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "line",
+      "formula_ids": [
+        "F-DATEBUCKET"
+      ],
+      "limitations": [
+        "Cannot support a seasonality conclusion at this sample size."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-064",
+      "problem_statement": "What is the claim profile by customer age?",
+      "intent_type": "Join/GroupBy/Distribution",
+      "business_intent": "Relate mortality experience to customer age.",
+      "business_domain": "Claims & Risk",
+      "business_objective": "Compute claim incidence and average claim value by owner age band.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Claims by age group",
+        "Which age band claims most?",
+        "Age and mortality",
+        "Claim rate by customer age",
+        "Do older customers claim more?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner",
+        "claims"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.Sum.Assured",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.age_band",
+        "claims.AppID",
+        "claims.Claim.Amount",
+        "claims.Claim_No"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "derive_column",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "ratio",
+        "ORDER BY",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "claim_incidence_rate",
+        "claim_count",
+        "policy_count",
+        "avg_claim_amount",
+        "avg_owner_age"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_claims"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner",
+          "policy_claims"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "age_band",
+        "derive": [
+          {
+            "kind": "band",
+            "name": "age_band",
+            "column": "owner_Owner.Age",
+            "bins": [
+              0,
+              17,
+              29,
+              39,
+              49,
+              59,
+              69,
+              120
+            ],
+            "labels": [
+              "under_18_implausible",
+              "18_29",
+              "30_39",
+              "40_49",
+              "50_59",
+              "60_69",
+              "70_plus"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "claims": [
+            "claims_Claim_No",
+            "count"
+          ],
+          "avg_claim_amount": [
+            "claims_Claim.Amount",
+            "mean"
+          ]
+        },
+        "rates": {
+          "claim_incidence_rate": {
+            "numerator": "claims",
+            "denominator": "policies"
+          }
+        },
+        "sort_by_group": "age_band"
+      },
+      "concepts": [
+        "mortality",
+        "age banding",
+        "claim incidence"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID for the exposed base.",
+        "Left join Claims_Details so unclaimed policies stay in the denominator.",
+        "Band Owner.Age into decades.",
+        "Compute claim incidence and average claim amount per band.",
+        "Enforce a minimum of 5 claims per band before reporting a rate."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "Claim incidence rises to {top_rate}% in the {top_band} age band.",
+      "parameters": {},
+      "population": "The 24,999 policies joined to an owner record; 134 claims.",
+      "caveat": "Most age bands contain very few claims, so band-level rates are unstable and bands below the minimum claim count are shown as counts only, without a rate. Owner.Age contains implausible values (DQ-009).",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID; policy.AppID = claims.AppID (left)",
+        "aggregates": [
+          "incidence by age band"
+        ],
+        "sample_sizes": "claims per band",
+        "data_quality_notes": [
+          "DQ-001",
+          "DQ-009"
+        ],
+        "limitations": [
+          "bands below minimum claim count report counts only"
+        ],
+        "tables_used": [
+          "policy",
+          "owner",
+          "claims"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.Sum.Assured",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.age_band",
+          "claims.AppID",
+          "claims.Claim.Amount",
+          "claims.Claim_No"
+        ],
+        "population_definition": "The 24,999 policies joined to an owner record; 134 claims."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-AVG"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

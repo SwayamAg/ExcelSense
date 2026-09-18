@@ -1,0 +1,823 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_persistency_renewal",
+  "business_domains": [
+    "Persistency / Renewal"
+  ],
+  "problem_count": 6,
+  "problem_ids": [
+    "PS-044",
+    "PS-045",
+    "PS-046",
+    "PS-047",
+    "PS-048",
+    "PS-051"
+  ],
+  "routing_hints": {
+    "tables": [
+      "persistency",
+      "policy"
+    ],
+    "concepts": [
+      "collection",
+      "collections",
+      "comparison",
+      "payment delay",
+      "payment mode",
+      "persistency",
+      "persistency bucket",
+      "product performance",
+      "renewal",
+      "renewal behaviour",
+      "retention decay",
+      "value at risk"
+    ],
+    "intent_structures": [
+      "Conditional",
+      "Derived-Metric",
+      "GroupBy",
+      "Join"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-044",
+      "problem_statement": "What is the overall renewal payment rate?",
+      "intent_type": "Conditional/Ratio",
+      "business_intent": "Establish the headline renewal collection measure.",
+      "business_domain": "Persistency / Renewal",
+      "business_objective": "Compute the share of renewals recorded as paid.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "What is our renewal rate?",
+        "How many renewals have been paid?",
+        "Renewal payment rate",
+        "Persistency rate",
+        "Share of renewals collected"
+      ],
+      "relevant_tables": [
+        "persistency"
+      ],
+      "relevant_columns": [
+        "persistency.Renewal_Status",
+        "persistency.AppID"
+      ],
+      "required_operations": [
+        "CASE WHEN",
+        "COUNT",
+        "ratio"
+      ],
+      "required_metrics": [
+        "renewal_paid_rate",
+        "renewal_pending_rate",
+        "renewal_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "persistency",
+        "group_by": "Renewal_Status",
+        "measures": {
+          "renewals": [
+            null,
+            "count_all"
+          ],
+          "premium": [
+            "Renewal_Premium_Amount",
+            "sum"
+          ]
+        },
+        "shares": {
+          "share_pct": "renewals"
+        },
+        "rank_by": "renewals"
+      },
+      "concepts": [
+        "renewal",
+        "persistency",
+        "collection"
+      ],
+      "analytical_steps": [
+        "Count rows with Renewal_Status = 'Paid'.",
+        "Divide by the total persistency row count.",
+        "Report paid and pending counts and rates."
+      ],
+      "expected_answer_type": "distribution",
+      "answer_template": "{paid_count} of {renewal_count} renewals are paid, a rate of {renewal_paid_rate}%.",
+      "parameters": {},
+      "population": "Persistency_Details covers only Premium paying (regular) and Lapsed policies. Surrendered and death policies have no renewal row (DQ-006), so this denominator differs from the full policy count.",
+      "caveat": "'Pending' means not yet recorded as paid at extract time, not necessarily defaulted. Renewal_Status = 'Paid' is exactly equivalent to a present Renewal_Paid_Date, so the two agree by construction.",
+      "evidence_requirements": {
+        "calculations": [
+          "renewal_paid_rate"
+        ],
+        "aggregates": [
+          "count by renewal status"
+        ],
+        "data_quality_notes": [
+          "DQ-006"
+        ],
+        "tables_used": [
+          "persistency"
+        ],
+        "columns_used": [
+          "persistency.Renewal_Status",
+          "persistency.AppID"
+        ],
+        "population_definition": "Persistency_Details covers only Premium paying (regular) and Lapsed policies. Surrendered and death policies have no renewal row (DQ-006), so this denominator differs from the full policy count."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "donut",
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-045",
+      "problem_statement": "How does persistency differ across the 13th, 25th and 37th month buckets?",
+      "intent_type": "GroupBy/Comparison",
+      "business_intent": "Track how retention decays with policy age.",
+      "business_domain": "Persistency / Renewal",
+      "business_objective": "Compare renewal paid rates across the three persistency buckets.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "13th month persistency",
+        "Compare persistency buckets",
+        "How does persistency decay?",
+        "25th versus 37th month persistency",
+        "Persistency by bucket"
+      ],
+      "relevant_tables": [
+        "persistency"
+      ],
+      "relevant_columns": [
+        "persistency.Persistency_Bucket",
+        "persistency.Renewal_Status",
+        "persistency.AppID",
+        "persistency.Renewal_Premium_Amount"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "SUM",
+        "ratio",
+        "ORDER BY",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "renewal_paid_rate",
+        "renewal_count",
+        "total_renewal_premium",
+        "delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "persistency",
+        "group_by": "Persistency_Bucket",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          }
+        ],
+        "measures": {
+          "renewals": [
+            null,
+            "count_all"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ],
+          "premium_at_stake": [
+            "Renewal_Premium_Amount",
+            "sum"
+          ]
+        },
+        "rates": {
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          }
+        },
+        "sort_by_group": "Persistency_Bucket",
+        "baseline": {
+          "kind": "rate",
+          "measure": "renewal_paid_rate",
+          "numerator_column": "Renewal_Status",
+          "numerator_values": [
+            "Paid"
+          ],
+          "description": "overall renewal paid rate"
+        }
+      },
+      "concepts": [
+        "persistency bucket",
+        "retention decay"
+      ],
+      "analytical_steps": [
+        "Group Persistency_Details by Persistency_Bucket.",
+        "Compute the renewal paid rate and row count per bucket.",
+        "Sum the renewal premium at stake per bucket.",
+        "Order the buckets chronologically (13th, 25th, 37th) rather than alphabetically.",
+        "Report the trajectory across buckets."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "Renewal paid rate runs {b13}% at the 13th month, {b25}% at the 25th and {b37}% at the 37th.",
+      "parameters": {},
+      "population": "Persistency_Details covers only Premium paying (regular) and Lapsed policies. Surrendered and death policies have no renewal row (DQ-006), so this denominator differs from the full policy count. 6,943 / 8,189 / 9,410 rows per bucket.",
+      "caveat": "Each policy appears in exactly one bucket, so these are three different populations, not the same cohort tracked over time. A decay reading across buckets is therefore a cross-sectional comparison, not a longitudinal one.",
+      "evidence_requirements": {
+        "aggregates": [
+          "paid rate by bucket"
+        ],
+        "sample_sizes": "rows per bucket",
+        "limitations": [
+          "cross-sectional, not longitudinal"
+        ],
+        "data_quality_notes": [
+          "DQ-006"
+        ],
+        "tables_used": [
+          "persistency"
+        ],
+        "columns_used": [
+          "persistency.Persistency_Bucket",
+          "persistency.Renewal_Status",
+          "persistency.AppID",
+          "persistency.Renewal_Premium_Amount"
+        ],
+        "population_definition": "Persistency_Details covers only Premium paying (regular) and Lapsed policies. Surrendered and death policies have no renewal row (DQ-006), so this denominator differs from the full policy count. 6,943 / 8,189 / 9,410 rows per bucket."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-046",
+      "problem_statement": "How late are customers paying their renewals?",
+      "intent_type": "Derived-Metric/Distribution",
+      "business_intent": "Understand payment timing behaviour.",
+      "business_domain": "Persistency / Renewal",
+      "business_objective": "Compute the delay between renewal due date and renewal paid date.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "How late are renewal payments?",
+        "Renewal payment delay",
+        "Days between due and paid",
+        "Are customers paying on time?",
+        "Renewal timing analysis"
+      ],
+      "relevant_tables": [
+        "persistency"
+      ],
+      "relevant_columns": [
+        "persistency.Renewal_Due_Date",
+        "persistency.Renewal_Paid_Date",
+        "persistency.renewal_delay_days",
+        "persistency.AppID",
+        "persistency.Renewal_Status"
+      ],
+      "required_operations": [
+        "date_diff",
+        "derive_column",
+        "WHERE",
+        "AVG",
+        "MEDIAN",
+        "MIN",
+        "MAX",
+        "PERCENTILE",
+        "COUNT",
+        "GROUP BY"
+      ],
+      "required_metrics": [
+        "renewal_delay_days",
+        "renewal_count",
+        "percentile"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "distribution",
+        "base": "persistency",
+        "column": "renewal_delay_days",
+        "derive": [
+          {
+            "kind": "date_diff",
+            "name": "renewal_delay_days",
+            "end": "Renewal_Paid_Date",
+            "start": "Renewal_Due_Date"
+          }
+        ],
+        "filters": [
+          [
+            "Renewal_Status",
+            "eq",
+            "Paid"
+          ]
+        ],
+        "bins": [
+          -1,
+          0,
+          5,
+          10,
+          15,
+          400
+        ],
+        "labels": [
+          "on_or_before_due",
+          "1_5d",
+          "6_10d",
+          "11_15d",
+          "over_15d"
+        ]
+      },
+      "concepts": [
+        "payment delay",
+        "renewal behaviour"
+      ],
+      "analytical_steps": [
+        "Restrict to rows where Renewal_Paid_Date is present.",
+        "Derive renewal_delay_days as paid date minus due date.",
+        "Compute the distribution: minimum, median, maximum and percentiles.",
+        "Count how many were paid on or before the due date versus after.",
+        "Report the delay distribution."
+      ],
+      "expected_answer_type": "distribution",
+      "answer_template": "Of {paid_count} paid renewals, the median delay is {median_delay} days and {late_count} were paid after the due date.",
+      "parameters": {},
+      "population": "The 12,439 persistency rows with a recorded Renewal_Paid_Date.",
+      "caveat": "Pending renewals have no paid date and are excluded from the delay distribution rather than counted as zero or infinite delay. Observed delays span 0 to 20 days, so this measures grace-period behaviour, not default.",
+      "evidence_requirements": {
+        "calculations": [
+          "renewal_delay_days"
+        ],
+        "aggregates": [
+          "delay distribution"
+        ],
+        "population_definition": "paid renewals only",
+        "limitations": [
+          "pending renewals excluded"
+        ],
+        "tables_used": [
+          "persistency"
+        ],
+        "columns_used": [
+          "persistency.Renewal_Due_Date",
+          "persistency.Renewal_Paid_Date",
+          "persistency.renewal_delay_days",
+          "persistency.AppID",
+          "persistency.Renewal_Status"
+        ]
+      },
+      "visualization_recommended": true,
+      "visualization_type": "histogram",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-MEDIAN",
+        "F-PERCENTILE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-047",
+      "problem_statement": "Does payment method affect renewal behaviour?",
+      "intent_type": "GroupBy/Ratio/Comparison",
+      "business_intent": "See whether auto-debit or digital methods improve collection.",
+      "business_domain": "Persistency / Renewal",
+      "business_objective": "Compare renewal paid rate and delay across payment modes.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Renewal rate by payment mode",
+        "Does auto debit improve renewals?",
+        "Payment method and persistency",
+        "Which payment mode pays best?",
+        "Compare payment modes"
+      ],
+      "relevant_tables": [
+        "persistency"
+      ],
+      "relevant_columns": [
+        "persistency.Payment_Mode",
+        "persistency.Renewal_Status",
+        "persistency.renewal_delay_days",
+        "persistency.Renewal_Due_Date",
+        "persistency.Renewal_Paid_Date",
+        "persistency.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "date_diff",
+        "MEDIAN",
+        "ORDER BY",
+        "compare_to_baseline",
+        "crosstab_metric"
+      ],
+      "required_metrics": [
+        "renewal_paid_rate",
+        "renewal_delay_days",
+        "renewal_count",
+        "delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "persistency",
+        "group_by": "Payment_Mode",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          },
+          {
+            "kind": "date_diff",
+            "name": "renewal_delay_days",
+            "end": "Renewal_Paid_Date",
+            "start": "Renewal_Due_Date"
+          }
+        ],
+        "measures": {
+          "renewals": [
+            null,
+            "count_all"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ],
+          "median_delay_days": [
+            "renewal_delay_days",
+            "median"
+          ]
+        },
+        "rates": {
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          }
+        },
+        "rank_by": "renewal_paid_rate",
+        "baseline": {
+          "kind": "rate",
+          "measure": "renewal_paid_rate",
+          "numerator_column": "Renewal_Status",
+          "numerator_values": [
+            "Paid"
+          ],
+          "description": "overall renewal paid rate"
+        }
+      },
+      "concepts": [
+        "payment mode",
+        "renewal behaviour",
+        "comparison"
+      ],
+      "analytical_steps": [
+        "Group Persistency_Details by Payment_Mode.",
+        "Compute the renewal paid rate per mode.",
+        "Compute the median payment delay per mode for paid rows.",
+        "Compare each mode against the overall rate.",
+        "Rank modes by paid rate."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{best_mode} has the highest paid rate at {best_rate}% versus {baseline_rate}% overall.",
+      "parameters": {},
+      "population": "Persistency_Details covers only Premium paying (regular) and Lapsed policies. Surrendered and death policies have no renewal row (DQ-006), so this denominator differs from the full policy count. Five payment modes, each with roughly 4,800-5,000 rows.",
+      "caveat": "Payment mode is recorded on the renewal row, not chosen at policy level. Policy.Mode is single-valued ('Annually') and is unrelated to this field. Any difference is an association; customers are not randomly assigned a mode.",
+      "evidence_requirements": {
+        "aggregates": [
+          "paid rate and delay by mode"
+        ],
+        "comparison_baseline": "overall paid rate",
+        "sample_sizes": "rows per mode",
+        "data_quality_notes": [
+          "DQ-008"
+        ],
+        "tables_used": [
+          "persistency"
+        ],
+        "columns_used": [
+          "persistency.Payment_Mode",
+          "persistency.Renewal_Status",
+          "persistency.renewal_delay_days",
+          "persistency.Renewal_Due_Date",
+          "persistency.Renewal_Paid_Date",
+          "persistency.AppID"
+        ],
+        "population_definition": "Persistency_Details covers only Premium paying (regular) and Lapsed policies. Surrendered and death policies have no renewal row (DQ-006), so this denominator differs from the full policy count. Five payment modes, each with roughly 4,800-5,000 rows."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-MEDIAN"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-048",
+      "problem_statement": "How much renewal premium is still outstanding?",
+      "intent_type": "Conditional/Sum",
+      "business_intent": "Size the collection opportunity and the value at risk.",
+      "business_domain": "Persistency / Renewal",
+      "business_objective": "Total the renewal premium attached to pending renewals.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "How much renewal premium is pending?",
+        "Outstanding renewal value",
+        "Value at risk from unpaid renewals",
+        "Uncollected renewal premium",
+        "What is pending collection?"
+      ],
+      "relevant_tables": [
+        "persistency"
+      ],
+      "relevant_columns": [
+        "persistency.Renewal_Status",
+        "persistency.Renewal_Premium_Amount",
+        "persistency.Persistency_Bucket",
+        "persistency.AppID",
+        "persistency.Renewal_Due_Date"
+      ],
+      "required_operations": [
+        "WHERE",
+        "SUM",
+        "COUNT",
+        "GROUP BY",
+        "AVG",
+        "ORDER BY",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "total_renewal_premium",
+        "avg_renewal_premium",
+        "renewal_count",
+        "renewal_pending_rate",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "persistency",
+        "filters": [
+          [
+            "Renewal_Status",
+            "eq",
+            "Pending"
+          ]
+        ],
+        "group_by": "Persistency_Bucket",
+        "measures": {
+          "pending_renewals": [
+            null,
+            "count_all"
+          ],
+          "pending_premium": [
+            "Renewal_Premium_Amount",
+            "sum"
+          ],
+          "avg_premium": [
+            "Renewal_Premium_Amount",
+            "mean"
+          ]
+        },
+        "shares": {
+          "share_of_pending_pct": "pending_premium"
+        },
+        "rank_by": "pending_premium"
+      },
+      "concepts": [
+        "value at risk",
+        "collections",
+        "renewal"
+      ],
+      "analytical_steps": [
+        "Filter Persistency_Details to Renewal_Status = 'Pending'.",
+        "Sum Renewal_Premium_Amount across those rows.",
+        "Break the total down by persistency bucket.",
+        "Express the pending amount as a share of total renewal premium due.",
+        "Report counts alongside values."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{pending_count} renewals worth {pending_premium} are outstanding, {pending_share}% of renewal premium due.",
+      "parameters": {},
+      "population": "The 12,103 persistency rows with Renewal_Status = 'Pending'.",
+      "caveat": "Pending means not recorded as paid at extract time. The data has no grace period, no lapse date and no collection activity, so pending cannot be equated with lost premium.",
+      "evidence_requirements": {
+        "aggregates": [
+          "pending premium by bucket"
+        ],
+        "calculations": [
+          "pending share of total"
+        ],
+        "data_quality_notes": [
+          "DQ-006"
+        ],
+        "tables_used": [
+          "persistency"
+        ],
+        "columns_used": [
+          "persistency.Renewal_Status",
+          "persistency.Renewal_Premium_Amount",
+          "persistency.Persistency_Bucket",
+          "persistency.AppID",
+          "persistency.Renewal_Due_Date"
+        ],
+        "population_definition": "The 12,103 persistency rows with Renewal_Status = 'Pending'."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "stacked_bar",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-051",
+      "problem_statement": "What is the renewal paid rate by product?",
+      "intent_type": "Join/GroupBy/Ratio",
+      "business_intent": "Find which products retain paying customers.",
+      "business_domain": "Persistency / Renewal",
+      "business_objective": "Compute renewal paid rate per product over the eligible population.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Renewal rate by product",
+        "Which product renews best?",
+        "Product persistency comparison",
+        "Persistency by plan",
+        "Rank products by renewal collection"
+      ],
+      "relevant_tables": [
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.AppID",
+        "persistency.AppID",
+        "persistency.Renewal_Status",
+        "persistency.Renewal_Premium_Amount"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "SUM",
+        "ratio",
+        "ORDER BY",
+        "compare_to_baseline",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "renewal_paid_rate",
+        "renewal_count",
+        "total_renewal_premium",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_persistency"
+        ],
+        "join_how": {
+          "policy_persistency": "inner"
+        },
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          }
+        ],
+        "measures": {
+          "renewals": [
+            null,
+            "count_all"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ],
+          "premium": [
+            "persistency_Renewal_Premium_Amount",
+            "sum"
+          ]
+        },
+        "rates": {
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          }
+        },
+        "min_sample": 50,
+        "rank_by": "renewal_paid_rate"
+      },
+      "concepts": [
+        "renewal",
+        "product performance"
+      ],
+      "analytical_steps": [
+        "Join Persistency_Details to Policy_Details on AppID.",
+        "Group by product.",
+        "Compute the renewal paid rate and row count per product.",
+        "Compute the renewal premium outstanding per product.",
+        "Compare against the overall paid rate and rank."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{best_product} renews at {best_rate}% against an overall {baseline_rate}%.",
+      "parameters": {},
+      "population": "The 24,541 policies present in both Policy_Details and Persistency_Details.",
+      "caveat": "Persistency_Details covers only Premium paying (regular) and Lapsed policies. Surrendered and death policies have no renewal row (DQ-006), so this denominator differs from the full policy count. Surrendered and death policies are excluded, so a product losing customers through surrender rather than non-renewal will look better here than it is.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = persistency.AppID",
+        "aggregates": [
+          "paid rate by product"
+        ],
+        "comparison_baseline": "overall paid rate",
+        "data_quality_notes": [
+          "DQ-001",
+          "DQ-006"
+        ],
+        "tables_used": [
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.AppID",
+          "persistency.AppID",
+          "persistency.Renewal_Status",
+          "persistency.Renewal_Premium_Amount"
+        ],
+        "population_definition": "The 24,541 policies present in both Policy_Details and Persistency_Details."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

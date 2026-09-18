@@ -1,0 +1,815 @@
+{
+  "config_version": "1.0.0",
+  "engine_version": "1.0.0",
+  "generated_at_utc": "2026-09-11T17:52:44Z",
+  "generated_by": "scripts/build_logic_config.py",
+  "source_of_truth": "src/logic/formula_engine.py",
+  "principle": "The application determines the facts and the formula engine determines the calculations. The LLM never computes an authoritative value.",
+  "formula_count": 18,
+  "formulas": [
+    {
+      "id": "F-AVG",
+      "name": "Arithmetic mean",
+      "expression": "sum(values) / count(non-null values)",
+      "description": "Mean, dividing by present values rather than by row count.",
+      "parameters": [
+        "values",
+        "decimals"
+      ],
+      "returns": "number or null",
+      "null_handling": "nulls excluded from BOTH numerator and denominator",
+      "zero_denominator": "undefined when the population is empty, never zero",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "values": [
+              2,
+              4,
+              null
+            ]
+          },
+          "expected": 3.0
+        },
+        {
+          "inputs": {
+            "values": []
+          },
+          "expected": null
+        }
+      ],
+      "used_by_ps_count": 19,
+      "used_by": [
+        "PS-005",
+        "PS-008",
+        "PS-015",
+        "PS-016",
+        "PS-018",
+        "PS-020",
+        "PS-026",
+        "PS-027",
+        "PS-029",
+        "PS-043",
+        "PS-064",
+        "PS-067",
+        "PS-071",
+        "PS-077",
+        "PS-078",
+        "PS-079",
+        "PS-080",
+        "PS-091",
+        "PS-101"
+      ]
+    },
+    {
+      "id": "F-COMPOSITE",
+      "name": "Weighted composite",
+      "expression": "sum(component * weight) / sum(weight)",
+      "description": "Weighted score over components already normalised to a comparable scale. Weights are declared in config and reported with the result.",
+      "parameters": [
+        "components",
+        "weights",
+        "decimals"
+      ],
+      "returns": "number or null",
+      "null_handling": "null components are excluded and the weights renormalised",
+      "zero_denominator": "undefined when no usable component has weight",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "components": {
+              "a": 80.0,
+              "b": 60.0
+            },
+            "weights": {
+              "a": 0.5,
+              "b": 0.5
+            }
+          },
+          "expected": 70.0
+        }
+      ],
+      "used_by_ps_count": 4,
+      "used_by": [
+        "PS-073",
+        "PS-076",
+        "PS-100",
+        "PS-102"
+      ]
+    },
+    {
+      "id": "F-COUNT",
+      "name": "Count",
+      "expression": "count of non-null values",
+      "description": "Number of rows or values matching the declared population.",
+      "parameters": [
+        "values",
+        "population"
+      ],
+      "returns": "integer",
+      "null_handling": "null values are not counted",
+      "zero_denominator": "not applicable",
+      "rounding_decimals": null,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "values": [
+              1,
+              2,
+              null,
+              4
+            ]
+          },
+          "expected": 3
+        }
+      ],
+      "used_by_ps_count": 6,
+      "used_by": [
+        "PS-001",
+        "PS-052",
+        "PS-087",
+        "PS-095",
+        "PS-096",
+        "PS-098"
+      ]
+    },
+    {
+      "id": "F-COUNT-DISTINCT",
+      "name": "Distinct count",
+      "expression": "count of distinct non-null values",
+      "description": "Number of distinct values, used for entity counts such as clients or agents.",
+      "parameters": [
+        "values"
+      ],
+      "returns": "integer",
+      "null_handling": "null is not treated as a distinct value",
+      "zero_denominator": "not applicable",
+      "rounding_decimals": null,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "values": [
+              "a",
+              "b",
+              "a",
+              null
+            ]
+          },
+          "expected": 2
+        }
+      ],
+      "used_by_ps_count": 2,
+      "used_by": [
+        "PS-010",
+        "PS-082"
+      ]
+    },
+    {
+      "id": "F-CUMSHARE",
+      "name": "Cumulative share",
+      "expression": "running sum / total, as a percentage",
+      "description": "Concentration curve over an ordered series.",
+      "parameters": [
+        "values",
+        "decimals"
+      ],
+      "returns": "list of percents",
+      "null_handling": "nulls excluded before accumulating",
+      "zero_denominator": "undefined when the total is zero",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "values": [
+              50,
+              30,
+              20
+            ]
+          },
+          "expected": [
+            50.0,
+            80.0,
+            100.0
+          ]
+        }
+      ],
+      "used_by_ps_count": 5,
+      "used_by": [
+        "PS-024",
+        "PS-062",
+        "PS-070",
+        "PS-088",
+        "PS-090"
+      ]
+    },
+    {
+      "id": "F-DATEBUCKET",
+      "name": "Date bucket",
+      "expression": "zero-padded period key from a date",
+      "description": "Chronologically sortable period key at month, quarter or year grain.",
+      "parameters": [
+        "value",
+        "grain"
+      ],
+      "returns": "string key or null",
+      "null_handling": "a missing date yields no bucket",
+      "zero_denominator": "not applicable",
+      "rounding_decimals": null,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "value": "2023-01-15",
+            "grain": "month"
+          },
+          "expected": "2023-01"
+        },
+        {
+          "inputs": {
+            "value": "2023-11-15",
+            "grain": "quarter"
+          },
+          "expected": "2023-Q4"
+        }
+      ],
+      "used_by_ps_count": 7,
+      "used_by": [
+        "PS-032",
+        "PS-041",
+        "PS-063",
+        "PS-091",
+        "PS-092",
+        "PS-093",
+        "PS-094"
+      ]
+    },
+    {
+      "id": "F-DATEDIFF",
+      "name": "Date difference",
+      "expression": "end - start, in whole days",
+      "description": "Duration between two parsed dates.",
+      "parameters": [
+        "end",
+        "start"
+      ],
+      "returns": "integer days or null",
+      "null_handling": "a missing date makes the result undefined",
+      "zero_denominator": "not applicable",
+      "rounding_decimals": null,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "end": "2024-01-11",
+            "start": "2024-01-01"
+          },
+          "expected": 10
+        },
+        {
+          "inputs": {
+            "end": "2024-01-01",
+            "start": "2024-01-11"
+          },
+          "expected": -10
+        }
+      ],
+      "used_by_ps_count": 7,
+      "used_by": [
+        "PS-029",
+        "PS-030",
+        "PS-046",
+        "PS-056",
+        "PS-057",
+        "PS-058",
+        "PS-097"
+      ]
+    },
+    {
+      "id": "F-DELTA",
+      "name": "Difference vs baseline",
+      "expression": "value - baseline",
+      "description": "Absolute difference in the inputs' own units.",
+      "parameters": [
+        "value",
+        "baseline",
+        "decimals"
+      ],
+      "returns": "number or null",
+      "null_handling": "a null input makes the result undefined",
+      "zero_denominator": "not applicable",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "value": 26.07,
+            "baseline": 10.948
+          },
+          "expected": 15.122
+        }
+      ],
+      "used_by_ps_count": 31,
+      "used_by": [
+        "PS-013",
+        "PS-014",
+        "PS-016",
+        "PS-028",
+        "PS-030",
+        "PS-036",
+        "PS-037",
+        "PS-038",
+        "PS-039",
+        "PS-040",
+        "PS-042",
+        "PS-043",
+        "PS-045",
+        "PS-047",
+        "PS-049",
+        "PS-050",
+        "PS-051",
+        "PS-057",
+        "PS-059",
+        "PS-065",
+        "PS-067",
+        "PS-068",
+        "PS-069",
+        "PS-071",
+        "PS-072",
+        "PS-074",
+        "PS-085",
+        "PS-089",
+        "PS-092",
+        "PS-093",
+        "PS-094"
+      ]
+    },
+    {
+      "id": "F-HHI",
+      "name": "Concentration index",
+      "expression": "sum of squared percentage shares",
+      "description": "Herfindahl-style concentration measure over group shares.",
+      "parameters": [
+        "shares",
+        "decimals"
+      ],
+      "returns": "number or null",
+      "null_handling": "nulls excluded",
+      "zero_denominator": "undefined when empty",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "shares": [
+              100.0
+            ]
+          },
+          "expected": 10000.0
+        },
+        {
+          "inputs": {
+            "shares": [
+              50.0,
+              50.0
+            ]
+          },
+          "expected": 5000.0
+        }
+      ],
+      "used_by_ps_count": 4,
+      "used_by": [
+        "PS-019",
+        "PS-070",
+        "PS-088",
+        "PS-090"
+      ]
+    },
+    {
+      "id": "F-IQR",
+      "name": "Interquartile fence",
+      "expression": "Q1 - k*IQR and Q3 + k*IQR",
+      "description": "Outlier fence, preferred over standard deviations on skewed data.",
+      "parameters": [
+        "values",
+        "multiplier",
+        "decimals"
+      ],
+      "returns": "bounds object or null",
+      "null_handling": "nulls excluded",
+      "zero_denominator": "fences collapse when the IQR is zero; this is flagged",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "values": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          },
+          "expected": {
+            "q1": 2.75,
+            "q3": 6.25
+          }
+        }
+      ],
+      "used_by_ps_count": 3,
+      "used_by": [
+        "PS-025",
+        "PS-075",
+        "PS-097"
+      ]
+    },
+    {
+      "id": "F-MEDIAN",
+      "name": "Median",
+      "expression": "50th percentile",
+      "description": "Middle value; reported alongside the mean wherever a distribution is skewed.",
+      "parameters": [
+        "values",
+        "decimals"
+      ],
+      "returns": "number or null",
+      "null_handling": "nulls excluded",
+      "zero_denominator": "undefined when the population is empty",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "values": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "expected": 2.5
+        }
+      ],
+      "used_by_ps_count": 14,
+      "used_by": [
+        "PS-005",
+        "PS-015",
+        "PS-021",
+        "PS-026",
+        "PS-029",
+        "PS-030",
+        "PS-043",
+        "PS-046",
+        "PS-047",
+        "PS-056",
+        "PS-057",
+        "PS-077",
+        "PS-081",
+        "PS-091"
+      ]
+    },
+    {
+      "id": "F-PCT-DELTA",
+      "name": "Percentage change vs baseline",
+      "expression": "100 * (value - baseline) / baseline",
+      "description": "Relative change against a stated baseline.",
+      "parameters": [
+        "value",
+        "baseline",
+        "decimals"
+      ],
+      "returns": "percent or null",
+      "null_handling": "a null input makes the result undefined",
+      "zero_denominator": "undefined, never infinity",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "value": 110,
+            "baseline": 100
+          },
+          "expected": 10.0
+        },
+        {
+          "inputs": {
+            "value": 5,
+            "baseline": 0
+          },
+          "expected": null
+        }
+      ],
+      "used_by_ps_count": 8,
+      "used_by": [
+        "PS-014",
+        "PS-028",
+        "PS-033",
+        "PS-040",
+        "PS-050",
+        "PS-068",
+        "PS-091",
+        "PS-093"
+      ]
+    },
+    {
+      "id": "F-PERCENTILE",
+      "name": "Percentile",
+      "expression": "nth percentile with linear interpolation",
+      "description": "Distribution position, used for bands and outlier fences.",
+      "parameters": [
+        "values",
+        "percentile",
+        "decimals"
+      ],
+      "returns": "number or null",
+      "null_handling": "nulls excluded",
+      "zero_denominator": "undefined when empty",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "values": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "percentile": 50
+          },
+          "expected": 2.5
+        }
+      ],
+      "used_by_ps_count": 8,
+      "used_by": [
+        "PS-022",
+        "PS-046",
+        "PS-056",
+        "PS-073",
+        "PS-074",
+        "PS-076",
+        "PS-077",
+        "PS-083"
+      ]
+    },
+    {
+      "id": "F-RATE",
+      "name": "Rate",
+      "expression": "100 * numerator / denominator",
+      "description": "Percentage of a population meeting a condition.",
+      "parameters": [
+        "numerator",
+        "denominator",
+        "decimals"
+      ],
+      "returns": "percent or null",
+      "null_handling": "a null input makes the result undefined",
+      "zero_denominator": "undefined, never 0 and never infinity",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "numerator": 2737,
+            "denominator": 25000
+          },
+          "expected": 10.948
+        },
+        {
+          "inputs": {
+            "numerator": 5,
+            "denominator": 0
+          },
+          "expected": null
+        }
+      ],
+      "used_by_ps_count": 37,
+      "used_by": [
+        "PS-009",
+        "PS-011",
+        "PS-013",
+        "PS-014",
+        "PS-016",
+        "PS-017",
+        "PS-020",
+        "PS-035",
+        "PS-036",
+        "PS-037",
+        "PS-038",
+        "PS-039",
+        "PS-040",
+        "PS-041",
+        "PS-042",
+        "PS-044",
+        "PS-045",
+        "PS-047",
+        "PS-049",
+        "PS-050",
+        "PS-051",
+        "PS-054",
+        "PS-058",
+        "PS-059",
+        "PS-064",
+        "PS-065",
+        "PS-068",
+        "PS-069",
+        "PS-071",
+        "PS-074",
+        "PS-079",
+        "PS-085",
+        "PS-089",
+        "PS-094",
+        "PS-100",
+        "PS-101",
+        "PS-102"
+      ]
+    },
+    {
+      "id": "F-RATIO",
+      "name": "Ratio",
+      "expression": "numerator / denominator",
+      "description": "Unitless ratio such as sum assured to premium.",
+      "parameters": [
+        "numerator",
+        "denominator",
+        "decimals"
+      ],
+      "returns": "number or null",
+      "null_handling": "a null input makes the result undefined",
+      "zero_denominator": "undefined",
+      "rounding_decimals": 6,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "numerator": 1000000,
+            "denominator": 50000
+          },
+          "expected": 20.0
+        }
+      ],
+      "used_by_ps_count": 5,
+      "used_by": [
+        "PS-021",
+        "PS-025",
+        "PS-055",
+        "PS-060",
+        "PS-081"
+      ]
+    },
+    {
+      "id": "F-SHARE",
+      "name": "Share of total",
+      "expression": "100 * value / total",
+      "description": "A group's percentage share of an overall total.",
+      "parameters": [
+        "value",
+        "total",
+        "decimals"
+      ],
+      "returns": "percent or null",
+      "null_handling": "a null input makes the result undefined",
+      "zero_denominator": "undefined",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "value": 25,
+            "total": 200
+          },
+          "expected": 12.5
+        }
+      ],
+      "used_by_ps_count": 29,
+      "used_by": [
+        "PS-002",
+        "PS-006",
+        "PS-007",
+        "PS-008",
+        "PS-009",
+        "PS-012",
+        "PS-019",
+        "PS-020",
+        "PS-022",
+        "PS-023",
+        "PS-024",
+        "PS-034",
+        "PS-048",
+        "PS-053",
+        "PS-061",
+        "PS-062",
+        "PS-066",
+        "PS-070",
+        "PS-078",
+        "PS-079",
+        "PS-080",
+        "PS-083",
+        "PS-084",
+        "PS-086",
+        "PS-088",
+        "PS-090",
+        "PS-092",
+        "PS-099",
+        "PS-101"
+      ]
+    },
+    {
+      "id": "F-SUM",
+      "name": "Sum",
+      "expression": "sum(values)",
+      "description": "Total of a numeric column over the declared population.",
+      "parameters": [
+        "values",
+        "decimals"
+      ],
+      "returns": "number",
+      "null_handling": "nulls excluded from the sum",
+      "zero_denominator": "not applicable",
+      "rounding_decimals": 2,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "values": [
+              1.5,
+              2.5,
+              null
+            ]
+          },
+          "expected": 4.0
+        }
+      ],
+      "used_by_ps_count": 19,
+      "used_by": [
+        "PS-003",
+        "PS-004",
+        "PS-008",
+        "PS-009",
+        "PS-027",
+        "PS-033",
+        "PS-034",
+        "PS-048",
+        "PS-052",
+        "PS-066",
+        "PS-080",
+        "PS-082",
+        "PS-083",
+        "PS-084",
+        "PS-086",
+        "PS-099",
+        "PS-100",
+        "PS-101",
+        "PS-102"
+      ]
+    },
+    {
+      "id": "F-ZSCORE",
+      "name": "Z-score",
+      "expression": "(value - mean) / standard deviation",
+      "description": "Distance from the mean in standard deviations.",
+      "parameters": [
+        "value",
+        "mean",
+        "std",
+        "decimals"
+      ],
+      "returns": "number or null",
+      "null_handling": "a null input makes the result undefined",
+      "zero_denominator": "undefined when the deviation is zero",
+      "rounding_decimals": 4,
+      "version": "1.0.0",
+      "examples": [
+        {
+          "inputs": {
+            "value": 12,
+            "mean": 10,
+            "std": 2
+          },
+          "expected": 1.0
+        },
+        {
+          "inputs": {
+            "value": 12,
+            "mean": 10,
+            "std": 0
+          },
+          "expected": null
+        }
+      ],
+      "used_by_ps_count": 1,
+      "used_by": [
+        "PS-075"
+      ]
+    }
+  ]
+}

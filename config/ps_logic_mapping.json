@@ -1,0 +1,1355 @@
+{
+  "config_version": "1.0.0",
+  "generated_at_utc": "2026-09-11T17:52:44Z",
+  "generated_by": "scripts/build_logic_config.py",
+  "description": "Maps every Problem Statement to the formulas and business rules its execution must use. The Phase 3 gate requires every referenced formula to have a deterministic implementation.",
+  "problem_statement_count": 103,
+  "mappings": [
+    {
+      "problem_id": "PS-001",
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-002",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-009",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-003",
+      "formula_ids": [
+        "F-SUM"
+      ],
+      "business_rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-004",
+      "formula_ids": [
+        "F-SUM"
+      ],
+      "business_rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-005",
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN"
+      ],
+      "business_rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-006",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-007",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-008",
+      "formula_ids": [
+        "F-SUM",
+        "F-AVG",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-009",
+      "formula_ids": [
+        "F-SUM",
+        "F-RATE",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-010",
+      "formula_ids": [
+        "F-COUNT-DISTINCT"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-011",
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "business_rule_ids": [
+        "BR-009",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-012",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-013",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-009",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-014",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-004",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-014",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-015",
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-016",
+      "formula_ids": [
+        "F-AVG",
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-009",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-017",
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-009",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-018",
+      "formula_ids": [
+        "F-AVG"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-019",
+      "formula_ids": [
+        "F-SHARE",
+        "F-HHI"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-020",
+      "formula_ids": [
+        "F-RATE",
+        "F-AVG",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-008",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-021",
+      "formula_ids": [
+        "F-RATIO",
+        "F-MEDIAN"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-022",
+      "formula_ids": [
+        "F-PERCENTILE",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-023",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-009",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-024",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-025",
+      "formula_ids": [
+        "F-RATIO",
+        "F-IQR"
+      ],
+      "business_rule_ids": [
+        "BR-007",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-026",
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-027",
+      "formula_ids": [
+        "F-SUM",
+        "F-AVG"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-028",
+      "formula_ids": [
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-029",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-AVG",
+        "F-MEDIAN"
+      ],
+      "business_rule_ids": [
+        "BR-005",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-030",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-MEDIAN",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-005",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-031",
+      "formula_ids": [],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-006",
+        "BR-009",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-032",
+      "formula_ids": [
+        "F-DATEBUCKET"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-033",
+      "formula_ids": [
+        "F-SUM",
+        "F-PCT-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-034",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-035",
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "business_rule_ids": [
+        "BR-009",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-036",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-037",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-038",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-039",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-004",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-040",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-004",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-014",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-041",
+      "formula_ids": [
+        "F-RATE",
+        "F-DATEBUCKET"
+      ],
+      "business_rule_ids": [
+        "BR-009",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-042",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-009",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-043",
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-014",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-044",
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-045",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-046",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-MEDIAN",
+        "F-PERCENTILE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-005",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-047",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-MEDIAN"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-005",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-048",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-049",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-004",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-050",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-014",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-051",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-052",
+      "formula_ids": [
+        "F-COUNT",
+        "F-SUM"
+      ],
+      "business_rule_ids": [
+        "BR-003",
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-053",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-054",
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "business_rule_ids": [
+        "BR-003",
+        "BR-008",
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-055",
+      "formula_ids": [
+        "F-RATIO"
+      ],
+      "business_rule_ids": [
+        "BR-003",
+        "BR-008",
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-056",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-MEDIAN",
+        "F-PERCENTILE"
+      ],
+      "business_rule_ids": [
+        "BR-003",
+        "BR-005",
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-057",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-MEDIAN",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-003",
+        "BR-005",
+        "BR-006",
+        "BR-010",
+        "BR-011",
+        "BR-013",
+        "BR-014",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-058",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-RATE"
+      ],
+      "business_rule_ids": [
+        "BR-005",
+        "BR-008",
+        "BR-010",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-059",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-008",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-060",
+      "formula_ids": [
+        "F-RATIO"
+      ],
+      "business_rule_ids": [
+        "BR-003",
+        "BR-008",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-061",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-062",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-063",
+      "formula_ids": [
+        "F-DATEBUCKET"
+      ],
+      "business_rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "problem_id": "PS-064",
+      "formula_ids": [
+        "F-RATE",
+        "F-AVG"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-006",
+        "BR-008",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-065",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-005",
+        "BR-008",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-066",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-067",
+      "formula_ids": [
+        "F-AVG",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-004",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-068",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-004",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-014",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-069",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-004",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-070",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE",
+        "F-HHI"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-071",
+      "formula_ids": [
+        "F-AVG",
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-004",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-072",
+      "formula_ids": [
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-073",
+      "formula_ids": [
+        "F-PERCENTILE",
+        "F-COMPOSITE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-004",
+        "BR-009",
+        "BR-011",
+        "BR-012",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-074",
+      "formula_ids": [
+        "F-RATE",
+        "F-PERCENTILE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-014",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-075",
+      "formula_ids": [
+        "F-IQR",
+        "F-ZSCORE"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-007",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-076",
+      "formula_ids": [
+        "F-PERCENTILE",
+        "F-COMPOSITE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-009",
+        "BR-011",
+        "BR-012",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-077",
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN",
+        "F-PERCENTILE"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-078",
+      "formula_ids": [
+        "F-SHARE",
+        "F-AVG"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-079",
+      "formula_ids": [
+        "F-AVG",
+        "F-RATE",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-080",
+      "formula_ids": [
+        "F-SUM",
+        "F-AVG",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-081",
+      "formula_ids": [
+        "F-MEDIAN",
+        "F-RATIO"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-082",
+      "formula_ids": [
+        "F-COUNT-DISTINCT",
+        "F-SUM"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-083",
+      "formula_ids": [
+        "F-SUM",
+        "F-PERCENTILE",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-084",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-085",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-086",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-002",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-087",
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-088",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE",
+        "F-HHI"
+      ],
+      "business_rule_ids": [
+        "BR-006",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-089",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-090",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE",
+        "F-HHI"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-091",
+      "formula_ids": [
+        "F-DATEBUCKET",
+        "F-AVG",
+        "F-MEDIAN",
+        "F-PCT-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-092",
+      "formula_ids": [
+        "F-DATEBUCKET",
+        "F-SHARE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-093",
+      "formula_ids": [
+        "F-DATEBUCKET",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-094",
+      "formula_ids": [
+        "F-DATEBUCKET",
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-095",
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-096",
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-097",
+      "formula_ids": [
+        "F-IQR",
+        "F-DATEDIFF"
+      ],
+      "business_rule_ids": [
+        "BR-005",
+        "BR-006",
+        "BR-007",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-098",
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "business_rule_ids": [
+        "BR-011",
+        "BR-013"
+      ]
+    },
+    {
+      "problem_id": "PS-099",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-100",
+      "formula_ids": [
+        "F-RATE",
+        "F-SUM",
+        "F-COMPOSITE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-101",
+      "formula_ids": [
+        "F-SUM",
+        "F-AVG",
+        "F-RATE",
+        "F-SHARE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-006",
+        "BR-008",
+        "BR-009",
+        "BR-011",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-102",
+      "formula_ids": [
+        "F-SUM",
+        "F-RATE",
+        "F-COMPOSITE"
+      ],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-002",
+        "BR-006",
+        "BR-009",
+        "BR-011",
+        "BR-012",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "problem_id": "PS-103",
+      "formula_ids": [],
+      "business_rule_ids": [
+        "BR-001",
+        "BR-006",
+        "BR-013"
+      ]
+    }
+  ]
+}

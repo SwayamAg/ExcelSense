@@ -1,0 +1,1127 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_customer_demographics",
+  "business_domains": [
+    "Customer Segmentation"
+  ],
+  "problem_count": 7,
+  "problem_ids": [
+    "PS-077",
+    "PS-078",
+    "PS-079",
+    "PS-080",
+    "PS-081",
+    "PS-082",
+    "PS-083"
+  ],
+  "routing_hints": {
+    "tables": [
+      "owner",
+      "persistency",
+      "policy"
+    ],
+    "concepts": [
+      "affordability",
+      "age distribution",
+      "buying behaviour",
+      "cross-sell",
+      "customer value",
+      "demographics",
+      "education",
+      "gender",
+      "income",
+      "multi-policy",
+      "occupation",
+      "premium",
+      "segmentation",
+      "tiering"
+    ],
+    "intent_structures": [
+      "Business",
+      "Distribution",
+      "GroupBy",
+      "Join"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive",
+      "multi_step_business"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-077",
+      "problem_statement": "What is the age profile of our customers?",
+      "intent_type": "Distribution/Bucketing",
+      "business_intent": "Understand who the book is sold to.",
+      "business_domain": "Customer Segmentation",
+      "business_objective": "Report the age distribution of policy owners.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Customer age distribution",
+        "How old are our customers?",
+        "Age profile of policyholders",
+        "What ages do we sell to?",
+        "Owner age breakdown"
+      ],
+      "relevant_tables": [
+        "owner"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Age",
+        "owner.age_band",
+        "owner.AppID"
+      ],
+      "required_operations": [
+        "derive_column",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "MEDIAN",
+        "PERCENTILE",
+        "share_of_total",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "avg_owner_age",
+        "median_owner_age",
+        "owner_count",
+        "percentile",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "distribution",
+        "base": "owner",
+        "column": "Owner.Age",
+        "bins": [
+          0,
+          17,
+          29,
+          39,
+          49,
+          59,
+          69,
+          120
+        ],
+        "labels": [
+          "under_18_implausible",
+          "18_29",
+          "30_39",
+          "40_49",
+          "50_59",
+          "60_69",
+          "70_plus"
+        ]
+      },
+      "concepts": [
+        "demographics",
+        "age distribution"
+      ],
+      "analytical_steps": [
+        "Load Owner_Details.",
+        "Band Owner.Age into decades, isolating implausible ages below 18.",
+        "Count owners per band and compute shares.",
+        "Compute mean, median and key percentiles."
+      ],
+      "expected_answer_type": "distribution",
+      "answer_template": "Owners average {avg_owner_age} years (median {median_owner_age}); the largest band is {top_band}.",
+      "parameters": {},
+      "population": "All 25,000 owner records; Owner.Age is null for 8 (0.03%).",
+      "caveat": "Owner attributes are declared at application and are not verified or updated. Owner.Age includes values as low as 1 and Owner.Earned.Income reaches 8,384,891,049 (DQ-009), so medians are reported alongside means and implausible values are isolated rather than dropped.",
+      "evidence_requirements": {
+        "aggregates": [
+          "count by age band"
+        ],
+        "calculations": [
+          "percentiles"
+        ],
+        "data_quality_notes": [
+          "DQ-009"
+        ],
+        "tables_used": [
+          "owner"
+        ],
+        "columns_used": [
+          "owner.Owner.Age",
+          "owner.age_band",
+          "owner.AppID"
+        ],
+        "population_definition": "All 25,000 owner records; Owner.Age is null for 8 (0.03%)."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "histogram",
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN",
+        "F-PERCENTILE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-078",
+      "problem_statement": "What is the gender split of our customers?",
+      "intent_type": "GroupBy/Distribution",
+      "business_intent": "Understand gender mix and any premium differences.",
+      "business_domain": "Customer Segmentation",
+      "business_objective": "Report the gender distribution with average premium per group.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Gender split of customers",
+        "How many male versus female policyholders?",
+        "Customer gender breakdown",
+        "Do men or women buy more?",
+        "Gender distribution"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Gender",
+        "owner.AppID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "MEDIAN",
+        "share_of_total",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "owner_count",
+        "gender_share",
+        "avg_ape",
+        "avg_sum_assured",
+        "share_of_portfolio"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "owner",
+        "joins": [
+          "policy_owner"
+        ],
+        "base_table_note": "owner is the base; policy joins through AppID",
+        "group_by": "Owner.Gender",
+        "measures": {
+          "owners": [
+            null,
+            "count_all"
+          ]
+        },
+        "shares": {
+          "share_pct": "owners"
+        },
+        "rank_by": "owners"
+      },
+      "concepts": [
+        "demographics",
+        "gender",
+        "segmentation"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID.",
+        "Group by Owner.Gender.",
+        "Count owners and compute average APE and sum assured per group.",
+        "Report shares alongside counts."
+      ],
+      "expected_answer_type": "distribution",
+      "answer_template": "{male_share}% male and {female_share}% female, averaging {male_ape} and {female_ape} APE.",
+      "parameters": {},
+      "population": "The 24,999 joined records. One policy cannot be joined to its owner because of the corrupted AppID (DQ-001), so the joined population is 24,999 rather than 25,000.",
+      "caveat": "Owner.Gender holds three values: M (17,427), F (7,565) and C (8). The 'C' code is undocumented in the metadata and is reported as its own category rather than merged or dropped.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "count and APE by gender"
+        ],
+        "data_quality_notes": [
+          "DQ-001",
+          "DQ-009"
+        ],
+        "limitations": [
+          "undocumented 'C' gender code retained as-is"
+        ],
+        "tables_used": [
+          "owner",
+          "policy"
+        ],
+        "columns_used": [
+          "owner.Owner.Gender",
+          "owner.AppID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured"
+        ],
+        "population_definition": "The 24,999 joined records. One policy cannot be joined to its owner because of the corrupted AppID (DQ-001), so the joined population is 24,999 rather than 25,000."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "donut",
+      "formula_ids": [
+        "F-SHARE",
+        "F-AVG"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-079",
+      "problem_statement": "How does education level relate to the policies customers buy?",
+      "intent_type": "Join/GroupBy/Comparison",
+      "business_intent": "Segment the book by education and compare buying behaviour.",
+      "business_domain": "Customer Segmentation",
+      "business_objective": "Compare policy value and persistency across education levels.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Policies by education level",
+        "Do graduates buy bigger policies?",
+        "Education and premium",
+        "Customer education breakdown",
+        "How does education affect buying?"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Education",
+        "owner.AppID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.POLICY.STATUS",
+        "policy.Prod_No"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "MEDIAN",
+        "CASE WHEN",
+        "ratio",
+        "ORDER BY",
+        "share_of_total",
+        "segment_profile"
+      ],
+      "required_metrics": [
+        "owner_count",
+        "education_share",
+        "avg_ape",
+        "median_ape",
+        "avg_sum_assured",
+        "lapse_rate",
+        "share_of_portfolio"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "owner_Owner.Education",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "median_ape": [
+            "APE",
+            "median"
+          ],
+          "avg_sum_assured": [
+            "Sum.Assured",
+            "mean"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "shares": {
+          "share_pct": "policies"
+        },
+        "rank_by": "policies"
+      },
+      "concepts": [
+        "education",
+        "segmentation",
+        "buying behaviour"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID.",
+        "Group by Owner.Education across its nine levels.",
+        "Compute count, average and median APE, average sum assured and lapse rate.",
+        "Rank segments by size and report the value differences."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{top_education} is the largest segment at {top_share}%, averaging {top_ape} APE.",
+      "parameters": {},
+      "population": "The 24,999 joined records; Owner.Education is null for 4.",
+      "caveat": "Education is a nine-level declared field including 'Unanswered' (39 records), which is kept as a distinct category rather than treated as missing. Owner attributes are declared at application and are not verified or updated. Owner.Age includes values as low as 1 and Owner.Earned.Income reaches 8,384,891,049 (DQ-009), so medians are reported alongside means and implausible values are isolated rather than dropped.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "metrics by education level"
+        ],
+        "sample_sizes": "records per level",
+        "data_quality_notes": [
+          "DQ-001"
+        ],
+        "tables_used": [
+          "owner",
+          "policy"
+        ],
+        "columns_used": [
+          "owner.Owner.Education",
+          "owner.AppID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.POLICY.STATUS",
+          "policy.Prod_No"
+        ],
+        "population_definition": "The 24,999 joined records; Owner.Education is null for 4."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-AVG",
+        "F-RATE",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-080",
+      "problem_statement": "Which occupations generate the most premium?",
+      "intent_type": "Join/GroupBy/Ranking",
+      "business_intent": "Identify the most valuable occupational segments.",
+      "business_domain": "Customer Segmentation",
+      "business_objective": "Rank occupations by total and average APE with their persistency.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Premium by occupation",
+        "Which occupations are most valuable?",
+        "Top occupation segments",
+        "Occupation and premium",
+        "Who are our best customers by profession?"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Occupation",
+        "owner.Owner.Earned.Income",
+        "owner.AppID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.POLICY.STATUS"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "MEDIAN",
+        "CASE WHEN",
+        "ratio",
+        "ORDER BY",
+        "share_of_total",
+        "segment_profile"
+      ],
+      "required_metrics": [
+        "total_ape",
+        "avg_ape",
+        "median_ape",
+        "avg_earned_income",
+        "lapse_rate",
+        "owner_count",
+        "occupation_share",
+        "share_of_portfolio"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "owner_Owner.Occupation",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "median_ape": [
+            "APE",
+            "median"
+          ],
+          "avg_income": [
+            "owner_Owner.Earned.Income",
+            "mean"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "shares": {
+          "ape_share_pct": "total_ape"
+        },
+        "rank_by": "total_ape"
+      },
+      "concepts": [
+        "occupation",
+        "segmentation",
+        "customer value"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID.",
+        "Group by Owner.Occupation across its six categories.",
+        "Compute total and average APE, average declared income and lapse rate.",
+        "Compute each segment share of total APE.",
+        "Rank by total APE contribution."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_occupation} contributes {top_share}% of APE from {top_count} policies.",
+      "parameters": {},
+      "population": "The 24,999 joined records across six occupation categories.",
+      "caveat": "Occupation is self-declared and unverified. 'Empty Nester' is a lifestage label rather than an occupation, so the category set is not internally consistent; it is reported as recorded. Owner attributes are declared at application and are not verified or updated. Owner.Age includes values as low as 1 and Owner.Earned.Income reaches 8,384,891,049 (DQ-009), so medians are reported alongside means and implausible values are isolated rather than dropped.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "APE and rates by occupation"
+        ],
+        "ranking": "total APE desc",
+        "data_quality_notes": [
+          "DQ-001",
+          "DQ-009"
+        ],
+        "tables_used": [
+          "owner",
+          "policy"
+        ],
+        "columns_used": [
+          "owner.Owner.Occupation",
+          "owner.Owner.Earned.Income",
+          "owner.AppID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.POLICY.STATUS"
+        ],
+        "population_definition": "The 24,999 joined records across six occupation categories."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-SUM",
+        "F-AVG",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-081",
+      "problem_statement": "How does declared income relate to the premium customers pay?",
+      "intent_type": "Join/Derived-Metric/Comparison",
+      "business_intent": "Test whether premium scales with stated affordability.",
+      "business_domain": "Customer Segmentation",
+      "business_objective": "Compare APE against declared income across income bands.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Income versus premium",
+        "Do richer customers pay more premium?",
+        "Premium to income ratio",
+        "APE by income band",
+        "How does income affect premium?"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Earned.Income",
+        "owner.income_band",
+        "owner.AppID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured"
+      ],
+      "required_operations": [
+        "JOIN",
+        "derive_column",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "MEDIAN",
+        "ratio",
+        "ORDER BY",
+        "PERCENTILE"
+      ],
+      "required_metrics": [
+        "avg_earned_income",
+        "median_earned_income",
+        "avg_ape",
+        "median_ape",
+        "avg_sum_assured",
+        "owner_count",
+        "percentile"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "income_band",
+        "derive": [
+          {
+            "kind": "band",
+            "name": "income_band",
+            "column": "owner_Owner.Earned.Income",
+            "bins": [
+              -1,
+              0,
+              250000,
+              500000,
+              1000000,
+              2500000,
+              10000000000
+            ],
+            "labels": [
+              "zero_declared",
+              "upto_2.5L",
+              "2.5L_5L",
+              "5L_10L",
+              "10L_25L",
+              "above_25L"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "median_ape": [
+            "APE",
+            "median"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "median_sum_assured": [
+            "Sum.Assured",
+            "median"
+          ],
+          "median_income": [
+            "owner_Owner.Earned.Income",
+            "median"
+          ]
+        },
+        "sort_by_group": "income_band"
+      },
+      "concepts": [
+        "income",
+        "affordability",
+        "premium"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID.",
+        "Band Owner.Earned.Income, isolating zero and implausibly large values.",
+        "Compute median APE and median sum assured per band.",
+        "Compute the premium-to-income ratio per band as an affordability indicator.",
+        "Report the pattern across bands with counts."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "Median APE rises from {low_ape} in the lowest income band to {high_ape} in the highest.",
+      "parameters": {},
+      "population": "The 24,999 joined records with a declared income.",
+      "caveat": "Declared income has 451 distinct values across 25,000 records with a maximum of 8,384,891,049 and a minimum of zero, which suggests banding at entry and at least some placeholder values. The premium-to-income ratio is therefore indicative only and is not a suitability assessment. Owner attributes are declared at application and are not verified or updated. Owner.Age includes values as low as 1 and Owner.Earned.Income reaches 8,384,891,049 (DQ-009), so medians are reported alongside means and implausible values are isolated rather than dropped.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "APE by income band"
+        ],
+        "calculations": [
+          "premium to income ratio"
+        ],
+        "data_quality_notes": [
+          "DQ-009"
+        ],
+        "limitations": [
+          "income appears banded and contains placeholders"
+        ],
+        "tables_used": [
+          "owner",
+          "policy"
+        ],
+        "columns_used": [
+          "owner.Owner.Earned.Income",
+          "owner.income_band",
+          "owner.AppID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured"
+        ],
+        "population_definition": "The 24,999 joined records with a declared income."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "line",
+      "formula_ids": [
+        "F-MEDIAN",
+        "F-RATIO"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-082",
+      "problem_statement": "Which customers hold more than one policy?",
+      "intent_type": "GroupBy/Having/Count",
+      "business_intent": "Identify multi-policy relationships for cross-sell and retention value.",
+      "business_domain": "Customer Segmentation",
+      "business_objective": "Find clients holding several policies and quantify their combined value.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Multi policy customers",
+        "Which clients have more than one policy?",
+        "Repeat customers",
+        "Customers with multiple policies",
+        "Cross-sold clients"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy"
+      ],
+      "relevant_columns": [
+        "owner.ClientID",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Occupation",
+        "owner.Owner.Comm.State",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Prod_No",
+        "policy.POLICY.STATUS"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "HAVING",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "ORDER BY",
+        "share_of_total",
+        "DISTINCT"
+      ],
+      "required_metrics": [
+        "client_count",
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "share_of_portfolio",
+        "lapse_rate"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "owner_ClientID",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "products": [
+            "Prod_No",
+            "distinct"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": 2,
+        "rank_by": "total_ape",
+        "top_n": 50
+      },
+      "concepts": [
+        "cross-sell",
+        "customer value",
+        "multi-policy"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID.",
+        "Group by ClientID and count distinct policies.",
+        "Filter to clients holding more than one policy.",
+        "Sum their combined APE and compute their lapse rate.",
+        "Compare multi-policy clients against single-policy clients."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{multi_count} clients hold more than one policy, contributing {multi_ape} in combined APE.",
+      "parameters": {},
+      "population": "All 24,757 distinct clients; 237 hold more than one policy, at most 3.",
+      "caveat": "ClientID is the only link between policies of the same customer; there is no household, relationship or nominee field, so family groupings are not observable. Owner.Given.Name and Owner.Comm.Postal.Code are personal data. They are never returned in aggregate analysis and are withheld from record output by default.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "policies and APE per client"
+        ],
+        "comparison_baseline": "single-policy clients",
+        "ranking": "policy count then APE desc",
+        "tables_used": [
+          "owner",
+          "policy"
+        ],
+        "columns_used": [
+          "owner.ClientID",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Occupation",
+          "owner.Owner.Comm.State",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Prod_No",
+          "policy.POLICY.STATUS"
+        ],
+        "population_definition": "All 24,757 distinct clients; 237 hold more than one policy, at most 3."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-COUNT-DISTINCT",
+        "F-SUM"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-083",
+      "problem_statement": "Build a value segmentation of the customer base.",
+      "intent_type": "Business/Profile",
+      "business_intent": "Group customers into actionable value tiers.",
+      "business_domain": "Customer Segmentation",
+      "business_objective": "Segment clients by premium contribution and profile each tier.",
+      "analysis_tier": "multi_step_business",
+      "example_queries": [
+        "Customer value segmentation",
+        "Segment our customers by value",
+        "Who are our high value customers?",
+        "Customer tiers",
+        "Value-based customer segments",
+        "Build customer segments"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "owner.ClientID",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Earned.Income",
+        "owner.Owner.Occupation",
+        "owner.Owner.Education",
+        "owner.Owner.Comm.State",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.Prod_No",
+        "policy.POLICY.STATUS",
+        "persistency.AppID",
+        "persistency.Renewal_Status"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "GROUP BY",
+        "SUM",
+        "COUNT",
+        "AVG",
+        "MEDIAN",
+        "PERCENTILE",
+        "CASE WHEN",
+        "ratio",
+        "segment_profile",
+        "multi_metric_table",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "client_count",
+        "total_ape",
+        "avg_ape",
+        "avg_sum_assured",
+        "avg_owner_age",
+        "avg_earned_income",
+        "lapse_rate",
+        "renewal_paid_rate",
+        "share_of_portfolio",
+        "percentile",
+        "policy_count"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "two_stage_group",
+        "base": "policy",
+        "joins": [
+          "policy_owner",
+          "policy_persistency"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "entity_column": "owner_ClientID",
+        "tier_measure": "client_ape",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          }
+        ],
+        "entity_measures": {
+          "client_ape": [
+            "APE",
+            "sum"
+          ],
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "avg_age": [
+            "owner_Owner.Age",
+            "mean"
+          ],
+          "avg_income": [
+            "owner_Owner.Earned.Income",
+            "mean"
+          ],
+          "avg_sum_assured": [
+            "Sum.Assured",
+            "mean"
+          ],
+          "renewals_paid": [
+            "is_paid",
+            "sum"
+          ]
+        },
+        "tier_percentiles": [
+          50,
+          80,
+          95
+        ],
+        "tier_labels": [
+          "tier_4_lowest",
+          "tier_3",
+          "tier_2",
+          "tier_1_highest"
+        ],
+        "tier_profile": {
+          "avg_policies": "policies",
+          "avg_owner_age": "avg_age",
+          "avg_declared_income": "avg_income",
+          "avg_sum_assured": "avg_sum_assured"
+        }
+      },
+      "concepts": [
+        "segmentation",
+        "customer value",
+        "tiering"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details and Policy_Details and aggregate APE to ClientID level.",
+        "Rank clients by total APE and split into value tiers by percentile.",
+        "Left join Persistency_Details to compute each tier's renewal paid rate.",
+        "Profile each tier on age, income, occupation, education, product mix and geography.",
+        "Compute each tier's share of clients and of total APE.",
+        "Present the tiers with the concentration of value made explicit."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "The top tier holds {top_tier_clients}% of clients but {top_tier_ape}% of APE, with a {top_tier_renewal}% renewal rate.",
+      "parameters": {},
+      "population": "All 24,757 distinct clients, aggregated from 24,999 joined policies.",
+      "caveat": "Value here is APE contribution, not profitability or lifetime value, neither of which can be computed: the data has no cost, commission, duration-to-date or claims-cost-per-client information. Tier boundaries are percentile-based and are stated with the output. Owner.Given.Name and Owner.Comm.Postal.Code are personal data. They are never returned in aggregate analysis and are withheld from record output by default.Renewal metrics cover only the Persistency-eligible population, which excludes surrendered and death policies (DQ-006), so they rest on a different denominator from the policy-level figures reported alongside them.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID; policy.AppID = persistency.AppID",
+        "calculations": [
+          "client-level APE",
+          "tier boundaries"
+        ],
+        "aggregates": [
+          "profile per tier"
+        ],
+        "business_rules_applied": [
+          "percentile tiering scheme"
+        ],
+        "limitations": [
+          "APE is not profitability or lifetime value"
+        ],
+        "tables_used": [
+          "owner",
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "owner.ClientID",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Earned.Income",
+          "owner.Owner.Occupation",
+          "owner.Owner.Education",
+          "owner.Owner.Comm.State",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.Prod_No",
+          "policy.POLICY.STATUS",
+          "persistency.AppID",
+          "persistency.Renewal_Status"
+        ],
+        "population_definition": "All 24,757 distinct clients, aggregated from 24,999 joined policies."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "stacked_bar",
+      "formula_ids": [
+        "F-SUM",
+        "F-PERCENTILE",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

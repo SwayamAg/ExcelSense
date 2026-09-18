@@ -1,0 +1,1732 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_agent_performance",
+  "business_domains": [
+    "Agent / Sales Performance",
+    "Agent Quality & Conduct Risk"
+  ],
+  "problem_count": 9,
+  "problem_ids": [
+    "PS-039",
+    "PS-049",
+    "PS-066",
+    "PS-067",
+    "PS-069",
+    "PS-071",
+    "PS-072",
+    "PS-073",
+    "PS-074"
+  ],
+  "routing_hints": {
+    "tables": [
+      "persistency",
+      "policy",
+      "sales"
+    ],
+    "concepts": [
+      "agent performance",
+      "agent quality",
+      "agent status",
+      "association",
+      "attrition",
+      "benchmarking",
+      "comparison",
+      "complaints",
+      "composite score",
+      "conduct risk",
+      "lapse",
+      "mis-selling indicators",
+      "peer comparison",
+      "persistency",
+      "production",
+      "quartile analysis",
+      "ranking",
+      "renewal",
+      "risk ranking"
+    ],
+    "intent_structures": [
+      "Business",
+      "GroupBy",
+      "Join",
+      "Ranking"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "diagnostic",
+      "multi_step_business"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-039",
+      "problem_statement": "Which agents have the worst lapse rates?",
+      "intent_type": "Join/GroupBy/Ranking",
+      "business_intent": "Identify agents whose business does not persist.",
+      "business_domain": "Agent / Sales Performance",
+      "business_objective": "Rank agents by the lapse rate of the policies they sold, with a minimum sample guard.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Worst agents for lapse",
+        "Which agents have the most lapses?",
+        "Agent lapse rates",
+        "Rank agents by lapse",
+        "Who sells business that lapses?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "sales"
+      ],
+      "relevant_columns": [
+        "policy.SALES_ID",
+        "policy.POLICY.STATUS",
+        "policy.AppID",
+        "policy.APE",
+        "sales.SALES_ID",
+        "sales.Type",
+        "sales.First Year Persistency Rate"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "ORDER BY",
+        "small_sample_guard",
+        "compare_to_baseline",
+        "rank_entities"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "policy_count",
+        "total_ape",
+        "agent_first_year_persistency",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_sales"
+        ],
+        "group_by": "SALES_ID",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "supplied_persistency": [
+            "sales_First Year Persistency Rate",
+            "mean"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": "$min_policies",
+        "rank_by": "lapse_rate",
+        "baseline": {
+          "kind": "rate",
+          "measure": "lapse_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Lapsed"
+          ],
+          "description": "portfolio lapse rate across all policies"
+        },
+        "top_n": "$n"
+      },
+      "concepts": [
+        "agent performance",
+        "lapse",
+        "ranking"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by SALES_ID.",
+        "Compute lapse rate and policy count per agent.",
+        "Apply a minimum sample threshold, defaulting to 30 policies.",
+        "Join Sales_Details for the agent's recorded first-year persistency and active status.",
+        "Compare each agent against the portfolio lapse rate.",
+        "Rank by lapse rate descending and return the worst N."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{worst_agent} has a {worst_rate}% lapse rate across {worst_count} policies versus {baseline_rate}% overall.",
+      "parameters": {
+        "min_policies": {
+          "type": "integer",
+          "default": 30,
+          "min": 5
+        },
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 1,
+          "max": 50
+        }
+      },
+      "population": "Agents with at least the minimum policy count. The median agent has only 8 policies; 242 of 1,956 agents have 30 or more.",
+      "caveat": "Without the sample threshold, an agent with two policies and one lapse would rank at 50%. The threshold is applied and the excluded agent count is reported. A high lapse rate is an observation about the agent's book, not proof of misconduct.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID",
+        "aggregates": [
+          "lapse rate by agent"
+        ],
+        "ranking": "lapse_rate desc",
+        "sample_sizes": "policy count per agent",
+        "comparison_baseline": "portfolio lapse rate",
+        "limitations": [
+          "agents below threshold excluded"
+        ],
+        "tables_used": [
+          "policy",
+          "sales"
+        ],
+        "columns_used": [
+          "policy.SALES_ID",
+          "policy.POLICY.STATUS",
+          "policy.AppID",
+          "policy.APE",
+          "sales.SALES_ID",
+          "sales.Type",
+          "sales.First Year Persistency Rate"
+        ],
+        "population_definition": "Agents with at least the minimum policy count. The median agent has only 8 policies; 242 of 1,956 agents have 30 or more."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-049",
+      "problem_statement": "Which agents have the best renewal collection?",
+      "intent_type": "Join/GroupBy/Ranking",
+      "business_intent": "Identify agents whose customers keep paying.",
+      "business_domain": "Agent / Sales Performance",
+      "business_objective": "Rank agents by the renewal paid rate of their book, with a sample guard.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Best agents for renewals",
+        "Agent renewal rates",
+        "Which agents collect best?",
+        "Rank agents by persistency",
+        "Top agents by renewal collection"
+      ],
+      "relevant_tables": [
+        "persistency",
+        "sales"
+      ],
+      "relevant_columns": [
+        "persistency.SALES_ID",
+        "persistency.Renewal_Status",
+        "persistency.AppID",
+        "persistency.Renewal_Premium_Amount",
+        "sales.SALES_ID",
+        "sales.First Year Persistency Rate",
+        "sales.Type"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "SUM",
+        "ratio",
+        "ORDER BY",
+        "small_sample_guard",
+        "compare_to_baseline",
+        "rank_entities"
+      ],
+      "required_metrics": [
+        "renewal_paid_rate",
+        "renewal_count",
+        "total_renewal_premium",
+        "agent_first_year_persistency",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "persistency_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "persistency",
+        "joins": [
+          "persistency_sales"
+        ],
+        "group_by": "SALES_ID",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          }
+        ],
+        "measures": {
+          "renewals": [
+            null,
+            "count_all"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ],
+          "premium": [
+            "Renewal_Premium_Amount",
+            "sum"
+          ],
+          "supplied_persistency": [
+            "sales_First Year Persistency Rate",
+            "mean"
+          ]
+        },
+        "rates": {
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          }
+        },
+        "min_sample": "$min_policies",
+        "rank_by": "renewal_paid_rate",
+        "top_n": "$n",
+        "baseline": {
+          "kind": "rate",
+          "measure": "renewal_paid_rate",
+          "numerator_column": "Renewal_Status",
+          "numerator_values": [
+            "Paid"
+          ],
+          "description": "overall renewal paid rate"
+        }
+      },
+      "concepts": [
+        "agent performance",
+        "renewal",
+        "ranking"
+      ],
+      "analytical_steps": [
+        "Group Persistency_Details by SALES_ID.",
+        "Compute the renewal paid rate and row count per agent.",
+        "Apply the minimum sample threshold.",
+        "Join Sales_Details to bring in the recorded first-year persistency rate.",
+        "Compare the computed rate against the recorded rate and report both.",
+        "Rank by computed paid rate descending."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{best_agent} collects {best_rate}% of renewals across {best_count} policies.",
+      "parameters": {
+        "min_policies": {
+          "type": "integer",
+          "default": 30,
+          "min": 5
+        },
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 1,
+          "max": 50
+        }
+      },
+      "population": "Agents present in Persistency_Details with at least the minimum row count (1,955 agents in total).",
+      "caveat": "Sales_Details.First Year Persistency Rate is a supplied agent-level figure covering a different measurement basis from the renewal paid rate computed here; they are reported side by side and are not expected to match. That column is null for 369 agents (DQ-005).",
+      "evidence_requirements": {
+        "join_path": "persistency.SALES_ID = sales.SALES_ID",
+        "aggregates": [
+          "paid rate by agent"
+        ],
+        "ranking": "renewal_paid_rate desc",
+        "sample_sizes": "rows per agent",
+        "data_quality_notes": [
+          "DQ-005"
+        ],
+        "limitations": [
+          "two different persistency bases reported side by side"
+        ],
+        "tables_used": [
+          "persistency",
+          "sales"
+        ],
+        "columns_used": [
+          "persistency.SALES_ID",
+          "persistency.Renewal_Status",
+          "persistency.AppID",
+          "persistency.Renewal_Premium_Amount",
+          "sales.SALES_ID",
+          "sales.First Year Persistency Rate",
+          "sales.Type"
+        ],
+        "population_definition": "Agents present in Persistency_Details with at least the minimum row count (1,955 agents in total)."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-066",
+      "problem_statement": "Who are the top-producing agents?",
+      "intent_type": "GroupBy/Ranking/Count",
+      "business_intent": "Identify the biggest producers by volume and premium.",
+      "business_domain": "Agent / Sales Performance",
+      "business_objective": "Rank agents by policy count and APE with their share of the book.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Top agents",
+        "Who sells the most?",
+        "Best performing agents by volume",
+        "Agent league table",
+        "Highest producing agents",
+        "Which agents sold the most policies?",
+        "Which agents write the most business?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "sales"
+      ],
+      "relevant_columns": [
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "sales.SALES_ID",
+        "sales.Type"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "ORDER BY",
+        "LIMIT",
+        "share_of_total",
+        "rank_entities"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "share_of_portfolio",
+        "agent_count"
+      ],
+      "relationships": [
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_sales"
+        ],
+        "group_by": "SALES_ID",
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "total_sum_assured": [
+            "Sum.Assured",
+            "sum"
+          ]
+        },
+        "shares": {
+          "share_pct": "policies"
+        },
+        "rank_by": "policies",
+        "top_n": "$n"
+      },
+      "concepts": [
+        "agent performance",
+        "production",
+        "ranking"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by SALES_ID.",
+        "Count policies and sum APE and sum assured per agent.",
+        "Join Sales_Details for the Active/Inactive flag.",
+        "Compute each agent share of portfolio volume and APE.",
+        "Rank by the requested measure and return the top N."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_agent} leads with {top_count} policies and {top_ape} APE ({top_share}% of the book).",
+      "parameters": {
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 1,
+          "max": 100
+        },
+        "measure": {
+          "type": "enum",
+          "values": [
+            "policy_count",
+            "total_ape"
+          ],
+          "default": "policy_count"
+        }
+      },
+      "population": "All 1,956 agents; every policy resolves to an agent.",
+      "caveat": "Production is raw volume, not quality. The top producer by volume is not necessarily the best agent; pair this with the quality scorecard. Sales_Details holds only performance rates and an Active/Inactive flag. There is no agent name, tenure, geography, hierarchy, channel or target, so agent performance cannot be explained by agent characteristics.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID",
+        "aggregates": [
+          "count and APE by agent"
+        ],
+        "ranking": "by requested measure",
+        "supporting_metrics": [
+          "share_of_portfolio"
+        ],
+        "tables_used": [
+          "policy",
+          "sales"
+        ],
+        "columns_used": [
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "sales.SALES_ID",
+          "sales.Type"
+        ],
+        "population_definition": "All 1,956 agents; every policy resolves to an agent."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-067",
+      "problem_statement": "Which agents have the best first-year persistency?",
+      "intent_type": "Ranking/TopN",
+      "business_intent": "Identify agents whose business sticks in year one.",
+      "business_domain": "Agent / Sales Performance",
+      "business_objective": "Rank agents by the supplied First Year Persistency Rate over the eligible population.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Best agents by persistency",
+        "Top first year persistency",
+        "Which agents retain customers?",
+        "Agent persistency ranking",
+        "Highest persistency agents"
+      ],
+      "relevant_tables": [
+        "sales",
+        "policy"
+      ],
+      "relevant_columns": [
+        "sales.SALES_ID",
+        "sales.First Year Persistency Rate",
+        "sales.Type",
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "JOIN",
+        "WHERE",
+        "GROUP BY",
+        "COUNT",
+        "ORDER BY",
+        "LIMIT",
+        "small_sample_guard",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "agent_first_year_persistency",
+        "policy_count",
+        "total_ape",
+        "peer_average",
+        "delta_vs_baseline",
+        "agent_count"
+      ],
+      "relationships": [
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_sales"
+        ],
+        "group_by": "SALES_ID",
+        "rules": [
+          [
+            "BR-004",
+            {
+              "column": "sales_First Year Persistency Rate"
+            }
+          ]
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "first_year_persistency": [
+            "sales_First Year Persistency Rate",
+            "mean"
+          ]
+        },
+        "min_sample": "$min_policies",
+        "rank_by": "first_year_persistency",
+        "top_n": "$n",
+        "baseline": {
+          "kind": "mean",
+          "measure": "first_year_persistency",
+          "column": "sales_First Year Persistency Rate",
+          "description": "mean supplied persistency across eligible agents"
+        }
+      },
+      "concepts": [
+        "persistency",
+        "agent quality",
+        "ranking"
+      ],
+      "analytical_steps": [
+        "Restrict Sales_Details to agents with a non-null First Year Persistency Rate.",
+        "Join Policy_Details to obtain each agent's policy count as a weight.",
+        "Apply the minimum policy threshold.",
+        "Compute the mean rate across the eligible population as the baseline.",
+        "Rank by persistency rate descending and return the top N with their volumes."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_agent} records {top_rate}% first-year persistency against a {baseline_rate}% average.",
+      "parameters": {
+        "min_policies": {
+          "type": "integer",
+          "default": 30,
+          "min": 5
+        },
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 1,
+          "max": 50
+        }
+      },
+      "population": "The 1,587 agents with a recorded First Year Persistency Rate, further restricted by the minimum policy threshold.",
+      "caveat": "369 of 1,956 agents have a null rate (DQ-005) and are excluded from the ranking rather than treated as zero. A perfect 100% often reflects a tiny book, which is why the threshold and the policy count are both shown. Sales_Details holds supplied agent-level rates with no stated definition, denominator or measurement window. They are used as recorded and are never silently reconciled against rates computed from Policy_Details.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID",
+        "ranking": "first year persistency desc",
+        "sample_sizes": "policy count per agent",
+        "comparison_baseline": "eligible-population mean",
+        "data_quality_notes": [
+          "DQ-005"
+        ],
+        "limitations": [
+          "null-rate agents excluded"
+        ],
+        "tables_used": [
+          "sales",
+          "policy"
+        ],
+        "columns_used": [
+          "sales.SALES_ID",
+          "sales.First Year Persistency Rate",
+          "sales.Type",
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.APE"
+        ],
+        "population_definition": "The 1,587 agents with a recorded First Year Persistency Rate, further restricted by the minimum policy threshold."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-AVG",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-069",
+      "problem_statement": "How does an agent compare against their peers?",
+      "intent_type": "Join/Comparison",
+      "business_intent": "Benchmark one named agent against the peer group.",
+      "business_domain": "Agent / Sales Performance",
+      "business_objective": "Produce a side-by-side metric comparison for a specified agent versus peers.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Compare agent 977337 to peers",
+        "How does this agent stack up?",
+        "Benchmark this agent",
+        "Agent versus peer comparison",
+        "Is this agent above average?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "sales",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS",
+        "policy.Prod_No",
+        "policy.Sum.Assured",
+        "sales.SALES_ID",
+        "sales.First Year Persistency Rate",
+        "sales.Type",
+        "sales.Surrender Rate",
+        "sales.Early Claim Rate",
+        "sales.Sales Related Complaint",
+        "sales.RCU Rejections Rate",
+        "persistency.AppID",
+        "persistency.Renewal_Status"
+      ],
+      "required_operations": [
+        "WHERE",
+        "JOIN",
+        "LEFT JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "CASE WHEN",
+        "ratio",
+        "compare_to_baseline",
+        "multi_metric_table",
+        "rank_entities"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "lapse_rate",
+        "renewal_paid_rate",
+        "agent_first_year_persistency",
+        "agent_complaint_rate",
+        "peer_average",
+        "delta_vs_baseline",
+        "rank_position"
+      ],
+      "relationships": [
+        "policy_sales",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "cohort_compare",
+        "base": "policy",
+        "joins": [
+          "policy_sales",
+          "policy_persistency"
+        ],
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_target",
+            "column": "SALES_ID",
+            "values": [
+              "$agent_id"
+            ]
+          },
+          {
+            "kind": "band",
+            "name": "agent_group",
+            "column": "is_target",
+            "bins": [
+              -1,
+              0,
+              1
+            ],
+            "labels": [
+              "peers",
+              "named_agent"
+            ]
+          }
+        ],
+        "split": {
+          "column": "agent_group",
+          "cohorts": {
+            "named_agent": [
+              "named_agent"
+            ],
+            "peers": [
+              "peers"
+            ]
+          }
+        },
+        "numeric_attributes": [
+          "APE",
+          "Sum.Assured",
+          "sales_First Year Persistency Rate",
+          "sales_Sales Related Complaint",
+          "sales_RCU Rejections Rate",
+          "sales_Early Claim Rate"
+        ],
+        "categorical_attributes": [
+          "POLICY.STATUS",
+          "Prod_No",
+          "persistency_Renewal_Status"
+        ]
+      },
+      "concepts": [
+        "benchmarking",
+        "peer comparison",
+        "agent performance"
+      ],
+      "analytical_steps": [
+        "Validate the supplied SALES_ID against Sales_Details.",
+        "Join Policy_Details to Sales_Details on SALES_ID and left join Persistency_Details on AppID to assemble the agent's book.",
+        "Compute the agent's metrics from their own policy and persistency rows.",
+        "Compute the same metrics across all eligible peers as the benchmark.",
+        "Compute the agent's rank and percentile on each metric.",
+        "Present a side-by-side table with the gap on every metric."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "Agent {agent_id}: {policy_count} policies, {lapse_rate}% lapse versus {peer_lapse}% peer average (rank {rank_position}).",
+      "parameters": {
+        "agent_id": {
+          "type": "string",
+          "required": true,
+          "description": "SALES_ID"
+        },
+        "min_policies": {
+          "type": "integer",
+          "default": 30,
+          "min": 5
+        }
+      },
+      "population": "The specified agent versus all agents meeting the sample threshold.",
+      "caveat": "If the named agent falls below the sample threshold their rates are reported with an explicit low-confidence warning rather than suppressed. The median agent has 8 policies and only 242 of 1,956 agents have 30 or more. Any agent rate computed from their own book needs a minimum sample threshold, which is applied and whose excluded count is reported. The renewal paid rate is computed over the Persistency-eligible population only, which excludes the agent's surrendered and death policies (DQ-006), so it uses a smaller denominator than the lapse rate.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID; policy.AppID = persistency.AppID",
+        "comparison_baseline": "eligible peer agents",
+        "ranking": "agent percentile per metric",
+        "sample_sizes": "agent policy count",
+        "data_quality_notes": [
+          "DQ-005"
+        ],
+        "tables_used": [
+          "policy",
+          "sales",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS",
+          "policy.Prod_No",
+          "policy.Sum.Assured",
+          "sales.SALES_ID",
+          "sales.First Year Persistency Rate",
+          "sales.Type",
+          "sales.Surrender Rate",
+          "sales.Early Claim Rate",
+          "sales.Sales Related Complaint",
+          "sales.RCU Rejections Rate",
+          "persistency.AppID",
+          "persistency.Renewal_Status"
+        ],
+        "population_definition": "The specified agent versus all agents meeting the sample threshold."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-071",
+      "problem_statement": "How do active and inactive agents differ?",
+      "intent_type": "GroupBy/Comparison",
+      "business_intent": "Understand what distinguishes agents who have gone inactive.",
+      "business_domain": "Agent / Sales Performance",
+      "business_objective": "Compare active and inactive agents across production and quality metrics.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Active versus inactive agents",
+        "How do inactive agents differ?",
+        "Compare agent status groups",
+        "What do inactive agents look like?",
+        "Agent type comparison"
+      ],
+      "relevant_tables": [
+        "sales",
+        "policy"
+      ],
+      "relevant_columns": [
+        "sales.Type",
+        "sales.SALES_ID",
+        "sales.First Year Persistency Rate",
+        "sales.Surrender Rate",
+        "sales.Early Claim Rate",
+        "sales.Sales Related Complaint",
+        "sales.RCU Rejections Rate",
+        "sales.PIVC Concern Raised Rate",
+        "sales.Free Look  Cancellation Rate",
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "MEDIAN",
+        "CASE WHEN",
+        "ratio",
+        "compare_to_baseline",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "agent_count",
+        "policy_count",
+        "avg_ape",
+        "lapse_rate",
+        "agent_first_year_persistency",
+        "agent_complaint_rate",
+        "agent_rcu_rejection_rate",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "cohort_compare",
+        "base": "policy",
+        "joins": [
+          "policy_sales"
+        ],
+        "split": {
+          "column": "sales_Type",
+          "cohorts": {
+            "active": [
+              "Active"
+            ],
+            "inactive": [
+              "Inactive"
+            ]
+          }
+        },
+        "numeric_attributes": [
+          "APE",
+          "Sum.Assured",
+          "sales_First Year Persistency Rate",
+          "sales_Surrender Rate",
+          "sales_Early Claim Rate",
+          "sales_Sales Related Complaint",
+          "sales_RCU Rejections Rate",
+          "sales_PIVC Concern Raised Rate",
+          "sales_Free Look  Cancellation Rate"
+        ],
+        "categorical_attributes": [
+          "POLICY.STATUS",
+          "Trad.ULIP"
+        ]
+      },
+      "concepts": [
+        "agent status",
+        "comparison",
+        "attrition"
+      ],
+      "analytical_steps": [
+        "Group Sales_Details by Type.",
+        "Join Policy_Details to compute production per agent.",
+        "Compute mean and median of each quality rate per group.",
+        "Compute the lapse rate of each group's policies.",
+        "Present a side-by-side comparison with group sizes."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "Active agents ({active_count}) average {active_ape} APE; inactive agents ({inactive_count}) average {inactive_ape}.",
+      "parameters": {},
+      "population": "All 1,956 agents: 1,922 Active and 34 Inactive.",
+      "caveat": "Only 34 agents are Inactive, so every inactive-group statistic is small-sample and is reported with its count. The data holds no deactivation date or reason, so it cannot show whether poor metrics preceded or followed deactivation.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID",
+        "aggregates": [
+          "metrics by agent type"
+        ],
+        "sample_sizes": "agents per type",
+        "limitations": [
+          "34 inactive agents only",
+          "no deactivation date or reason"
+        ],
+        "tables_used": [
+          "sales",
+          "policy"
+        ],
+        "columns_used": [
+          "sales.Type",
+          "sales.SALES_ID",
+          "sales.First Year Persistency Rate",
+          "sales.Surrender Rate",
+          "sales.Early Claim Rate",
+          "sales.Sales Related Complaint",
+          "sales.RCU Rejections Rate",
+          "sales.PIVC Concern Raised Rate",
+          "sales.Free Look  Cancellation Rate",
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS"
+        ],
+        "population_definition": "All 1,956 agents: 1,922 Active and 34 Inactive."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-AVG",
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-072",
+      "problem_statement": "Which agents raise the most conduct concerns?",
+      "intent_type": "Ranking/TopN",
+      "business_intent": "Surface agents whose selling practice generates complaints and rejections.",
+      "business_domain": "Agent Quality & Conduct Risk",
+      "business_objective": "Rank agents on the supplied conduct-risk rates.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Agents with most complaints",
+        "Worst agents for conduct",
+        "Which agents get rejected most?",
+        "Agent misconduct indicators",
+        "Highest complaint rate agents"
+      ],
+      "relevant_tables": [
+        "sales",
+        "policy"
+      ],
+      "relevant_columns": [
+        "sales.SALES_ID",
+        "sales.Sales Related Complaint",
+        "sales.RCU Rejections Rate",
+        "sales.PIVC Number Mismatch Rate",
+        "sales.PIVC Concern Raised Rate",
+        "sales.Free Look  Cancellation Rate",
+        "sales.Type",
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "ORDER BY",
+        "LIMIT",
+        "compare_to_baseline",
+        "small_sample_guard",
+        "rank_entities"
+      ],
+      "required_metrics": [
+        "agent_complaint_rate",
+        "agent_rcu_rejection_rate",
+        "agent_pivc_mismatch_rate",
+        "agent_pivc_concern_rate",
+        "agent_freelook_cancellation_rate",
+        "policy_count",
+        "peer_average",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_sales"
+        ],
+        "group_by": "SALES_ID",
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "agent_complaint_rate": [
+            "sales_Sales Related Complaint",
+            "mean"
+          ],
+          "agent_rcu_rejection_rate": [
+            "sales_RCU Rejections Rate",
+            "mean"
+          ],
+          "agent_pivc_mismatch_rate": [
+            "sales_PIVC Number Mismatch Rate",
+            "mean"
+          ],
+          "agent_pivc_concern_rate": [
+            "sales_PIVC Concern Raised Rate",
+            "mean"
+          ],
+          "agent_freelook_cancellation_rate": [
+            "sales_Free Look  Cancellation Rate",
+            "mean"
+          ]
+        },
+        "min_sample": "$min_policies",
+        "rank_by": "$metric",
+        "top_n": "$n"
+      },
+      "concepts": [
+        "conduct risk",
+        "complaints",
+        "mis-selling indicators"
+      ],
+      "analytical_steps": [
+        "Join Policy_Details to Sales_Details to obtain each agent's book size.",
+        "Apply the minimum policy threshold.",
+        "Rank agents on the requested conduct metric.",
+        "Compute the population mean as the baseline.",
+        "Return the top N with all conduct rates shown side by side."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{worst_agent} records a {worst_rate} {metric} against a population average of {baseline_rate}.",
+      "parameters": {
+        "metric": {
+          "type": "enum",
+          "values": [
+            "agent_complaint_rate",
+            "agent_rcu_rejection_rate",
+            "agent_pivc_mismatch_rate",
+            "agent_pivc_concern_rate",
+            "agent_freelook_cancellation_rate"
+          ],
+          "default": "agent_complaint_rate"
+        },
+        "min_policies": {
+          "type": "integer",
+          "default": 30,
+          "min": 5
+        },
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 1,
+          "max": 50
+        }
+      },
+      "population": "Agents meeting the minimum policy threshold.",
+      "caveat": "These are supplied rates whose definition, denominator and window are not documented (Sales_Details holds supplied agent-level rates with no stated definition, denominator or measurement window. They are used as recorded and are never silently reconciled against rates computed from Policy_Details.). A high rate is an indicator warranting review, not a finding of misconduct. No investigation outcome, disciplinary record or substantiation flag exists in the data.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID",
+        "ranking": "requested conduct metric desc",
+        "comparison_baseline": "population mean",
+        "sample_sizes": "policy count per agent",
+        "limitations": [
+          "supplied metric definitions unknown",
+          "no investigation outcome data"
+        ],
+        "tables_used": [
+          "sales",
+          "policy"
+        ],
+        "columns_used": [
+          "sales.SALES_ID",
+          "sales.Sales Related Complaint",
+          "sales.RCU Rejections Rate",
+          "sales.PIVC Number Mismatch Rate",
+          "sales.PIVC Concern Raised Rate",
+          "sales.Free Look  Cancellation Rate",
+          "sales.Type",
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.APE"
+        ],
+        "population_definition": "Agents meeting the minimum policy threshold."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-DELTA"
+      ],
+      "limitations": [
+        "Indicator only; not evidence of substantiated misconduct."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-073",
+      "problem_statement": "Build a composite quality score for every agent.",
+      "intent_type": "Business/Profile",
+      "business_intent": "Combine every available agent signal into one comparable score.",
+      "business_domain": "Agent Quality & Conduct Risk",
+      "business_objective": "Construct a transparent composite score from the seven supplied rates plus computed book outcomes.",
+      "analysis_tier": "multi_step_business",
+      "example_queries": [
+        "Agent quality scorecard",
+        "Score all agents",
+        "Composite agent rating",
+        "Rank agents on overall quality",
+        "Which agents are highest risk overall?",
+        "Overall agent quality ranking"
+      ],
+      "relevant_tables": [
+        "sales",
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "sales.SALES_ID",
+        "sales.Surrender Rate",
+        "sales.Early Claim Rate",
+        "sales.PIVC Number Mismatch Rate",
+        "sales.PIVC Concern Raised Rate",
+        "sales.RCU Rejections Rate",
+        "sales.Free Look  Cancellation Rate",
+        "sales.Sales Related Complaint",
+        "sales.First Year Persistency Rate",
+        "sales.Type",
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS",
+        "persistency.AppID",
+        "persistency.Renewal_Status"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "CASE WHEN",
+        "ratio",
+        "PERCENTILE",
+        "rank_entities",
+        "multi_metric_table",
+        "small_sample_guard",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "agent_quality_composite",
+        "agent_surrender_rate",
+        "agent_early_claim_rate",
+        "agent_pivc_mismatch_rate",
+        "agent_pivc_concern_rate",
+        "agent_rcu_rejection_rate",
+        "agent_freelook_cancellation_rate",
+        "agent_complaint_rate",
+        "agent_first_year_persistency",
+        "lapse_rate",
+        "renewal_paid_rate",
+        "policy_count",
+        "percentile",
+        "rank_position"
+      ],
+      "relationships": [
+        "policy_sales",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "composite_score",
+        "base": "policy",
+        "joins": [
+          "policy_sales",
+          "policy_persistency"
+        ],
+        "entity_column": "SALES_ID",
+        "min_sample": "$min_policies",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ],
+          "renewals": [
+            "persistency_Renewal_Status",
+            "count"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "fyp": [
+            "sales_First Year Persistency Rate",
+            "mean"
+          ],
+          "complaint": [
+            "sales_Sales Related Complaint",
+            "mean"
+          ],
+          "rcu": [
+            "sales_RCU Rejections Rate",
+            "mean"
+          ],
+          "surrender": [
+            "sales_Surrender Rate",
+            "mean"
+          ],
+          "early_claim": [
+            "sales_Early Claim Rate",
+            "mean"
+          ],
+          "freelook": [
+            "sales_Free Look  Cancellation Rate",
+            "mean"
+          ],
+          "pivc_concern": [
+            "sales_PIVC Concern Raised Rate",
+            "mean"
+          ],
+          "pivc_mismatch": [
+            "sales_PIVC Number Mismatch Rate",
+            "mean"
+          ]
+        },
+        "rates": {
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          },
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "components": {
+          "agent_first_year_persistency": {
+            "column": "fyp",
+            "higher_is_better": true
+          },
+          "agent_complaint_rate": {
+            "column": "complaint",
+            "higher_is_better": false
+          },
+          "agent_rcu_rejection_rate": {
+            "column": "rcu",
+            "higher_is_better": false
+          },
+          "agent_surrender_rate": {
+            "column": "surrender",
+            "higher_is_better": false
+          },
+          "agent_early_claim_rate": {
+            "column": "early_claim",
+            "higher_is_better": false
+          },
+          "agent_freelook_cancellation_rate": {
+            "column": "freelook",
+            "higher_is_better": false
+          },
+          "agent_pivc_concern_rate": {
+            "column": "pivc_concern",
+            "higher_is_better": false
+          },
+          "agent_pivc_mismatch_rate": {
+            "column": "pivc_mismatch",
+            "higher_is_better": false
+          }
+        }
+      },
+      "concepts": [
+        "composite score",
+        "agent quality",
+        "risk ranking"
+      ],
+      "analytical_steps": [
+        "Restrict to agents meeting the minimum policy threshold.",
+        "Join Policy_Details to Sales_Details on SALES_ID and left join Persistency_Details on AppID to assemble each agent's book.",
+        "Collect the seven supplied conduct and persistency rates per agent.",
+        "Compute the agent's observed lapse rate and renewal paid rate from their own book.",
+        "Convert every component to a percentile rank within the eligible population, so components on different scales become comparable.",
+        "Orient every component so that a higher percentile always means better.",
+        "Combine with declared, inspectable weights into a composite score.",
+        "Report the composite alongside every component so the score is auditable.",
+        "Flag agents with a null first-year persistency rate as scored on fewer components."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "Composite quality scores computed for {scored_agents} agents; {best_agent} ranks first and {worst_agent} last.",
+      "parameters": {
+        "min_policies": {
+          "type": "integer",
+          "default": 30,
+          "min": 5
+        },
+        "weights": {
+          "type": "object",
+          "description": "component weights, from config"
+        }
+      },
+      "population": "Agents meeting the minimum policy threshold and present in Sales_Details.",
+      "caveat": "The weights are a declared analytical convention, not a company standard; they are stored in config and shown with the result so the score can be challenged and recomputed. Percentile ranking is used because the seven supplied rates sit on different and undocumented scales, with maxima ranging from 1.28 to 25.96. 369 agents lack a persistency rate (DQ-005) and are scored on the remaining components, which is stated on their row.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID; policy.AppID = persistency.AppID",
+        "calculations": [
+          "percentile per component",
+          "weighted composite"
+        ],
+        "business_rules_applied": [
+          "composite weighting scheme"
+        ],
+        "supporting_metrics": [
+          "every component score"
+        ],
+        "sample_sizes": "policy count per agent",
+        "data_quality_notes": [
+          "DQ-005"
+        ],
+        "limitations": [
+          "weights are a convention",
+          "supplied rate scales undocumented"
+        ],
+        "tables_used": [
+          "sales",
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "sales.SALES_ID",
+          "sales.Surrender Rate",
+          "sales.Early Claim Rate",
+          "sales.PIVC Number Mismatch Rate",
+          "sales.PIVC Concern Raised Rate",
+          "sales.RCU Rejections Rate",
+          "sales.Free Look  Cancellation Rate",
+          "sales.Sales Related Complaint",
+          "sales.First Year Persistency Rate",
+          "sales.Type",
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS",
+          "persistency.AppID",
+          "persistency.Renewal_Status"
+        ],
+        "population_definition": "Agents meeting the minimum policy threshold and present in Sales_Details."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-PERCENTILE",
+        "F-COMPOSITE"
+      ],
+      "limitations": [
+        "Composite depends on declared weights; not an official company rating."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-074",
+      "problem_statement": "Do agents with poor conduct indicators also produce more lapses?",
+      "intent_type": "Join/Conditional/Comparison",
+      "business_intent": "Test whether supplied conduct signals align with observed book outcomes.",
+      "business_domain": "Agent Quality & Conduct Risk",
+      "business_objective": "Compare observed lapse and renewal outcomes across agent conduct quartiles.",
+      "analysis_tier": "diagnostic",
+      "example_queries": [
+        "Do bad agents produce more lapses?",
+        "Is there a link between complaints and lapse?",
+        "Do conduct indicators predict persistency?",
+        "Relationship between agent quality and lapse",
+        "Do RCU rejections relate to lapses?"
+      ],
+      "relevant_tables": [
+        "sales",
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "sales.SALES_ID",
+        "sales.Sales Related Complaint",
+        "sales.RCU Rejections Rate",
+        "sales.PIVC Concern Raised Rate",
+        "sales.Free Look  Cancellation Rate",
+        "sales.First Year Persistency Rate",
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.POLICY.STATUS",
+        "policy.APE",
+        "persistency.AppID",
+        "persistency.Renewal_Status"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "PERCENTILE",
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "AVG",
+        "compare_to_baseline",
+        "crosstab_metric",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "renewal_paid_rate",
+        "agent_complaint_rate",
+        "agent_rcu_rejection_rate",
+        "policy_count",
+        "agent_count",
+        "delta_vs_baseline",
+        "percentile"
+      ],
+      "relationships": [
+        "policy_sales",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_sales",
+          "policy_persistency"
+        ],
+        "group_by": "conduct_quartile",
+        "derive": [
+          {
+            "kind": "band",
+            "name": "conduct_quartile",
+            "column": "sales_Sales Related Complaint",
+            "bins": [
+              -1,
+              0.0001,
+              0.5,
+              1.5,
+              100
+            ],
+            "labels": [
+              "q1_no_complaints",
+              "q2_low",
+              "q3_moderate",
+              "q4_highest"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "renewals": [
+            "persistency_Renewal_Status",
+            "count"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ],
+          "agents": [
+            "SALES_ID",
+            "distinct"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          },
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          }
+        },
+        "sort_by_group": "conduct_quartile"
+      },
+      "concepts": [
+        "association",
+        "conduct risk",
+        "quartile analysis"
+      ],
+      "analytical_steps": [
+        "Restrict to agents meeting the minimum policy threshold.",
+        "Rank agents into quartiles on the chosen conduct metric.",
+        "Join Policy_Details to Sales_Details on SALES_ID and left join Persistency_Details on AppID to pool each quartile's underlying book.",
+        "For each quartile pool the underlying policies.",
+        "Compute the observed lapse rate and renewal paid rate for each quartile's pooled book.",
+        "Compare the worst quartile against the best and report the gap with counts.",
+        "State that a monotonic pattern across quartiles is suggestive but not proof."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "Agents in the worst conduct quartile show a {worst_lapse}% lapse rate versus {best_lapse}% in the best quartile.",
+      "parameters": {
+        "metric": {
+          "type": "enum",
+          "values": [
+            "agent_complaint_rate",
+            "agent_rcu_rejection_rate",
+            "agent_pivc_concern_rate",
+            "agent_freelook_cancellation_rate"
+          ],
+          "default": "agent_complaint_rate"
+        },
+        "min_policies": {
+          "type": "integer",
+          "default": 30,
+          "min": 5
+        }
+      },
+      "population": "Agents above the sample threshold, pooled into conduct quartiles.",
+      "caveat": "This is an association between two measures over the same agents; it cannot establish that conduct causes lapse, nor rule out that both reflect a shared cause such as customer segment or territory. Neither is observable in the data. Sales_Details holds supplied agent-level rates with no stated definition, denominator or measurement window. They are used as recorded and are never silently reconciled against rates computed from Policy_Details. The renewal paid rate covers only the Persistency-eligible population, which excludes surrendered and death policies (DQ-006), so it rests on a smaller denominator than the lapse rate computed beside it.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID; policy.AppID = persistency.AppID",
+        "aggregates": [
+          "outcome rates by conduct quartile"
+        ],
+        "comparison_baseline": "best conduct quartile",
+        "sample_sizes": "agents and policies per quartile",
+        "limitations": [
+          "association only",
+          "shared confounders not observable"
+        ],
+        "tables_used": [
+          "sales",
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "sales.SALES_ID",
+          "sales.Sales Related Complaint",
+          "sales.RCU Rejections Rate",
+          "sales.PIVC Concern Raised Rate",
+          "sales.Free Look  Cancellation Rate",
+          "sales.First Year Persistency Rate",
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.POLICY.STATUS",
+          "policy.APE",
+          "persistency.AppID",
+          "persistency.Renewal_Status"
+        ],
+        "population_definition": "Agents above the sample threshold, pooled into conduct quartiles."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-PERCENTILE",
+        "F-DELTA"
+      ],
+      "limitations": [
+        "Association only; no causal direction can be established."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

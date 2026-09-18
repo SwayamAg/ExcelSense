@@ -1,0 +1,302 @@
+{
+  "timings": [
+    {
+      "label": "load five datasets",
+      "runs": 2,
+      "median_ms": 1412.539,
+      "mean_ms": 1412.539,
+      "p95_ms": 1445.721,
+      "min_ms": 1379.357,
+      "max_ms": 1445.721,
+      "total_ms": 2825.078
+    },
+    {
+      "label": "load PS catalogue",
+      "runs": 5,
+      "median_ms": 8.526,
+      "mean_ms": 11.209,
+      "p95_ms": 23.399,
+      "min_ms": 7.033,
+      "max_ms": 23.399,
+      "total_ms": 56.045
+    },
+    {
+      "label": "route one question",
+      "runs": 20,
+      "median_ms": 117.541,
+      "mean_ms": 118.253,
+      "p95_ms": 172.304,
+      "min_ms": 75.249,
+      "max_ms": 190.193,
+      "total_ms": 2365.063
+    },
+    {
+      "label": "route long question",
+      "runs": 10,
+      "median_ms": 280.183,
+      "mean_ms": 277.32,
+      "p95_ms": 291.13,
+      "min_ms": 259.35,
+      "max_ms": 291.13,
+      "total_ms": 2773.204
+    },
+    {
+      "label": "route short question",
+      "runs": 10,
+      "median_ms": 72.901,
+      "mean_ms": 74.08,
+      "p95_ms": 83.6,
+      "min_ms": 65.196,
+      "max_ms": 83.6,
+      "total_ms": 740.798
+    },
+    {
+      "label": "execute PS-001 (scalar count over the full portfolio)",
+      "runs": 3,
+      "median_ms": 19.024,
+      "mean_ms": 19.062,
+      "p95_ms": 19.194,
+      "min_ms": 18.968,
+      "max_ms": 19.194,
+      "total_ms": 57.185
+    },
+    {
+      "label": "execute PS-013 (grouped metric with a ranking)",
+      "runs": 3,
+      "median_ms": 39.17,
+      "mean_ms": 39.052,
+      "p95_ms": 40.401,
+      "min_ms": 37.585,
+      "max_ms": 40.401,
+      "total_ms": 117.157
+    },
+    {
+      "label": "execute PS-031 (single record lookup)",
+      "runs": 3,
+      "median_ms": 137.748,
+      "mean_ms": 137.387,
+      "p95_ms": 140.085,
+      "min_ms": 134.328,
+      "max_ms": 140.085,
+      "total_ms": 412.162
+    },
+    {
+      "label": "execute PS-069 (joined agent analysis)",
+      "runs": 3,
+      "median_ms": 263.891,
+      "mean_ms": 264.913,
+      "p95_ms": 275.648,
+      "min_ms": 255.201,
+      "max_ms": 275.648,
+      "total_ms": 794.74
+    },
+    {
+      "label": "execute PS-013 uncached",
+      "runs": 3,
+      "median_ms": 32.428,
+      "mean_ms": 33.98,
+      "p95_ms": 37.165,
+      "min_ms": 32.348,
+      "max_ms": 37.165,
+      "total_ms": 101.941
+    },
+    {
+      "label": "execute PS-013 from cache",
+      "runs": 10,
+      "median_ms": 0.548,
+      "mean_ms": 0.511,
+      "p95_ms": 0.739,
+      "min_ms": 0.208,
+      "max_ms": 0.739,
+      "total_ms": 5.111
+    },
+    {
+      "label": "build evidence tables",
+      "runs": 20,
+      "median_ms": 0.413,
+      "mean_ms": 0.416,
+      "p95_ms": 0.553,
+      "min_ms": 0.215,
+      "max_ms": 1.107,
+      "total_ms": 8.312
+    },
+    {
+      "label": "build chart spec",
+      "runs": 20,
+      "median_ms": 0.082,
+      "mean_ms": 0.102,
+      "p95_ms": 0.154,
+      "min_ms": 0.069,
+      "max_ms": 0.157,
+      "total_ms": 2.042
+    },
+    {
+      "label": "chatbot: 'How many policies are there?'",
+      "runs": 3,
+      "median_ms": 81.033,
+      "mean_ms": 83.882,
+      "p95_ms": 91.264,
+      "min_ms": 79.35,
+      "max_ms": 91.264,
+      "total_ms": 251.647
+    },
+    {
+      "label": "chatbot: 'Which product has the highest lapse rate'",
+      "runs": 3,
+      "median_ms": 131.751,
+      "mean_ms": 132.003,
+      "p95_ms": 140.192,
+      "min_ms": 124.066,
+      "max_ms": 140.192,
+      "total_ms": 396.008
+    },
+    {
+      "label": "chatbot: 'What is the claim settlement ratio?'",
+      "runs": 3,
+      "median_ms": 121.946,
+      "mean_ms": 120.128,
+      "p95_ms": 127.068,
+      "min_ms": 111.37,
+      "max_ms": 127.068,
+      "total_ms": 360.384
+    },
+    {
+      "label": "chatbot: out-of-domain refusal",
+      "runs": 5,
+      "median_ms": 142.222,
+      "mean_ms": 144.387,
+      "p95_ms": 151.353,
+      "min_ms": 137.731,
+      "max_ms": 151.353,
+      "total_ms": 721.937
+    },
+    {
+      "label": "chatbot: screened injection",
+      "runs": 5,
+      "median_ms": 0.219,
+      "mean_ms": 0.227,
+      "p95_ms": 0.252,
+      "min_ms": 0.209,
+      "max_ms": 0.252,
+      "total_ms": 1.133
+    },
+    {
+      "label": "summarize with a 250ms model call",
+      "runs": 3,
+      "median_ms": 267.519,
+      "mean_ms": 267.522,
+      "p95_ms": 271.384,
+      "min_ms": 263.663,
+      "max_ms": 271.384,
+      "total_ms": 802.565
+    },
+    {
+      "label": "compose deterministically",
+      "runs": 10,
+      "median_ms": 10.647,
+      "mean_ms": 10.02,
+      "p95_ms": 11.753,
+      "min_ms": 5.195,
+      "max_ms": 11.753,
+      "total_ms": 100.204
+    },
+    {
+      "label": "validate one answer",
+      "runs": 20,
+      "median_ms": 8.489,
+      "mean_ms": 8.817,
+      "p95_ms": 11.121,
+      "min_ms": 6.635,
+      "max_ms": 11.715,
+      "total_ms": 176.335
+    }
+  ],
+  "notes": {
+    "catalogue_execution": {
+      "problem_statements": 103,
+      "total_seconds": 12.4,
+      "mean_ms": 120.42,
+      "slowest": [
+        {
+          "problem_id": "PS-083",
+          "ms": 1099.16
+        },
+        {
+          "problem_id": "PS-024",
+          "ms": 498.9
+        },
+        {
+          "problem_id": "PS-068",
+          "ms": 409.11
+        },
+        {
+          "problem_id": "PS-102",
+          "ms": 406.3
+        },
+        {
+          "problem_id": "PS-097",
+          "ms": 338.22
+        }
+      ]
+    },
+    "cache_speedup": {
+      "cold_ms": 32.428,
+      "warm_ms": 0.548,
+      "factor": 59.2
+    },
+    "cache_stats": {
+      "cache_version": "1.0.0",
+      "enabled": true,
+      "entries": 3,
+      "max_entries": 512,
+      "hits": 3,
+      "misses": 3,
+      "stores": 3,
+      "evictions": 0,
+      "hit_rate": 0.5,
+      "fingerprint": "91f199eef293189e23c7767f"
+    },
+    "llm_overhead": {
+      "simulated_model_latency_ms": 250.0,
+      "total_ms": 267.519,
+      "system_overhead_ms": 17.52
+    },
+    "dataset_memory": {
+      "total_mb": 51.5,
+      "tables": {
+        "claims": {
+          "rows": 134,
+          "bytes": 49588,
+          "mb": 0.05
+        },
+        "owner": {
+          "rows": 25000,
+          "bytes": 18471857,
+          "mb": 17.62
+        },
+        "persistency": {
+          "rows": 24542,
+          "bytes": 14319419,
+          "mb": 13.66
+        },
+        "policy": {
+          "rows": 25000,
+          "bytes": 20654024,
+          "mb": 19.7
+        },
+        "sales": {
+          "rows": 1956,
+          "bytes": 508756,
+          "mb": 0.49
+        }
+      }
+    }
+  },
+  "environment": {
+    "python": "3.10.0",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+    "machine": "AMD64",
+    "pandas": "2.3.3"
+  }
+}

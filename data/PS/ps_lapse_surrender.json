@@ -1,0 +1,925 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_lapse_surrender",
+  "business_domains": [
+    "Lapse Analysis",
+    "Surrender Analysis"
+  ],
+  "problem_count": 6,
+  "problem_ids": [
+    "PS-035",
+    "PS-036",
+    "PS-037",
+    "PS-038",
+    "PS-042",
+    "PS-043"
+  ],
+  "routing_hints": {
+    "tables": [
+      "owner",
+      "policy"
+    ],
+    "concepts": [
+      "affordability",
+      "age segmentation",
+      "comparison",
+      "income segmentation",
+      "lapse",
+      "occupation segmentation",
+      "retention",
+      "segment profile",
+      "surrender",
+      "voluntary exit"
+    ],
+    "intent_structures": [
+      "Conditional",
+      "GroupBy",
+      "Join",
+      "Multi-Condition"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive",
+      "diagnostic"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-035",
+      "problem_statement": "What is the overall lapse rate?",
+      "intent_type": "Conditional/Ratio",
+      "business_intent": "Establish the headline lapse measure.",
+      "business_domain": "Lapse Analysis",
+      "business_objective": "Compute lapsed policies as a share of the book.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "What is our lapse rate?",
+        "How many policies have lapsed?",
+        "Lapse percentage",
+        "Share of lapsed policies",
+        "Portfolio lapse rate"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.POLICY.STATUS",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "CASE WHEN",
+        "COUNT",
+        "ratio"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "policy",
+        "measures": {
+          "policy_count": [
+            null,
+            "count_all"
+          ]
+        },
+        "condition_counts": {
+          "lapsed": {
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policy_count"
+          }
+        }
+      },
+      "concepts": [
+        "lapse",
+        "retention"
+      ],
+      "analytical_steps": [
+        "Count policies with POLICY.STATUS = 'Lapsed'.",
+        "Divide by the total policy count.",
+        "Report the count and the percentage."
+      ],
+      "expected_answer_type": "scalar",
+      "answer_template": "{lapsed_count} of {policy_count} policies have lapsed, a rate of {lapse_rate}%.",
+      "parameters": {},
+      "population": "All 25,000 policies in Policy_Details; 2,737 carry Lapsed status.",
+      "caveat": "There is no lapse-date or lapse-reason column. Lapse is a status only, so it cannot be attributed to a period, a cause or a sequence of events.",
+      "evidence_requirements": {
+        "calculations": [
+          "lapse_rate"
+        ],
+        "aggregates": [
+          "lapsed count"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.POLICY.STATUS",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies in Policy_Details; 2,737 carry Lapsed status."
+      },
+      "visualization_recommended": false,
+      "visualization_type": null,
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-036",
+      "problem_statement": "Does lapse rate vary by customer age?",
+      "intent_type": "Join/GroupBy/Ratio",
+      "business_intent": "Find the age segments most prone to lapse.",
+      "business_domain": "Lapse Analysis",
+      "business_objective": "Compute lapse rate by owner age band.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Lapse rate by age",
+        "Which age group lapses most?",
+        "Do younger customers lapse more?",
+        "Age and lapse relationship",
+        "Lapse by customer age band"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner"
+      ],
+      "relevant_columns": [
+        "policy.POLICY.STATUS",
+        "policy.AppID",
+        "owner.Owner.Age",
+        "owner.age_band",
+        "owner.AppID"
+      ],
+      "required_operations": [
+        "JOIN",
+        "derive_column",
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "ORDER BY",
+        "compare_to_baseline",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "policy_count",
+        "peer_average",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "age_band",
+        "derive": [
+          {
+            "kind": "band",
+            "name": "age_band",
+            "column": "owner_Owner.Age",
+            "bins": [
+              0,
+              17,
+              29,
+              39,
+              49,
+              59,
+              69,
+              120
+            ],
+            "labels": [
+              "under_18_implausible",
+              "18_29",
+              "30_39",
+              "40_49",
+              "50_59",
+              "60_69",
+              "70_plus"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "avg_age": [
+            "owner_Owner.Age",
+            "mean"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": 100,
+        "rank_by": "lapse_rate",
+        "baseline": {
+          "kind": "rate",
+          "measure": "lapse_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Lapsed"
+          ],
+          "description": "portfolio lapse rate across all policies"
+        }
+      },
+      "concepts": [
+        "lapse",
+        "age segmentation"
+      ],
+      "analytical_steps": [
+        "Join Policy_Details to Owner_Details on AppID.",
+        "Band Owner.Age into decades.",
+        "Compute lapse rate per band with policy counts.",
+        "Compare each band against the portfolio lapse rate.",
+        "Flag bands with fewer than 100 policies."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "Lapse rate peaks at {worst_rate}% in the {worst_band} age band versus {baseline_rate}% overall.",
+      "parameters": {},
+      "population": "The 24,999 policies that join to an owner record.",
+      "caveat": "Owner.Age includes implausible values as low as 1 (DQ-009); ages below 18 are reported separately rather than banded with adults. One policy cannot be joined because of the corrupted AppID (DQ-001).",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "lapse rate by age band"
+        ],
+        "comparison_baseline": "portfolio lapse rate",
+        "data_quality_notes": [
+          "DQ-001",
+          "DQ-009"
+        ],
+        "tables_used": [
+          "policy",
+          "owner"
+        ],
+        "columns_used": [
+          "policy.POLICY.STATUS",
+          "policy.AppID",
+          "owner.Owner.Age",
+          "owner.age_band",
+          "owner.AppID"
+        ],
+        "population_definition": "The 24,999 policies that join to an owner record."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-037",
+      "problem_statement": "Does lapse rate vary by customer occupation?",
+      "intent_type": "Join/GroupBy/Ratio",
+      "business_intent": "Identify occupational segments with weak persistency.",
+      "business_domain": "Lapse Analysis",
+      "business_objective": "Compute lapse rate by owner occupation.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Lapse by occupation",
+        "Which occupations lapse most?",
+        "Do business owners lapse more than salaried?",
+        "Occupation and lapse",
+        "Lapse rate by profession"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner"
+      ],
+      "relevant_columns": [
+        "policy.POLICY.STATUS",
+        "policy.AppID",
+        "owner.Owner.Occupation",
+        "owner.AppID"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "ORDER BY",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "policy_count",
+        "occupation_share",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "owner_Owner.Occupation",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "shares": {
+          "share_pct": "policies"
+        },
+        "rank_by": "lapse_rate",
+        "baseline": {
+          "kind": "rate",
+          "measure": "lapse_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Lapsed"
+          ],
+          "description": "portfolio lapse rate across all policies"
+        }
+      },
+      "concepts": [
+        "lapse",
+        "occupation segmentation"
+      ],
+      "analytical_steps": [
+        "Join Policy_Details to Owner_Details on AppID.",
+        "Group by Owner.Occupation.",
+        "Compute lapse rate and policy count per occupation.",
+        "Compare each against the portfolio baseline.",
+        "Rank by lapse rate descending."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{worst_occupation} lapses at {worst_rate}% versus {baseline_rate}% overall.",
+      "parameters": {},
+      "population": "The 24,999 joined policies across 6 occupation categories.",
+      "caveat": "Occupation is self-declared at application and is not verified in the data.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "lapse rate by occupation"
+        ],
+        "comparison_baseline": "portfolio lapse rate",
+        "sample_sizes": "policy count per occupation",
+        "tables_used": [
+          "policy",
+          "owner"
+        ],
+        "columns_used": [
+          "policy.POLICY.STATUS",
+          "policy.AppID",
+          "owner.Owner.Occupation",
+          "owner.AppID"
+        ],
+        "population_definition": "The 24,999 joined policies across 6 occupation categories."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-038",
+      "problem_statement": "Does lapse rate vary by customer income?",
+      "intent_type": "Join/GroupBy/Ratio",
+      "business_intent": "Test whether affordability tracks with lapse.",
+      "business_domain": "Lapse Analysis",
+      "business_objective": "Compute lapse rate by owner income band.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Lapse by income",
+        "Do lower income customers lapse more?",
+        "Income and lapse relationship",
+        "Lapse rate by earnings band",
+        "Which income group lapses most?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner"
+      ],
+      "relevant_columns": [
+        "policy.POLICY.STATUS",
+        "policy.AppID",
+        "policy.APE",
+        "owner.Owner.Earned.Income",
+        "owner.income_band",
+        "owner.AppID"
+      ],
+      "required_operations": [
+        "JOIN",
+        "derive_column",
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "AVG",
+        "ORDER BY",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "policy_count",
+        "avg_earned_income",
+        "avg_ape",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "income_band",
+        "derive": [
+          {
+            "kind": "band",
+            "name": "income_band",
+            "column": "owner_Owner.Earned.Income",
+            "bins": [
+              -1,
+              0,
+              250000,
+              500000,
+              1000000,
+              2500000,
+              10000000000
+            ],
+            "labels": [
+              "zero_declared",
+              "upto_2.5L",
+              "2.5L_5L",
+              "5L_10L",
+              "10L_25L",
+              "above_25L"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "avg_income": [
+            "owner_Owner.Earned.Income",
+            "mean"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": 100,
+        "rank_by": "lapse_rate",
+        "baseline": {
+          "kind": "rate",
+          "measure": "lapse_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Lapsed"
+          ],
+          "description": "portfolio lapse rate across all policies"
+        }
+      },
+      "concepts": [
+        "lapse",
+        "affordability",
+        "income segmentation"
+      ],
+      "analytical_steps": [
+        "Join Policy_Details to Owner_Details on AppID.",
+        "Band Owner.Earned.Income into ranges.",
+        "Compute lapse rate, policy count and average APE per band.",
+        "Report the premium-to-income relationship alongside the lapse rate.",
+        "Compare each band against the portfolio baseline."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "Lapse rate is highest at {worst_rate}% in the {worst_band} income band.",
+      "parameters": {},
+      "population": "The 24,999 joined policies.",
+      "caveat": "Owner.Earned.Income reaches 8,384,891,049, which is implausible (DQ-009). Extreme values are isolated into a top band rather than distorting the others. Income is declared at application and is not updated.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "lapse rate by income band"
+        ],
+        "data_quality_notes": [
+          "DQ-009"
+        ],
+        "comparison_baseline": "portfolio lapse rate",
+        "tables_used": [
+          "policy",
+          "owner"
+        ],
+        "columns_used": [
+          "policy.POLICY.STATUS",
+          "policy.AppID",
+          "policy.APE",
+          "owner.Owner.Earned.Income",
+          "owner.income_band",
+          "owner.AppID"
+        ],
+        "population_definition": "The 24,999 joined policies."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-042",
+      "problem_statement": "What is the surrender rate and which products drive it?",
+      "intent_type": "GroupBy/Conditional/Ratio",
+      "business_intent": "Quantify voluntary exits and locate them.",
+      "business_domain": "Surrender Analysis",
+      "business_objective": "Compute the surrender rate overall and by product.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "What is our surrender rate?",
+        "How many policies were surrendered?",
+        "Surrender by product",
+        "Which product gets surrendered most?",
+        "Surrender analysis"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.POLICY.STATUS",
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured"
+      ],
+      "required_operations": [
+        "CASE WHEN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "ratio",
+        "ORDER BY",
+        "compare_to_baseline",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "surrender_rate",
+        "policy_count",
+        "total_ape",
+        "delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_surrendered",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Surrendered"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "surrendered": [
+            "is_surrendered",
+            "sum"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ]
+        },
+        "rates": {
+          "surrender_rate": {
+            "numerator": "surrendered",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": 50,
+        "rank_by": "surrender_rate",
+        "baseline": {
+          "kind": "rate",
+          "measure": "surrender_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Surrendered"
+          ],
+          "description": "portfolio surrender rate"
+        }
+      },
+      "concepts": [
+        "surrender",
+        "voluntary exit"
+      ],
+      "analytical_steps": [
+        "Count policies with POLICY.STATUS = 'Surrendered' and compute the portfolio rate.",
+        "Group by product and compute the surrender rate per product.",
+        "Sum the APE attached to surrendered policies as the value lost.",
+        "Flag low-sample products and rank the rest."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{surrendered_count} policies surrendered ({surrender_rate}%), concentrated in {top_product}.",
+      "parameters": {},
+      "population": "All 25,000 policies in Policy_Details; 324 carry Surrendered status.",
+      "caveat": "The data holds no surrender date, surrender value, surrender charge or surrender reason. Only the status and the policy's own attributes are observable, so the economics of surrender cannot be analysed.",
+      "evidence_requirements": {
+        "aggregates": [
+          "surrender rate by product"
+        ],
+        "comparison_baseline": "portfolio surrender rate",
+        "limitations": [
+          "no surrender date, value or reason available"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.POLICY.STATUS",
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured"
+        ],
+        "population_definition": "All 25,000 policies in Policy_Details; 324 carry Surrendered status."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-043",
+      "problem_statement": "How do surrendered policies differ from those still in force?",
+      "intent_type": "Multi-Condition/Comparison",
+      "business_intent": "Profile the surrendering customer.",
+      "business_domain": "Surrender Analysis",
+      "business_objective": "Compare surrendered and in-force cohorts across every observable attribute.",
+      "analysis_tier": "diagnostic",
+      "example_queries": [
+        "Profile of surrendered policies",
+        "What do surrendering customers look like?",
+        "Surrendered versus in force comparison",
+        "Who surrenders their policy?",
+        "Characteristics of surrenders"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner"
+      ],
+      "relevant_columns": [
+        "policy.POLICY.STATUS",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.Policy.Term",
+        "policy.PREMIUM.PAYING.TERM",
+        "policy.Prod_No",
+        "policy.Trad.ULIP",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Earned.Income",
+        "owner.Owner.Occupation",
+        "owner.Owner.Education"
+      ],
+      "required_operations": [
+        "JOIN",
+        "WHERE",
+        "GROUP BY",
+        "AVG",
+        "MEDIAN",
+        "COUNT",
+        "segment_profile",
+        "compare_to_baseline",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "avg_ape",
+        "avg_sum_assured",
+        "avg_owner_age",
+        "avg_earned_income",
+        "policy_count",
+        "delta_vs_baseline",
+        "pct_delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "cohort_compare",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "split": {
+          "column": "POLICY.STATUS",
+          "cohorts": {
+            "surrendered": [
+              "Surrendered"
+            ],
+            "inforce": [
+              "Premium paying (regular)"
+            ]
+          }
+        },
+        "numeric_attributes": [
+          "APE",
+          "Sum.Assured",
+          "Policy.Term",
+          "PREMIUM.PAYING.TERM",
+          "owner_Owner.Age",
+          "owner_Owner.Earned.Income"
+        ],
+        "categorical_attributes": [
+          "Trad.ULIP",
+          "owner_Owner.Occupation",
+          "owner_Owner.Education"
+        ]
+      },
+      "concepts": [
+        "segment profile",
+        "surrender",
+        "comparison"
+      ],
+      "analytical_steps": [
+        "Select surrendered policies and premium-paying policies as two cohorts.",
+        "Join Owner_Details to both.",
+        "Compute the mean and median of each numeric attribute per cohort.",
+        "Compute the distribution of each categorical attribute per cohort.",
+        "Report the largest differences with sample sizes."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "Surrendered policies average {surr_ape} APE versus {inforce_ape} for in-force policies.",
+      "parameters": {},
+      "population": "324 surrendered policies versus 21,805 premium-paying policies.",
+      "caveat": "The surrendered cohort is small (324 policies), so segment breakdowns within it are fragile and minimum cell sizes are enforced. Differences are associations, not reasons for surrender.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "attribute profile per cohort"
+        ],
+        "comparison_baseline": "premium-paying cohort",
+        "sample_sizes": "cohort sizes and cell counts",
+        "limitations": [
+          "small surrendered cohort",
+          "no surrender reason"
+        ],
+        "tables_used": [
+          "policy",
+          "owner"
+        ],
+        "columns_used": [
+          "policy.POLICY.STATUS",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.Policy.Term",
+          "policy.PREMIUM.PAYING.TERM",
+          "policy.Prod_No",
+          "policy.Trad.ULIP",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Earned.Income",
+          "owner.Owner.Occupation",
+          "owner.Owner.Education"
+        ],
+        "population_definition": "324 surrendered policies versus 21,805 premium-paying policies."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

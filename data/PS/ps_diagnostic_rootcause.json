@@ -1,0 +1,1021 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_diagnostic_rootcause",
+  "business_domains": [
+    "Root-Cause / Diagnostic"
+  ],
+  "problem_count": 5,
+  "problem_ids": [
+    "PS-014",
+    "PS-040",
+    "PS-050",
+    "PS-057",
+    "PS-068"
+  ],
+  "routing_hints": {
+    "tables": [
+      "claims",
+      "owner",
+      "persistency",
+      "policy",
+      "sales"
+    ],
+    "concepts": [
+      "agent performance",
+      "association",
+      "claims operations",
+      "diagnostic",
+      "driver analysis",
+      "driver scan",
+      "peer comparison",
+      "persistency",
+      "root cause"
+    ],
+    "intent_structures": [
+      "Business"
+    ],
+    "analysis_tiers": [
+      "diagnostic"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-014",
+      "problem_statement": "Why does the worst-performing product have such a high lapse rate?",
+      "intent_type": "Business/Diagnostic/Driver",
+      "business_intent": "Explain a product lapse outlier using only observable differences.",
+      "business_domain": "Root-Cause / Diagnostic",
+      "business_objective": "Identify which observable attributes of the worst product differ materially from peers, without asserting causation.",
+      "analysis_tier": "diagnostic",
+      "example_queries": [
+        "Why does this product lapse so much?",
+        "What is driving lapses in that plan?",
+        "Explain the high lapse rate",
+        "Why is product P91 underperforming?",
+        "What makes this product lapse more than others?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner",
+        "sales"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.POLICY.STATUS",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.Policy.Term",
+        "policy.PREMIUM.PAYING.TERM",
+        "policy.Trad.ULIP",
+        "policy.AppID",
+        "policy.SALES_ID",
+        "owner.Owner.Age",
+        "owner.Owner.Earned.Income",
+        "owner.Owner.Occupation",
+        "owner.AppID",
+        "sales.First Year Persistency Rate",
+        "sales.SALES_ID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "CASE WHEN",
+        "ratio",
+        "JOIN",
+        "compare_to_baseline",
+        "driver_scan",
+        "segment_profile",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "avg_ape",
+        "avg_sum_assured",
+        "avg_owner_age",
+        "avg_earned_income",
+        "agent_first_year_persistency",
+        "delta_vs_baseline",
+        "pct_delta_vs_baseline",
+        "peer_average"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "driver_scan",
+        "base": "policy",
+        "joins": [
+          "policy_owner",
+          "policy_sales"
+        ],
+        "entity_column": "Prod_No",
+        "kpi": "lapse_rate",
+        "min_sample": 50,
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ]
+        },
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "numeric_attributes": [
+          "APE",
+          "Sum.Assured",
+          "Policy.Term",
+          "PREMIUM.PAYING.TERM",
+          "owner_Owner.Age",
+          "owner_Owner.Earned.Income",
+          "sales_First Year Persistency Rate"
+        ],
+        "categorical_attributes": [
+          "Trad.ULIP",
+          "owner_Owner.Occupation"
+        ]
+      },
+      "concepts": [
+        "root cause",
+        "driver analysis",
+        "peer comparison"
+      ],
+      "analytical_steps": [
+        "Identify the product with the highest lapse rate.",
+        "Define the peer set as all other products with at least 50 policies.",
+        "Join Owner_Details and Sales_Details to enrich each policy.",
+        "For the target and the peer set, compute average APE, sum assured, term, premium paying term, owner age, owner income and selling-agent first-year persistency.",
+        "Compute the difference and percentage difference for each attribute.",
+        "Rank attributes by absolute percentage difference to surface the largest observable gaps.",
+        "Report only differences the data establishes, and state explicitly that association is not proof of cause."
+      ],
+      "expected_answer_type": "diagnostic_narrative",
+      "answer_template": "{target_product} lapses at {target_rate}% versus {peer_rate}% for peers. The largest observable differences are {top_drivers}. These are associations, not proven causes.",
+      "parameters": {},
+      "population": "The target product versus all other products with at least 50 policies.",
+      "caveat": "The dataset contains no lapse reason, no payment history and no customer contact record, so the mechanism of lapse cannot be established. Only attribute differences between lapsing and non-lapsing populations are observable.",
+      "evidence_requirements": {
+        "comparison_baseline": "peer products",
+        "aggregates": [
+          "attribute means by group"
+        ],
+        "calculations": [
+          "delta and pct delta per attribute"
+        ],
+        "join_path": "policy.AppID = owner.AppID; policy.SALES_ID = sales.SALES_ID",
+        "limitations": [
+          "no causal attribution possible",
+          "no lapse reason column"
+        ],
+        "data_quality_notes": [
+          "DQ-005"
+        ],
+        "tables_used": [
+          "policy",
+          "owner",
+          "sales"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.POLICY.STATUS",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.Policy.Term",
+          "policy.PREMIUM.PAYING.TERM",
+          "policy.Trad.ULIP",
+          "policy.AppID",
+          "policy.SALES_ID",
+          "owner.Owner.Age",
+          "owner.Owner.Earned.Income",
+          "owner.Owner.Occupation",
+          "owner.AppID",
+          "sales.First Year Persistency Rate",
+          "sales.SALES_ID"
+        ],
+        "population_definition": "The target product versus all other products with at least 50 policies."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "limitations": [
+        "Cannot establish causation; reports observable association only."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-040",
+      "problem_statement": "What is driving lapses across the portfolio?",
+      "intent_type": "Business/Diagnostic/Driver",
+      "business_intent": "Explain portfolio lapse using every observable dimension.",
+      "business_domain": "Root-Cause / Diagnostic",
+      "business_objective": "Scan all available attributes for the largest observable differences between lapsed and in-force policies.",
+      "analysis_tier": "diagnostic",
+      "example_queries": [
+        "Why are policies lapsing?",
+        "What drives lapse?",
+        "Root cause of lapses",
+        "Explain our lapse rate",
+        "What factors are associated with lapse?",
+        "Lapse driver analysis"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner",
+        "sales"
+      ],
+      "relevant_columns": [
+        "policy.POLICY.STATUS",
+        "policy.AppID",
+        "policy.Prod_No",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.Policy.Term",
+        "policy.PREMIUM.PAYING.TERM",
+        "policy.Trad.ULIP",
+        "policy.SALES_ID",
+        "policy.Inforce.Date",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Earned.Income",
+        "owner.Owner.Occupation",
+        "owner.Owner.Education",
+        "owner.Owner.Gender",
+        "owner.Owner.Comm.State",
+        "sales.SALES_ID",
+        "sales.First Year Persistency Rate",
+        "sales.Sales Related Complaint",
+        "sales.RCU Rejections Rate"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "CASE WHEN",
+        "ratio",
+        "AVG",
+        "MEDIAN",
+        "driver_scan",
+        "compare_to_baseline",
+        "multi_metric_table",
+        "rank_entities"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "avg_ape",
+        "avg_sum_assured",
+        "avg_owner_age",
+        "avg_earned_income",
+        "agent_first_year_persistency",
+        "agent_complaint_rate",
+        "agent_rcu_rejection_rate",
+        "delta_vs_baseline",
+        "pct_delta_vs_baseline",
+        "policy_count"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "cohort_compare",
+        "base": "policy",
+        "joins": [
+          "policy_owner",
+          "policy_sales"
+        ],
+        "split": {
+          "column": "POLICY.STATUS",
+          "cohorts": {
+            "lapsed": [
+              "Lapsed"
+            ],
+            "inforce": [
+              "Premium paying (regular)"
+            ]
+          }
+        },
+        "numeric_attributes": [
+          "APE",
+          "Sum.Assured",
+          "Policy.Term",
+          "PREMIUM.PAYING.TERM",
+          "owner_Owner.Age",
+          "owner_Owner.Earned.Income",
+          "sales_First Year Persistency Rate",
+          "sales_Sales Related Complaint",
+          "sales_RCU Rejections Rate"
+        ],
+        "categorical_attributes": [
+          "Trad.ULIP",
+          "owner_Owner.Occupation",
+          "owner_Owner.Education",
+          "owner_Owner.Gender"
+        ]
+      },
+      "concepts": [
+        "root cause",
+        "driver scan",
+        "association"
+      ],
+      "analytical_steps": [
+        "Split policies into lapsed and premium-paying cohorts.",
+        "Join Owner_Details and Sales_Details to enrich both cohorts.",
+        "For every categorical attribute compute the lapse rate per level.",
+        "For every numeric attribute compute the mean and median in each cohort.",
+        "Compute the difference and percentage difference for each attribute.",
+        "Rank attributes by the size of the gap, reporting sample sizes alongside.",
+        "Present the strongest observable associations and state plainly that the data cannot establish which, if any, is causal."
+      ],
+      "expected_answer_type": "diagnostic_narrative",
+      "answer_template": "Portfolio lapse is {lapse_rate}%. The attributes differing most between lapsed and in-force policies are {top_drivers}. These are associations only.",
+      "parameters": {},
+      "population": "All policies with status Lapsed or Premium paying (regular), joined to owner and agent.",
+      "caveat": "The dataset has no lapse reason, no premium payment history, no customer contact log and no lapse date. Product and vintage are confounded with each other, so an apparent product effect may be a timing effect. No causal claim is supportable from this data.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID; policy.SALES_ID = sales.SALES_ID",
+        "aggregates": [
+          "attribute profile per cohort"
+        ],
+        "calculations": [
+          "gap per attribute"
+        ],
+        "comparison_baseline": "premium-paying cohort",
+        "limitations": [
+          "no causal attribution",
+          "product and vintage confounded"
+        ],
+        "data_quality_notes": [
+          "DQ-005"
+        ],
+        "tables_used": [
+          "policy",
+          "owner",
+          "sales"
+        ],
+        "columns_used": [
+          "policy.POLICY.STATUS",
+          "policy.AppID",
+          "policy.Prod_No",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.Policy.Term",
+          "policy.PREMIUM.PAYING.TERM",
+          "policy.Trad.ULIP",
+          "policy.SALES_ID",
+          "policy.Inforce.Date",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Earned.Income",
+          "owner.Owner.Occupation",
+          "owner.Owner.Education",
+          "owner.Owner.Gender",
+          "owner.Owner.Comm.State",
+          "sales.SALES_ID",
+          "sales.First Year Persistency Rate",
+          "sales.Sales Related Complaint",
+          "sales.RCU Rejections Rate"
+        ],
+        "population_definition": "All policies with status Lapsed or Premium paying (regular), joined to owner and agent."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "limitations": [
+        "Reports association only; causation is explicitly disclaimed."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-050",
+      "problem_statement": "Why is renewal collection weakest in the 37th month bucket?",
+      "intent_type": "Business/Diagnostic/Driver",
+      "business_intent": "Explain the weakest persistency bucket with observable evidence.",
+      "business_domain": "Root-Cause / Diagnostic",
+      "business_objective": "Compare the weakest bucket against the others across every available attribute.",
+      "analysis_tier": "diagnostic",
+      "example_queries": [
+        "Why is 37th month persistency low?",
+        "What is wrong with the 37th month bucket?",
+        "Explain weak late-stage persistency",
+        "Why do older policies stop paying?",
+        "Diagnose the worst persistency bucket"
+      ],
+      "relevant_tables": [
+        "persistency",
+        "policy",
+        "owner"
+      ],
+      "relevant_columns": [
+        "persistency.Persistency_Bucket",
+        "persistency.Renewal_Status",
+        "persistency.AppID",
+        "persistency.Renewal_Premium_Amount",
+        "persistency.Payment_Mode",
+        "persistency.SALES_ID",
+        "policy.AppID",
+        "policy.Prod_No",
+        "policy.APE",
+        "policy.Trad.ULIP",
+        "policy.POLICY.STATUS",
+        "policy.Policy.Term",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Earned.Income",
+        "owner.Owner.Occupation"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "CASE WHEN",
+        "ratio",
+        "AVG",
+        "MEDIAN",
+        "crosstab_metric",
+        "driver_scan",
+        "compare_to_baseline",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "renewal_paid_rate",
+        "avg_renewal_premium",
+        "avg_ape",
+        "avg_owner_age",
+        "avg_earned_income",
+        "delta_vs_baseline",
+        "pct_delta_vs_baseline",
+        "renewal_count"
+      ],
+      "relationships": [
+        "policy_persistency",
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "cohort_compare",
+        "base": "persistency",
+        "joins": [
+          "policy_persistency"
+        ],
+        "base_override": null,
+        "split": {
+          "column": "Persistency_Bucket",
+          "cohorts": {
+            "month_37": [
+              "37th Month"
+            ],
+            "earlier_buckets": [
+              "13th Month",
+              "25th Month"
+            ]
+          }
+        },
+        "numeric_attributes": [
+          "Renewal_Premium_Amount",
+          "PREMIUM.PAYING.TERM"
+        ],
+        "categorical_attributes": [
+          "Renewal_Status",
+          "Payment_Mode",
+          "POLICY.STATUS"
+        ]
+      },
+      "concepts": [
+        "diagnostic",
+        "persistency",
+        "driver scan"
+      ],
+      "analytical_steps": [
+        "Identify the bucket with the lowest renewal paid rate.",
+        "Join Policy_Details and Owner_Details onto the persistency rows.",
+        "Profile the weak bucket and the other buckets across product mix, premium size, payment mode, policy status, owner age, income and occupation.",
+        "Compute the gap for each attribute and rank by gap size.",
+        "Check whether the weak bucket contains a different product or status mix, which would make the comparison a mix effect rather than a timing effect.",
+        "Report observable differences and state what cannot be concluded."
+      ],
+      "expected_answer_type": "diagnostic_narrative",
+      "answer_template": "The {weak_bucket} bucket collects {weak_rate}% versus {other_rate}% elsewhere. The largest observable differences are {top_drivers}, which are associations, not causes.",
+      "parameters": {},
+      "population": "All persistency rows, grouped by bucket and joined to policy and owner.",
+      "caveat": "Buckets are different populations, not one cohort over time, so an apparent decay may be a composition difference. The data holds no payment history, no customer contact record and no reason code, so the mechanism cannot be established.",
+      "evidence_requirements": {
+        "join_path": "persistency.AppID = policy.AppID = owner.AppID",
+        "aggregates": [
+          "attribute profile per bucket"
+        ],
+        "comparison_baseline": "the other buckets combined",
+        "limitations": [
+          "cross-sectional buckets",
+          "no causal attribution"
+        ],
+        "data_quality_notes": [
+          "DQ-006"
+        ],
+        "tables_used": [
+          "persistency",
+          "policy",
+          "owner"
+        ],
+        "columns_used": [
+          "persistency.Persistency_Bucket",
+          "persistency.Renewal_Status",
+          "persistency.AppID",
+          "persistency.Renewal_Premium_Amount",
+          "persistency.Payment_Mode",
+          "persistency.SALES_ID",
+          "policy.AppID",
+          "policy.Prod_No",
+          "policy.APE",
+          "policy.Trad.ULIP",
+          "policy.POLICY.STATUS",
+          "policy.Policy.Term",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Earned.Income",
+          "owner.Owner.Occupation"
+        ],
+        "population_definition": "All persistency rows, grouped by bucket and joined to policy and owner."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "limitations": [
+        "Association only; bucket differences may be composition, not timing."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-057",
+      "problem_statement": "Which claims took longest to settle and why?",
+      "intent_type": "Business/Diagnostic/Driver",
+      "business_intent": "Understand what distinguishes slow claims.",
+      "business_domain": "Root-Cause / Diagnostic",
+      "business_objective": "Identify the slowest-settling claims and compare them against fast ones on every observable attribute.",
+      "analysis_tier": "diagnostic",
+      "example_queries": [
+        "Why do some claims take longer?",
+        "Slowest claims to settle",
+        "What delays claim settlement?",
+        "Explain long settlement times",
+        "Diagnose slow claims"
+      ],
+      "relevant_tables": [
+        "claims",
+        "policy",
+        "owner"
+      ],
+      "relevant_columns": [
+        "claims.Claim_No",
+        "claims.AppID",
+        "claims.settlement_lag_days",
+        "claims.intimation_lag_days",
+        "claims.Claim.Amount",
+        "claims.Cause.of.Death",
+        "claims.Date.of.Death",
+        "claims.Status.of.Claim",
+        "claims.days_from_inforce_to_death",
+        "policy.AppID",
+        "policy.Sum.Assured",
+        "policy.Prod_No",
+        "policy.Inforce.Date",
+        "policy.APE",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Comm.State"
+      ],
+      "required_operations": [
+        "JOIN",
+        "date_diff",
+        "derive_column",
+        "ORDER BY",
+        "LIMIT",
+        "PERCENTILE",
+        "GROUP BY",
+        "AVG",
+        "MEDIAN",
+        "compare_to_baseline",
+        "driver_scan"
+      ],
+      "required_metrics": [
+        "settlement_lag_days",
+        "intimation_lag_days",
+        "avg_claim_amount",
+        "days_to_death_from_inforce",
+        "delta_vs_baseline",
+        "claim_count"
+      ],
+      "relationships": [
+        "policy_claims",
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "cohort_compare",
+        "base": "claims",
+        "joins": [
+          "policy_claims"
+        ],
+        "filters": [
+          [
+            "Status.of.Claim",
+            "eq",
+            "Paid"
+          ]
+        ],
+        "derive": [
+          {
+            "kind": "date_diff",
+            "name": "settlement_lag_days",
+            "end": "Settlement.Date",
+            "start": "Date.of.Intimation"
+          },
+          {
+            "kind": "date_diff",
+            "name": "intimation_lag_days",
+            "end": "Date.of.Intimation",
+            "start": "Date.of.Death"
+          },
+          {
+            "kind": "band",
+            "name": "speed_group",
+            "column": "settlement_lag_days",
+            "bins": [
+              -1,
+              20,
+              400
+            ],
+            "labels": [
+              "faster",
+              "slower"
+            ]
+          }
+        ],
+        "split": {
+          "column": "speed_group",
+          "cohorts": {
+            "slower": [
+              "slower"
+            ],
+            "faster": [
+              "faster"
+            ]
+          }
+        },
+        "numeric_attributes": [
+          "Claim.Amount",
+          "intimation_lag_days"
+        ],
+        "categorical_attributes": [
+          "Cause.of.Death"
+        ]
+      },
+      "concepts": [
+        "diagnostic",
+        "claims operations",
+        "driver analysis"
+      ],
+      "analytical_steps": [
+        "Derive settlement lag for every settled claim.",
+        "Split claims into the slowest quartile and the rest.",
+        "Join Policy_Details and Owner_Details for context.",
+        "Compare claim amount, sum assured, cause of death, intimation lag, policy tenure at death and owner age across the two groups.",
+        "Rank attributes by the size of the observable gap.",
+        "Report only what the data shows and state the limits explicitly."
+      ],
+      "expected_answer_type": "diagnostic_narrative",
+      "answer_template": "The slowest quartile settles in {slow_median} days versus {fast_median} days. The largest observable differences are {top_drivers}, which are associations, not causes.",
+      "parameters": {},
+      "population": "The 133 settled claims, split into the slowest quartile and the remainder.",
+      "caveat": "With 133 settled claims a quartile holds roughly 33 cases, so differences are fragile and confidence is low. The data has no investigation flag, no document or query log and no claim-handler field, so the actual reason for delay is not observable. The book contains 134 claims against 25,000 policies. Any breakdown of claims by a dimension produces small cells, so counts are reported alongside every rate and minimum cell sizes are enforced.",
+      "evidence_requirements": {
+        "join_path": "claims.AppID = policy.AppID = owner.AppID",
+        "aggregates": [
+          "attribute profile per speed group"
+        ],
+        "comparison_baseline": "faster-settling claims",
+        "sample_sizes": "claims per group",
+        "limitations": [
+          "very small sample",
+          "no process or investigation data"
+        ],
+        "tables_used": [
+          "claims",
+          "policy",
+          "owner"
+        ],
+        "columns_used": [
+          "claims.Claim_No",
+          "claims.AppID",
+          "claims.settlement_lag_days",
+          "claims.intimation_lag_days",
+          "claims.Claim.Amount",
+          "claims.Cause.of.Death",
+          "claims.Date.of.Death",
+          "claims.Status.of.Claim",
+          "claims.days_from_inforce_to_death",
+          "policy.AppID",
+          "policy.Sum.Assured",
+          "policy.Prod_No",
+          "policy.Inforce.Date",
+          "policy.APE",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Comm.State"
+        ],
+        "population_definition": "The 133 settled claims, split into the slowest quartile and the remainder."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-MEDIAN",
+        "F-DELTA"
+      ],
+      "limitations": [
+        "Sample of 133 claims; associations only, no causal claim."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-068",
+      "problem_statement": "Why does the top agent outperform their peers?",
+      "intent_type": "Business/Diagnostic/Driver",
+      "business_intent": "Explain a leading agent's performance from observable evidence.",
+      "business_domain": "Root-Cause / Diagnostic",
+      "business_objective": "Compare the leading agent against a peer benchmark on every measurable dimension.",
+      "analysis_tier": "diagnostic",
+      "example_queries": [
+        "Why is this agent the best?",
+        "What makes the top agent successful?",
+        "How is agent 977337 outperforming?",
+        "Explain the top agent's performance",
+        "Why does this agent have the highest persistency?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "sales",
+        "owner",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.Prod_No",
+        "policy.Trad.ULIP",
+        "policy.POLICY.STATUS",
+        "policy.Policy.Term",
+        "policy.Branch_No",
+        "sales.SALES_ID",
+        "sales.First Year Persistency Rate",
+        "sales.Type",
+        "sales.Surrender Rate",
+        "sales.Sales Related Complaint",
+        "sales.RCU Rejections Rate",
+        "sales.Free Look  Cancellation Rate",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Earned.Income",
+        "owner.Owner.Occupation",
+        "owner.Owner.Comm.State",
+        "persistency.AppID",
+        "persistency.Renewal_Status",
+        "persistency.Payment_Mode"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "WHERE",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "MEDIAN",
+        "CASE WHEN",
+        "ratio",
+        "rank_entities",
+        "compare_to_baseline",
+        "driver_scan",
+        "segment_profile",
+        "multi_metric_table",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "agent_first_year_persistency",
+        "lapse_rate",
+        "renewal_paid_rate",
+        "policy_count",
+        "avg_ape",
+        "avg_sum_assured",
+        "avg_owner_age",
+        "avg_earned_income",
+        "agent_complaint_rate",
+        "agent_surrender_rate",
+        "peer_average",
+        "delta_vs_baseline",
+        "pct_delta_vs_baseline",
+        "rank_position"
+      ],
+      "relationships": [
+        "policy_sales",
+        "policy_owner",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "driver_scan",
+        "base": "policy",
+        "joins": [
+          "policy_sales",
+          "policy_owner",
+          "policy_persistency"
+        ],
+        "entity_column": "SALES_ID",
+        "kpi": "renewal_paid_rate",
+        "min_sample": 30,
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ],
+          "renewals": [
+            "persistency_Renewal_Status",
+            "count"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ]
+        },
+        "rates": {
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          },
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "numeric_attributes": [
+          "APE",
+          "Sum.Assured",
+          "Policy.Term",
+          "owner_Owner.Age",
+          "owner_Owner.Earned.Income",
+          "sales_First Year Persistency Rate",
+          "sales_Sales Related Complaint"
+        ],
+        "categorical_attributes": [
+          "Trad.ULIP",
+          "owner_Owner.Occupation",
+          "persistency_Payment_Mode"
+        ]
+      },
+      "concepts": [
+        "diagnostic",
+        "peer comparison",
+        "driver analysis",
+        "agent performance"
+      ],
+      "analytical_steps": [
+        "Identify the KPI and the eligible agent population, applying the minimum policy threshold.",
+        "Rank agents on the KPI and select the top performer.",
+        "Define the peer benchmark as all other eligible agents.",
+        "Join Owner_Details and Persistency_Details to profile the agent's book.",
+        "Compare product mix, average case size, customer age, customer income, geography, payment mode and renewal behaviour against the peer benchmark.",
+        "Compute the gap and percentage gap for every attribute.",
+        "Rank attributes by gap size to surface the strongest observable differences.",
+        "State which differences the data supports and which explanations it cannot establish, including anything about the agent's own behaviour."
+      ],
+      "expected_answer_type": "diagnostic_narrative",
+      "answer_template": "{top_agent} leads on {kpi} at {top_value} versus a peer average of {peer_value}. Their book differs most in {top_drivers}. These are observable differences, not proven causes.",
+      "parameters": {},
+      "population": "The top-ranked eligible agent versus all other agents above the threshold.",
+      "caveat": "Every difference reported here is an association, not a proven cause: the data cannot establish why this agent outperforms. It holds nothing about how the agent works, since no activity, training, tenure, servicing or contact data exists (Sales_Details holds only performance rates and an Active/Inactive flag. There is no agent name, tenure, geography, hierarchy, channel or target, so agent performance cannot be explained by agent characteristics.). Any explanation is therefore limited to the composition of the book they sold, and book composition may itself reflect territory or lead allocation, which is not observable.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID; policy.AppID = owner.AppID; policy.AppID = persistency.AppID",
+        "ranking": "KPI desc among eligible agents",
+        "comparison_baseline": "peer agents above the sample threshold",
+        "aggregates": [
+          "book profile for agent and peers"
+        ],
+        "calculations": [
+          "gap per attribute"
+        ],
+        "sample_sizes": "policy counts for agent and peer group",
+        "limitations": [
+          "no agent behaviour data",
+          "territory not observable"
+        ],
+        "data_quality_notes": [
+          "DQ-005"
+        ],
+        "tables_used": [
+          "policy",
+          "sales",
+          "owner",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.Prod_No",
+          "policy.Trad.ULIP",
+          "policy.POLICY.STATUS",
+          "policy.Policy.Term",
+          "policy.Branch_No",
+          "sales.SALES_ID",
+          "sales.First Year Persistency Rate",
+          "sales.Type",
+          "sales.Surrender Rate",
+          "sales.Sales Related Complaint",
+          "sales.RCU Rejections Rate",
+          "sales.Free Look  Cancellation Rate",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Earned.Income",
+          "owner.Owner.Occupation",
+          "owner.Owner.Comm.State",
+          "persistency.AppID",
+          "persistency.Renewal_Status",
+          "persistency.Payment_Mode"
+        ],
+        "population_definition": "The top-ranked eligible agent versus all other agents above the threshold."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "limitations": [
+        "Explains book composition only; agent behaviour is not in the data."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

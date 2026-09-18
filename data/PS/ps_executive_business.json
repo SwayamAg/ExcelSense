@@ -1,0 +1,1704 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_executive_business",
+  "business_domains": [
+    "Executive / Portfolio Health",
+    "Prescriptive / Action Planning"
+  ],
+  "problem_count": 6,
+  "problem_ids": [
+    "PS-009",
+    "PS-076",
+    "PS-099",
+    "PS-100",
+    "PS-101",
+    "PS-102"
+  ],
+  "routing_hints": {
+    "tables": [
+      "claims",
+      "owner",
+      "persistency",
+      "policy",
+      "sales"
+    ],
+    "concepts": [
+      "executive",
+      "executive review",
+      "exposure",
+      "multi-domain",
+      "portfolio health",
+      "prescriptive",
+      "prioritisation",
+      "retention",
+      "value at risk"
+    ],
+    "intent_structures": [
+      "Business"
+    ],
+    "analysis_tiers": [
+      "multi_step_business"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-009",
+      "problem_statement": "Give me an executive snapshot of portfolio health.",
+      "intent_type": "Business/Overview",
+      "business_intent": "One-screen portfolio status for leadership.",
+      "business_domain": "Executive / Portfolio Health",
+      "business_objective": "Combine volume, premium, exposure, status mix and retention into a single briefing.",
+      "analysis_tier": "multi_step_business",
+      "example_queries": [
+        "Portfolio health snapshot",
+        "Give me an executive summary",
+        "How is the book doing?",
+        "Overall portfolio status",
+        "Executive dashboard",
+        "Summarise the portfolio"
+      ],
+      "relevant_tables": [
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.POLICY.STATUS",
+        "policy.Prod_No",
+        "persistency.Renewal_Status",
+        "persistency.AppID"
+      ],
+      "required_operations": [
+        "COUNT",
+        "SUM",
+        "AVG",
+        "GROUP BY",
+        "ratio",
+        "portfolio_overview",
+        "multi_metric_table",
+        "LEFT JOIN"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "total_sum_assured",
+        "lapse_rate",
+        "inforce_rate",
+        "surrender_rate",
+        "renewal_paid_rate",
+        "product_count"
+      ],
+      "relationships": [
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "executive",
+        "sections": [
+          {
+            "key": "portfolio",
+            "title": "Portfolio scale",
+            "pattern": "aggregate",
+            "population": "All 25,000 policies",
+            "plan": {
+              "pattern": "aggregate",
+              "base": "policy",
+              "measures": {
+                "policy_count": [
+                  null,
+                  "count_all"
+                ],
+                "total_ape": [
+                  "APE",
+                  "sum"
+                ],
+                "total_sum_assured": [
+                  "Sum.Assured",
+                  "sum"
+                ]
+              },
+              "condition_counts": {
+                "inforce": {
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Premium paying (regular)"
+                  ]
+                },
+                "lapsed": {
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Lapsed"
+                  ]
+                },
+                "surrendered": {
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Surrendered"
+                  ]
+                }
+              },
+              "rates": {
+                "inforce_rate": {
+                  "numerator": "inforce",
+                  "denominator": "policy_count"
+                },
+                "lapse_rate": {
+                  "numerator": "lapsed",
+                  "denominator": "policy_count"
+                },
+                "surrender_rate": {
+                  "numerator": "surrendered",
+                  "denominator": "policy_count"
+                }
+              }
+            }
+          },
+          {
+            "key": "renewal",
+            "title": "Renewal collection",
+            "pattern": "aggregate",
+            "population": "The 24,542 policies present in Persistency_Details",
+            "plan": {
+              "pattern": "aggregate",
+              "base": "persistency",
+              "measures": {
+                "renewal_rows": [
+                  null,
+                  "count_all"
+                ]
+              },
+              "condition_counts": {
+                "paid": {
+                  "column": "Renewal_Status",
+                  "values": [
+                    "Paid"
+                  ]
+                }
+              },
+              "rates": {
+                "renewal_paid_rate": {
+                  "numerator": "paid",
+                  "denominator": "renewal_rows"
+                }
+              }
+            }
+          },
+          {
+            "key": "products",
+            "title": "Product spread",
+            "pattern": "group_metrics",
+            "rows": 5,
+            "population": "All policies grouped by product",
+            "plan": {
+              "pattern": "group_metrics",
+              "base": "policy",
+              "group_by": "Prod_No",
+              "measures": {
+                "policies": [
+                  null,
+                  "count_all"
+                ]
+              },
+              "shares": {
+                "share_pct": "policies"
+              },
+              "rank_by": "policies"
+            }
+          }
+        ]
+      },
+      "concepts": [
+        "portfolio health",
+        "retention",
+        "exposure"
+      ],
+      "analytical_steps": [
+        "Count policies and sum APE and Sum.Assured.",
+        "Compute the status mix and derive in-force, lapse and surrender rates.",
+        "Join Persistency on AppID and compute the renewal paid rate over the eligible population.",
+        "Count distinct products.",
+        "Assemble the metrics into one KPI table.",
+        "State which figures are snapshot measures and which are rates."
+      ],
+      "expected_answer_type": "executive_summary",
+      "answer_template": "Portfolio: {policy_count} policies, {total_ape} APE, {total_sum_assured} sum assured. In-force {inforce_rate}%, lapsed {lapse_rate}%, surrendered {surrender_rate}%. Renewal paid rate {renewal_paid_rate}%.",
+      "parameters": {},
+      "population": "Policy metrics over all policies; renewal metrics over the 24,542 active-or-lapsed policies present in Persistency_Details.",
+      "caveat": "Renewal and policy metrics use different denominators: Persistency excludes surrendered and death policies by design (DQ-006). The five CSVs are a single point-in-time extract. Figures describe the portfolio as extracted, not a live book.",
+      "evidence_requirements": {
+        "aggregates": [
+          "all KPI values"
+        ],
+        "population_definition": "stated per metric",
+        "data_quality_notes": [
+          "DQ-006"
+        ],
+        "limitations": [
+          "no time dimension for lapse"
+        ],
+        "tables_used": [
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.POLICY.STATUS",
+          "policy.Prod_No",
+          "persistency.Renewal_Status",
+          "persistency.AppID"
+        ]
+      },
+      "visualization_recommended": true,
+      "visualization_type": "kpi_tiles",
+      "formula_ids": [
+        "F-SUM",
+        "F-RATE",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-076",
+      "problem_statement": "Where should we focus agent remediation effort?",
+      "intent_type": "Business/Profile",
+      "business_intent": "Produce a prioritised, evidence-backed shortlist for management action.",
+      "business_domain": "Prescriptive / Action Planning",
+      "business_objective": "Combine conduct risk, book size and premium at stake into a ranked remediation shortlist.",
+      "analysis_tier": "multi_step_business",
+      "example_queries": [
+        "Which agents need attention?",
+        "Where should we focus remediation?",
+        "Prioritise agents for review",
+        "Agent action list",
+        "Who should we coach first?",
+        "Highest priority agents to review"
+      ],
+      "relevant_tables": [
+        "sales",
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "sales.SALES_ID",
+        "sales.Sales Related Complaint",
+        "sales.RCU Rejections Rate",
+        "sales.PIVC Concern Raised Rate",
+        "sales.PIVC Number Mismatch Rate",
+        "sales.Free Look  Cancellation Rate",
+        "sales.Surrender Rate",
+        "sales.First Year Persistency Rate",
+        "sales.Type",
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS",
+        "persistency.AppID",
+        "persistency.Renewal_Status",
+        "persistency.Renewal_Premium_Amount"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "CASE WHEN",
+        "ratio",
+        "PERCENTILE",
+        "rank_entities",
+        "entity_shortlist",
+        "multi_metric_table",
+        "small_sample_guard",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "agent_quality_composite",
+        "lapse_rate",
+        "renewal_paid_rate",
+        "total_ape",
+        "total_renewal_premium",
+        "policy_count",
+        "agent_complaint_rate",
+        "rank_position",
+        "percentile"
+      ],
+      "relationships": [
+        "policy_sales",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_sales",
+          "policy_persistency"
+        ],
+        "filters": [
+          [
+            "sales_Type",
+            "eq",
+            "Active"
+          ]
+        ],
+        "group_by": "SALES_ID",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_pending",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Pending"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "pending_renewals": [
+            "is_pending",
+            "sum"
+          ],
+          "premium_at_stake": [
+            "persistency_Renewal_Premium_Amount",
+            "sum"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "complaint_rate": [
+            "sales_Sales Related Complaint",
+            "mean"
+          ],
+          "rcu_rate": [
+            "sales_RCU Rejections Rate",
+            "mean"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          },
+          "pending_rate": {
+            "numerator": "pending_renewals",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": "$min_policies",
+        "rank_by": "premium_at_stake",
+        "top_n": "$n"
+      },
+      "concepts": [
+        "prescriptive",
+        "prioritisation",
+        "value at risk"
+      ],
+      "analytical_steps": [
+        "Restrict to Active agents meeting the minimum policy threshold.",
+        "Join Policy_Details to Sales_Details on SALES_ID and left join Persistency_Details on AppID to assemble each agent's exposure.",
+        "Compute each agent's conduct percentile across the supplied rates.",
+        "Compute each agent's observed lapse rate and pending renewal premium.",
+        "Combine risk level with exposure, so a weak agent with a large book outranks an equally weak agent with a small one.",
+        "Rank agents by the resulting priority measure.",
+        "For each shortlisted agent attach the evidence that placed them there.",
+        "State what the data can and cannot justify as a next step."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{shortlist_count} agents are shortlisted; the top priority is {top_agent} with {top_policies} policies and {top_premium} renewal premium at stake.",
+      "parameters": {
+        "min_policies": {
+          "type": "integer",
+          "default": 30,
+          "min": 5
+        },
+        "n": {
+          "type": "integer",
+          "default": 20,
+          "min": 5,
+          "max": 100
+        }
+      },
+      "population": "Active agents above the sample threshold.",
+      "caveat": "Prioritisation is exposure-weighted risk, which is an analytical convention stated with the output, not a company policy. The data supports identifying where to look; it cannot recommend a specific intervention, because no record of past interventions or their outcomes exists. Sales_Details holds supplied agent-level rates with no stated definition, denominator or measurement window. They are used as recorded and are never silently reconciled against rates computed from Policy_Details.",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID; policy.AppID = persistency.AppID",
+        "calculations": [
+          "risk percentile",
+          "exposure weighting",
+          "priority rank"
+        ],
+        "business_rules_applied": [
+          "exposure-weighted prioritisation"
+        ],
+        "records": "shortlisted agents with supporting evidence",
+        "sample_sizes": "policy count per agent",
+        "limitations": [
+          "no intervention history to recommend a specific action"
+        ],
+        "tables_used": [
+          "sales",
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "sales.SALES_ID",
+          "sales.Sales Related Complaint",
+          "sales.RCU Rejections Rate",
+          "sales.PIVC Concern Raised Rate",
+          "sales.PIVC Number Mismatch Rate",
+          "sales.Free Look  Cancellation Rate",
+          "sales.Surrender Rate",
+          "sales.First Year Persistency Rate",
+          "sales.Type",
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS",
+          "persistency.AppID",
+          "persistency.Renewal_Status",
+          "persistency.Renewal_Premium_Amount"
+        ],
+        "population_definition": "Active agents above the sample threshold."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-PERCENTILE",
+        "F-COMPOSITE"
+      ],
+      "limitations": [
+        "Identifies where to look; cannot prescribe a specific proven intervention."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-099",
+      "problem_statement": "Where is the business losing the most value?",
+      "intent_type": "Business/Diagnostic/Driver",
+      "business_intent": "Direct leadership attention to the largest quantified leak.",
+      "business_domain": "Executive / Portfolio Health",
+      "business_objective": "Quantify value lost through lapse, surrender and unpaid renewals and rank the causes.",
+      "analysis_tier": "multi_step_business",
+      "example_queries": [
+        "Where are we losing money?",
+        "Biggest source of value loss",
+        "What is costing us most?",
+        "Where is value leaking?",
+        "Rank our problem areas",
+        "What should I worry about most?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS",
+        "policy.Prod_No",
+        "policy.Sum.Assured",
+        "persistency.AppID",
+        "persistency.Renewal_Status",
+        "persistency.Renewal_Premium_Amount",
+        "persistency.Persistency_Bucket"
+      ],
+      "required_operations": [
+        "LEFT JOIN",
+        "WHERE",
+        "GROUP BY",
+        "SUM",
+        "COUNT",
+        "CASE WHEN",
+        "ratio",
+        "ORDER BY",
+        "share_of_total",
+        "multi_metric_table",
+        "driver_scan"
+      ],
+      "required_metrics": [
+        "total_ape",
+        "total_renewal_premium",
+        "lapse_rate",
+        "surrender_rate",
+        "renewal_pending_rate",
+        "policy_count",
+        "share_of_portfolio"
+      ],
+      "relationships": [
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "executive",
+        "sections": [
+          {
+            "key": "lapse",
+            "title": "Premium attached to lapsed policies",
+            "pattern": "aggregate",
+            "population": "All policies with status Lapsed",
+            "plan": {
+              "pattern": "aggregate",
+              "base": "policy",
+              "filters": [
+                [
+                  "POLICY.STATUS",
+                  "eq",
+                  "Lapsed"
+                ]
+              ],
+              "measures": {
+                "policies": [
+                  null,
+                  "count_all"
+                ],
+                "ape_at_risk": [
+                  "APE",
+                  "sum"
+                ]
+              }
+            }
+          },
+          {
+            "key": "surrender",
+            "title": "Premium attached to surrendered policies",
+            "pattern": "aggregate",
+            "population": "All policies with status Surrendered",
+            "plan": {
+              "pattern": "aggregate",
+              "base": "policy",
+              "filters": [
+                [
+                  "POLICY.STATUS",
+                  "eq",
+                  "Surrendered"
+                ]
+              ],
+              "measures": {
+                "policies": [
+                  null,
+                  "count_all"
+                ],
+                "ape_at_risk": [
+                  "APE",
+                  "sum"
+                ]
+              }
+            }
+          },
+          {
+            "key": "pending",
+            "title": "Renewal premium not yet collected",
+            "pattern": "aggregate",
+            "population": "Persistency rows with Renewal_Status = Pending",
+            "plan": {
+              "pattern": "aggregate",
+              "base": "persistency",
+              "filters": [
+                [
+                  "Renewal_Status",
+                  "eq",
+                  "Pending"
+                ]
+              ],
+              "measures": {
+                "renewals": [
+                  null,
+                  "count_all"
+                ],
+                "premium_at_risk": [
+                  "Renewal_Premium_Amount",
+                  "sum"
+                ]
+              }
+            }
+          },
+          {
+            "key": "by_product",
+            "title": "Lapse exposure by product",
+            "pattern": "group_metrics",
+            "rows": 5,
+            "population": "All policies grouped by product",
+            "plan": {
+              "pattern": "group_metrics",
+              "base": "policy",
+              "group_by": "Prod_No",
+              "derive": [
+                {
+                  "kind": "flag",
+                  "name": "is_lapsed",
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Lapsed"
+                  ]
+                }
+              ],
+              "measures": {
+                "policies": [
+                  null,
+                  "count_all"
+                ],
+                "lapsed": [
+                  "is_lapsed",
+                  "sum"
+                ],
+                "total_ape": [
+                  "APE",
+                  "sum"
+                ]
+              },
+              "rates": {
+                "lapse_rate": {
+                  "numerator": "lapsed",
+                  "denominator": "policies"
+                }
+              },
+              "min_sample": 50,
+              "rank_by": "lapse_rate"
+            }
+          }
+        ]
+      },
+      "concepts": [
+        "value at risk",
+        "prioritisation",
+        "executive"
+      ],
+      "analytical_steps": [
+        "Left join Persistency_Details to Policy_Details on AppID so every policy keeps its renewal position.",
+        "Sum the APE attached to lapsed policies.",
+        "Sum the APE attached to surrendered policies.",
+        "Sum the renewal premium attached to pending renewals.",
+        "Express each as a share of total portfolio APE for comparability.",
+        "Break each loss category down by product to locate it.",
+        "Rank the categories by value and report where the loss sits.",
+        "State clearly that these are premium measures, not profit or cash."
+      ],
+      "expected_answer_type": "executive_summary",
+      "answer_template": "The largest value exposure is {top_category} at {top_value}, concentrated in {top_product}.",
+      "parameters": {},
+      "population": "All policies for lapse and surrender; the persistency-eligible population for pending renewals.",
+      "caveat": "These are premium-at-risk measures, not losses: APE is an annualised premium measure, not collected cash, and the data has no cost, reserve, surrender value or profit figure. Pending renewals are not yet defaulted. The three categories use different denominators and are not additive without double-counting risk, which is stated with the output. Sizing an exposure locates where value sits at risk; it is an association with the status recorded and cannot establish what caused any policy to lapse, surrender or fall behind.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = persistency.AppID",
+        "aggregates": [
+          "value at risk per category and product"
+        ],
+        "calculations": [
+          "share of portfolio APE"
+        ],
+        "data_quality_notes": [
+          "DQ-006"
+        ],
+        "limitations": [
+          "premium measures only, not profit or cash",
+          "categories are not additive"
+        ],
+        "tables_used": [
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS",
+          "policy.Prod_No",
+          "policy.Sum.Assured",
+          "persistency.AppID",
+          "persistency.Renewal_Status",
+          "persistency.Renewal_Premium_Amount",
+          "persistency.Persistency_Bucket"
+        ],
+        "population_definition": "All policies for lapse and surrender; the persistency-eligible population for pending renewals."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "waterfall",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "limitations": [
+        "Premium at risk, not realised loss; categories overlap."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-100",
+      "problem_statement": "Where should we focus retention effort for the biggest impact?",
+      "intent_type": "Business/Profile",
+      "business_intent": "Turn the retention picture into a prioritised target list.",
+      "business_domain": "Prescriptive / Action Planning",
+      "business_objective": "Identify the segments combining high lapse risk with high premium exposure.",
+      "analysis_tier": "multi_step_business",
+      "example_queries": [
+        "Where should we focus retention?",
+        "Retention priorities",
+        "Which segments need attention?",
+        "Best retention opportunities",
+        "Where will retention effort pay off most?",
+        "Target list for retention"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS",
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.SALES_ID",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.age_band",
+        "owner.Owner.Occupation",
+        "owner.Owner.Comm.State",
+        "persistency.AppID",
+        "persistency.Renewal_Status",
+        "persistency.Renewal_Premium_Amount",
+        "persistency.Persistency_Bucket",
+        "persistency.Payment_Mode"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "CASE WHEN",
+        "ratio",
+        "crosstab_metric",
+        "entity_shortlist",
+        "rank_entities",
+        "compare_to_baseline",
+        "small_sample_guard",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "renewal_pending_rate",
+        "total_renewal_premium",
+        "total_ape",
+        "policy_count",
+        "delta_vs_baseline",
+        "share_of_portfolio",
+        "rank_position"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner",
+          "policy_persistency"
+        ],
+        "join_how": {
+          "policy_owner": "inner",
+          "policy_persistency": "inner"
+        },
+        "group_by": [
+          "Prod_No",
+          "persistency_Persistency_Bucket"
+        ],
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_pending",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Pending"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "pending": [
+            "is_pending",
+            "sum"
+          ],
+          "premium_at_stake": [
+            "persistency_Renewal_Premium_Amount",
+            "sum"
+          ],
+          "avg_owner_age": [
+            "owner_Owner.Age",
+            "mean"
+          ]
+        },
+        "rates": {
+          "pending_rate": {
+            "numerator": "pending",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": "$min_segment_size",
+        "rank_by": "premium_at_stake",
+        "top_n": "$n"
+      },
+      "concepts": [
+        "prescriptive",
+        "retention",
+        "prioritisation",
+        "value at risk"
+      ],
+      "analytical_steps": [
+        "Join Policy_Details, Owner_Details and Persistency_Details.",
+        "Build segments by crossing product, persistency bucket, payment mode, owner age band and state.",
+        "For each segment compute the pending renewal rate and the premium at stake.",
+        "Apply a minimum segment size so tiny segments cannot top the list.",
+        "Rank segments by premium at stake weighted by pending rate, so a risky segment with real money outranks a risky but trivial one.",
+        "Attach the supporting evidence to each shortlisted segment.",
+        "State which actions the data can and cannot justify."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "The highest-impact segment is {top_segment}: {top_policies} policies with {top_premium} at stake and a {top_rate}% pending rate.",
+      "parameters": {
+        "min_segment_size": {
+          "type": "integer",
+          "default": 100,
+          "min": 30
+        },
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 3,
+          "max": 50
+        }
+      },
+      "population": "The joined policy, owner and persistency population, segmented and filtered by minimum size.",
+      "caveat": "The ranking identifies where exposure and risk coincide; it does not establish that intervention would change the outcome. The data holds no record of past retention activity or its results, so no intervention can be evidenced as effective. Segment definitions and the weighting are declared with the output.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID = persistency.AppID",
+        "aggregates": [
+          "risk and exposure per segment"
+        ],
+        "calculations": [
+          "exposure-weighted priority"
+        ],
+        "business_rules_applied": [
+          "segment definition and weighting"
+        ],
+        "sample_sizes": "policies per segment",
+        "comparison_baseline": "portfolio pending rate",
+        "limitations": [
+          "no intervention history; effectiveness not evidenceable"
+        ],
+        "tables_used": [
+          "policy",
+          "owner",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS",
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.SALES_ID",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.age_band",
+          "owner.Owner.Occupation",
+          "owner.Owner.Comm.State",
+          "persistency.AppID",
+          "persistency.Renewal_Status",
+          "persistency.Renewal_Premium_Amount",
+          "persistency.Persistency_Bucket",
+          "persistency.Payment_Mode"
+        ],
+        "population_definition": "The joined policy, owner and persistency population, segmented and filtered by minimum size."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-RATE",
+        "F-SUM",
+        "F-COMPOSITE"
+      ],
+      "limitations": [
+        "Prioritises by risk and exposure; cannot prove an intervention would work."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-101",
+      "problem_statement": "Give me a complete business review across every domain.",
+      "intent_type": "Business/Overview",
+      "business_intent": "A single comprehensive briefing spanning the whole book.",
+      "business_domain": "Executive / Portfolio Health",
+      "business_objective": "Assemble portfolio, product, distribution, customer, persistency and claims views into one review.",
+      "analysis_tier": "multi_step_business",
+      "example_queries": [
+        "Full business review",
+        "Give me the complete picture",
+        "Comprehensive portfolio analysis",
+        "Brief me on the whole book",
+        "Complete business summary",
+        "Everything I need to know"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner",
+        "sales",
+        "claims",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.POLICY.STATUS",
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.Trad.ULIP",
+        "policy.SALES_ID",
+        "policy.Branch_No",
+        "policy.Inforce.Date",
+        "owner.AppID",
+        "owner.ClientID",
+        "owner.Owner.Age",
+        "owner.Owner.Comm.State",
+        "owner.Owner.Occupation",
+        "sales.SALES_ID",
+        "sales.First Year Persistency Rate",
+        "sales.Type",
+        "claims.AppID",
+        "claims.Claim.Amount",
+        "claims.Status.of.Claim",
+        "persistency.AppID",
+        "persistency.Renewal_Status",
+        "persistency.Renewal_Premium_Amount",
+        "persistency.Persistency_Bucket"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "MEDIAN",
+        "DISTINCT",
+        "CASE WHEN",
+        "ratio",
+        "ORDER BY",
+        "date_bucket",
+        "portfolio_overview",
+        "multi_metric_table",
+        "concentration",
+        "compare_to_baseline",
+        "rank_entities"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "client_count",
+        "agent_count",
+        "branch_count",
+        "total_ape",
+        "avg_ape",
+        "total_sum_assured",
+        "lapse_rate",
+        "inforce_rate",
+        "surrender_rate",
+        "renewal_paid_rate",
+        "claim_count",
+        "total_claim_amount",
+        "claim_incidence_rate",
+        "top_n_share",
+        "share_of_portfolio",
+        "product_count"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_sales",
+        "policy_claims",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "executive",
+        "sections": [
+          {
+            "key": "portfolio",
+            "title": "Portfolio",
+            "pattern": "aggregate",
+            "population": "All 25,000 policies",
+            "plan": {
+              "pattern": "aggregate",
+              "base": "policy",
+              "measures": {
+                "policies": [
+                  null,
+                  "count_all"
+                ],
+                "total_ape": [
+                  "APE",
+                  "sum"
+                ],
+                "total_sum_assured": [
+                  "Sum.Assured",
+                  "sum"
+                ],
+                "products": [
+                  "Prod_No",
+                  "distinct"
+                ],
+                "agents": [
+                  "SALES_ID",
+                  "distinct"
+                ],
+                "branches": [
+                  "Branch_No",
+                  "distinct"
+                ]
+              },
+              "condition_counts": {
+                "inforce": {
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Premium paying (regular)"
+                  ]
+                },
+                "lapsed": {
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Lapsed"
+                  ]
+                },
+                "surrendered": {
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Surrendered"
+                  ]
+                }
+              },
+              "rates": {
+                "inforce_rate": {
+                  "numerator": "inforce",
+                  "denominator": "policies"
+                },
+                "lapse_rate": {
+                  "numerator": "lapsed",
+                  "denominator": "policies"
+                },
+                "surrender_rate": {
+                  "numerator": "surrendered",
+                  "denominator": "policies"
+                }
+              }
+            }
+          },
+          {
+            "key": "customers",
+            "title": "Customer base",
+            "pattern": "aggregate",
+            "population": "The 24,999 policies that join to an owner record",
+            "plan": {
+              "pattern": "aggregate",
+              "base": "policy",
+              "joins": [
+                "policy_owner"
+              ],
+              "join_how": {
+                "policy_owner": "inner"
+              },
+              "measures": {
+                "clients": [
+                  "owner_ClientID",
+                  "distinct"
+                ],
+                "avg_owner_age": [
+                  "owner_Owner.Age",
+                  "mean"
+                ],
+                "states": [
+                  "owner_Owner.Comm.State",
+                  "distinct"
+                ]
+              }
+            }
+          },
+          {
+            "key": "renewal",
+            "title": "Renewal collection",
+            "pattern": "aggregate",
+            "population": "The 24,542 persistency-eligible policies",
+            "plan": {
+              "pattern": "aggregate",
+              "base": "persistency",
+              "measures": {
+                "renewals": [
+                  null,
+                  "count_all"
+                ],
+                "premium_due": [
+                  "Renewal_Premium_Amount",
+                  "sum"
+                ]
+              },
+              "condition_counts": {
+                "paid": {
+                  "column": "Renewal_Status",
+                  "values": [
+                    "Paid"
+                  ]
+                }
+              },
+              "rates": {
+                "renewal_paid_rate": {
+                  "numerator": "paid",
+                  "denominator": "renewals"
+                }
+              }
+            }
+          },
+          {
+            "key": "claims",
+            "title": "Claims",
+            "pattern": "aggregate",
+            "population": "All 134 claims",
+            "plan": {
+              "pattern": "aggregate",
+              "base": "claims",
+              "measures": {
+                "claims": [
+                  null,
+                  "count_all"
+                ],
+                "total_claim_amount": [
+                  "Claim.Amount",
+                  "sum"
+                ],
+                "total_paid": [
+                  "Amount.Paid",
+                  "sum"
+                ]
+              },
+              "condition_counts": {
+                "settled": {
+                  "column": "Status.of.Claim",
+                  "values": [
+                    "Paid"
+                  ]
+                }
+              },
+              "rates": {
+                "settlement_rate": {
+                  "numerator": "settled",
+                  "denominator": "claims"
+                }
+              }
+            }
+          },
+          {
+            "key": "products",
+            "title": "Product performance",
+            "pattern": "group_metrics",
+            "rows": 10,
+            "population": "All policies grouped by product",
+            "plan": {
+              "pattern": "group_metrics",
+              "base": "policy",
+              "group_by": [
+                "Prod_No",
+                "Plan.Name"
+              ],
+              "derive": [
+                {
+                  "kind": "flag",
+                  "name": "is_lapsed",
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Lapsed"
+                  ]
+                }
+              ],
+              "measures": {
+                "policies": [
+                  null,
+                  "count_all"
+                ],
+                "lapsed": [
+                  "is_lapsed",
+                  "sum"
+                ],
+                "total_ape": [
+                  "APE",
+                  "sum"
+                ]
+              },
+              "rates": {
+                "lapse_rate": {
+                  "numerator": "lapsed",
+                  "denominator": "policies"
+                }
+              },
+              "min_sample": 50,
+              "rank_by": "lapse_rate"
+            }
+          }
+        ]
+      },
+      "concepts": [
+        "executive review",
+        "portfolio health",
+        "multi-domain"
+      ],
+      "analytical_steps": [
+        "Join Owner, Sales, Claims and Persistency onto Policy using the four documented keys, keeping Policy as the spine.",
+        "Compute the portfolio headline: volume, APE, exposure and status mix.",
+        "Summarise product performance and identify the best and worst on retention.",
+        "Summarise distribution: agent and branch counts and their concentration.",
+        "Summarise the customer base: client count, age, geography and multi-policy holders.",
+        "Summarise persistency: renewal paid rate overall and by bucket.",
+        "Summarise claims: count, value, settlement rate and incidence.",
+        "Identify the three largest quantified exposures across all domains.",
+        "State the population and denominator for each figure, since they differ.",
+        "Close with what the data cannot establish."
+      ],
+      "expected_answer_type": "executive_summary",
+      "answer_template": "{policy_count} policies, {total_ape} APE, {inforce_rate}% in force. Renewal collection {renewal_paid_rate}%. {claim_count} claims worth {total_claim_amount}. Largest exposures: {top_exposures}.",
+      "parameters": {},
+      "population": "Each section states its own population: all policies for portfolio metrics, the 24,999 joined records for customer metrics, the 24,542 persistency-eligible policies for renewal metrics, and 134 claims.",
+      "caveat": "Different sections use different denominators by necessity and each is labelled; figures must not be combined across sections without checking the population. All monetary figures are premium or sum assured measures, never profit, cost or cash collected.",
+      "evidence_requirements": {
+        "join_path": "all four documented joins",
+        "aggregates": [
+          "every section metric"
+        ],
+        "population_definition": "stated per section",
+        "data_quality_notes": [
+          "DQ-001",
+          "DQ-006",
+          "DQ-007"
+        ],
+        "limitations": [
+          "denominators differ between sections",
+          "no profitability data"
+        ],
+        "tables_used": [
+          "policy",
+          "owner",
+          "sales",
+          "claims",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.POLICY.STATUS",
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.Trad.ULIP",
+          "policy.SALES_ID",
+          "policy.Branch_No",
+          "policy.Inforce.Date",
+          "owner.AppID",
+          "owner.ClientID",
+          "owner.Owner.Age",
+          "owner.Owner.Comm.State",
+          "owner.Owner.Occupation",
+          "sales.SALES_ID",
+          "sales.First Year Persistency Rate",
+          "sales.Type",
+          "claims.AppID",
+          "claims.Claim.Amount",
+          "claims.Status.of.Claim",
+          "persistency.AppID",
+          "persistency.Renewal_Status",
+          "persistency.Renewal_Premium_Amount",
+          "persistency.Persistency_Bucket"
+        ]
+      },
+      "visualization_recommended": true,
+      "visualization_type": "kpi_tiles",
+      "formula_ids": [
+        "F-SUM",
+        "F-AVG",
+        "F-RATE",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-102",
+      "problem_statement": "What are the three things I should act on this quarter?",
+      "intent_type": "Business/Profile",
+      "business_intent": "Reduce the whole portfolio picture to a short, evidenced action list.",
+      "business_domain": "Prescriptive / Action Planning",
+      "business_objective": "Rank the largest evidence-backed opportunities across every domain and return the top few.",
+      "analysis_tier": "multi_step_business",
+      "example_queries": [
+        "What should I act on?",
+        "Top three priorities",
+        "What needs my attention?",
+        "Give me an action list",
+        "What are my biggest opportunities?",
+        "Where do I start?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "sales",
+        "persistency",
+        "owner"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS",
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.SALES_ID",
+        "sales.SALES_ID",
+        "sales.Sales Related Complaint",
+        "sales.RCU Rejections Rate",
+        "sales.First Year Persistency Rate",
+        "persistency.AppID",
+        "persistency.Renewal_Status",
+        "persistency.Renewal_Premium_Amount",
+        "persistency.Persistency_Bucket",
+        "owner.AppID",
+        "owner.Owner.Comm.State"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "CASE WHEN",
+        "ratio",
+        "rank_entities",
+        "entity_shortlist",
+        "compare_to_baseline",
+        "small_sample_guard",
+        "driver_scan",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "total_renewal_premium",
+        "total_ape",
+        "lapse_rate",
+        "renewal_pending_rate",
+        "agent_quality_composite",
+        "policy_count",
+        "delta_vs_baseline",
+        "share_of_portfolio",
+        "rank_position"
+      ],
+      "relationships": [
+        "policy_sales",
+        "policy_persistency",
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "executive",
+        "sections": [
+          {
+            "key": "worst_product",
+            "title": "Worst product on lapse",
+            "pattern": "group_metrics",
+            "rows": 3,
+            "population": "Products with at least 50 policies",
+            "plan": {
+              "pattern": "group_metrics",
+              "base": "policy",
+              "group_by": [
+                "Prod_No",
+                "Plan.Name"
+              ],
+              "derive": [
+                {
+                  "kind": "flag",
+                  "name": "is_lapsed",
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Lapsed"
+                  ]
+                }
+              ],
+              "measures": {
+                "policies": [
+                  null,
+                  "count_all"
+                ],
+                "lapsed": [
+                  "is_lapsed",
+                  "sum"
+                ],
+                "exposure_ape": [
+                  "APE",
+                  "sum"
+                ]
+              },
+              "rates": {
+                "lapse_rate": {
+                  "numerator": "lapsed",
+                  "denominator": "policies"
+                }
+              },
+              "min_sample": 50,
+              "rank_by": "lapse_rate"
+            }
+          },
+          {
+            "key": "pending_concentration",
+            "title": "Largest pending-renewal concentration",
+            "pattern": "group_metrics",
+            "rows": 3,
+            "population": "Persistency rows with Renewal_Status = Pending",
+            "plan": {
+              "pattern": "group_metrics",
+              "base": "persistency",
+              "filters": [
+                [
+                  "Renewal_Status",
+                  "eq",
+                  "Pending"
+                ]
+              ],
+              "group_by": "Persistency_Bucket",
+              "measures": {
+                "pending": [
+                  null,
+                  "count_all"
+                ],
+                "premium_at_stake": [
+                  "Renewal_Premium_Amount",
+                  "sum"
+                ]
+              },
+              "rank_by": "premium_at_stake"
+            }
+          },
+          {
+            "key": "agent_risk",
+            "title": "Highest-exposure agent risk",
+            "pattern": "group_metrics",
+            "rows": 3,
+            "population": "Active agents with at least 30 policies",
+            "plan": {
+              "pattern": "group_metrics",
+              "base": "policy",
+              "joins": [
+                "policy_sales",
+                "policy_persistency"
+              ],
+              "filters": [
+                [
+                  "sales_Type",
+                  "eq",
+                  "Active"
+                ]
+              ],
+              "group_by": "SALES_ID",
+              "derive": [
+                {
+                  "kind": "flag",
+                  "name": "is_lapsed",
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Lapsed"
+                  ]
+                }
+              ],
+              "measures": {
+                "policies": [
+                  null,
+                  "count_all"
+                ],
+                "lapsed": [
+                  "is_lapsed",
+                  "sum"
+                ],
+                "premium_at_stake": [
+                  "persistency_Renewal_Premium_Amount",
+                  "sum"
+                ],
+                "complaint_rate": [
+                  "sales_Sales Related Complaint",
+                  "mean"
+                ]
+              },
+              "rates": {
+                "lapse_rate": {
+                  "numerator": "lapsed",
+                  "denominator": "policies"
+                }
+              },
+              "min_sample": 30,
+              "rank_by": "premium_at_stake"
+            }
+          },
+          {
+            "key": "weak_geography",
+            "title": "Weakest geography on lapse",
+            "pattern": "group_metrics",
+            "rows": 3,
+            "population": "States with at least 100 policies",
+            "plan": {
+              "pattern": "group_metrics",
+              "base": "policy",
+              "joins": [
+                "policy_owner"
+              ],
+              "join_how": {
+                "policy_owner": "inner"
+              },
+              "group_by": "owner_Owner.Comm.State",
+              "derive": [
+                {
+                  "kind": "flag",
+                  "name": "is_lapsed",
+                  "column": "POLICY.STATUS",
+                  "values": [
+                    "Lapsed"
+                  ]
+                }
+              ],
+              "measures": {
+                "policies": [
+                  null,
+                  "count_all"
+                ],
+                "lapsed": [
+                  "is_lapsed",
+                  "sum"
+                ],
+                "exposure_ape": [
+                  "APE",
+                  "sum"
+                ]
+              },
+              "rates": {
+                "lapse_rate": {
+                  "numerator": "lapsed",
+                  "denominator": "policies"
+                }
+              },
+              "min_sample": 100,
+              "rank_by": "lapse_rate"
+            }
+          }
+        ]
+      },
+      "concepts": [
+        "prescriptive",
+        "prioritisation",
+        "executive"
+      ],
+      "analytical_steps": [
+        "Compute candidate opportunities from each domain: the worst product on lapse, the largest pending-renewal concentration, the highest-exposure agent risk group and the weakest geography.",
+        "Join each candidate's tables on their documented keys before aggregating.",
+        "Quantify the premium at stake behind each candidate.",
+        "Apply minimum sample thresholds so no candidate rests on a thin slice.",
+        "Rank candidates by quantified exposure.",
+        "Return the top N, each with the numbers that put it there.",
+        "For each, state explicitly what the data supports and what it does not."
+      ],
+      "expected_answer_type": "executive_summary",
+      "answer_template": "Top priorities: {priority_list}. Combined exposure {total_exposure}.",
+      "parameters": {
+        "n": {
+          "type": "integer",
+          "default": 3,
+          "min": 1,
+          "max": 10
+        }
+      },
+      "population": "All domains; each candidate carries its own population and denominator.",
+      "caveat": "Priorities are ranked by quantified exposure, which is an analytical convention declared with the output. The data identifies where the money and the risk are; it cannot recommend a specific intervention or forecast its effect, because no intervention history, no cost data and no outcome measurement exist in the five CSVs.Renewal metrics cover only the Persistency-eligible population, which excludes surrendered and death policies (DQ-006), so they rest on a different denominator from the policy-level figures reported alongside them.",
+      "evidence_requirements": {
+        "join_path": "all documented joins as needed per candidate",
+        "calculations": [
+          "exposure per candidate",
+          "priority ranking"
+        ],
+        "business_rules_applied": [
+          "exposure-based prioritisation"
+        ],
+        "comparison_baseline": "portfolio averages",
+        "sample_sizes": "population behind each candidate",
+        "limitations": [
+          "no intervention history",
+          "no cost or outcome data"
+        ],
+        "tables_used": [
+          "policy",
+          "sales",
+          "persistency",
+          "owner"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS",
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.SALES_ID",
+          "sales.SALES_ID",
+          "sales.Sales Related Complaint",
+          "sales.RCU Rejections Rate",
+          "sales.First Year Persistency Rate",
+          "persistency.AppID",
+          "persistency.Renewal_Status",
+          "persistency.Renewal_Premium_Amount",
+          "persistency.Persistency_Bucket",
+          "owner.AppID",
+          "owner.Owner.Comm.State"
+        ],
+        "population_definition": "All domains; each candidate carries its own population and denominator."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-SUM",
+        "F-RATE",
+        "F-COMPOSITE"
+      ],
+      "limitations": [
+        "Identifies and sizes opportunities; cannot prescribe or forecast outcomes."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

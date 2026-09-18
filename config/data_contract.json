@@ -1,0 +1,3131 @@
+{
+  "contract_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T06:27:10Z",
+  "source_of_truth": "five CSV files in data/csv",
+  "hub_table": "policy",
+  "tables": {
+    "policy": {
+      "table_key": "policy",
+      "file": "data/csv/Policy_Details.csv",
+      "file_bytes": 4699026,
+      "row_count": 25000,
+      "column_count": 16,
+      "source_columns": [
+        "AppID",
+        "SALES_ID",
+        "Branch_No",
+        "Prod_No",
+        "POLICY.STATUS",
+        "CHANNEL",
+        "Login.Date",
+        "Inforce.Date",
+        "Inforce.month",
+        "Trad.ULIP",
+        "Plan.Name",
+        "Mode",
+        "PREMIUM.PAYING.TERM",
+        "Policy.Term",
+        "Sum.Assured",
+        "APE"
+      ],
+      "normalized_columns": [
+        "appid",
+        "sales_id",
+        "branch_no",
+        "prod_no",
+        "policy_status",
+        "channel",
+        "login_date",
+        "inforce_date",
+        "inforce_month",
+        "trad_ulip",
+        "plan_name",
+        "mode",
+        "premium_paying_term",
+        "policy_term",
+        "sum_assured",
+        "ape"
+      ],
+      "candidate_primary_keys": [
+        "AppID"
+      ],
+      "columns": [
+        {
+          "source_name": "AppID",
+          "normalized_name": "appid",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 25000,
+          "unique_pct": 100.0,
+          "is_unique_over_non_null": true,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "15000635514",
+            "19102471149",
+            "19102206801",
+            "11811317856",
+            "15000383901"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 11,
+          "max_length": 11,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "SALES_ID",
+          "normalized_name": "sales_id",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 1956,
+          "unique_pct": 7.824,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "977337",
+            "970998",
+            "979400",
+            "965280",
+            "977153"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 6,
+          "max_length": 6,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "Branch_No",
+          "normalized_name": "branch_no",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 5719,
+          "unique_pct": 22.876,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "83546",
+            "43702",
+            "30749",
+            "87093",
+            "64108"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 5,
+          "max_length": 5,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "Prod_No",
+          "normalized_name": "prod_no",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 10,
+          "unique_pct": 0.04,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "P22",
+            "P22",
+            "P22",
+            "P22",
+            "P22"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 3,
+          "max_length": 3,
+          "categorical_values": [
+            "P18",
+            "P22",
+            "P27",
+            "P53",
+            "P56",
+            "P65",
+            "P69",
+            "P91",
+            "P94",
+            "P98"
+          ],
+          "value_counts": {
+            "P65": 7932,
+            "P91": 4721,
+            "P56": 4003,
+            "P53": 2587,
+            "P98": 2054,
+            "P22": 1962,
+            "P94": 1050,
+            "P69": 415,
+            "P27": 265,
+            "P18": 11
+          }
+        },
+        {
+          "source_name": "POLICY.STATUS",
+          "normalized_name": "policy_status",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 4,
+          "unique_pct": 0.016,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Premium paying (regular)",
+            "Premium paying (regular)",
+            "Premium paying (regular)",
+            "Premium paying (regular)",
+            "Premium paying (regular)"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 5,
+          "max_length": 24,
+          "categorical_values": [
+            "Death",
+            "Lapsed",
+            "Premium paying (regular)",
+            "Surrendered"
+          ],
+          "value_counts": {
+            "Premium paying (regular)": 21805,
+            "Lapsed": 2737,
+            "Surrendered": 324,
+            "Death": 134
+          }
+        },
+        {
+          "source_name": "CHANNEL",
+          "normalized_name": "channel",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 1,
+          "unique_pct": 0.004,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Banca",
+            "Banca",
+            "Banca",
+            "Banca",
+            "Banca"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 5,
+          "max_length": 5,
+          "categorical_values": [
+            "Banca"
+          ],
+          "value_counts": {
+            "Banca": 25000
+          }
+        },
+        {
+          "source_name": "Login.Date",
+          "normalized_name": "login_date",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 1031,
+          "unique_pct": 4.124,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "7/25/2023",
+            "8/29/2024",
+            "08-09-2023",
+            "11-02-2023",
+            "09-09-2023"
+          ],
+          "inferred_type": "date",
+          "parse": {
+            "kind": "date",
+            "formats": [
+              {
+                "format": "%m/%d/%Y",
+                "matched": 16772
+              },
+              {
+                "format": "%m-%d-%Y",
+                "matched": 8228
+              }
+            ],
+            "coverage_pct": 100.0,
+            "unparsed_count": 0,
+            "unparsed_values": []
+          },
+          "min": "2018-02-24",
+          "max": "2025-12-31"
+        },
+        {
+          "source_name": "Inforce.Date",
+          "normalized_name": "inforce_date",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 857,
+          "unique_pct": 3.428,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "7/29/2023",
+            "8/30/2024",
+            "8/30/2023",
+            "11/14/2023",
+            "9/13/2023"
+          ],
+          "inferred_type": "date",
+          "parse": {
+            "kind": "date",
+            "formats": [
+              {
+                "format": "%m/%d/%Y",
+                "matched": 20601
+              },
+              {
+                "format": "%m-%d-%Y",
+                "matched": 4399
+              }
+            ],
+            "coverage_pct": 100.0,
+            "unparsed_count": 0,
+            "unparsed_values": []
+          },
+          "min": "2023-01-08",
+          "max": "2025-12-31"
+        },
+        {
+          "source_name": "Inforce.month",
+          "normalized_name": "inforce_month",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 36,
+          "unique_pct": 0.144,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "20237",
+            "20248",
+            "20238",
+            "202311",
+            "20239"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 5,
+          "max_length": 6,
+          "non_numeric_count": 0,
+          "categorical_values": [
+            "20231",
+            "202310",
+            "202311",
+            "202312",
+            "20232",
+            "20233",
+            "20234",
+            "20235",
+            "20236",
+            "20237",
+            "20238",
+            "20239",
+            "20241",
+            "202410",
+            "202411",
+            "202412",
+            "20242",
+            "20243",
+            "20244",
+            "20245",
+            "20246",
+            "20247",
+            "20248",
+            "20249",
+            "20251",
+            "202510",
+            "202511",
+            "202512",
+            "20252",
+            "20253",
+            "20254",
+            "20255",
+            "20256",
+            "20257",
+            "20258",
+            "20259"
+          ]
+        },
+        {
+          "source_name": "Trad.ULIP",
+          "normalized_name": "trad_ulip",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 2,
+          "unique_pct": 0.008,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "TRAD",
+            "TRAD",
+            "TRAD",
+            "TRAD",
+            "TRAD"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 4,
+          "max_length": 4,
+          "categorical_values": [
+            "TRAD",
+            "ULIP"
+          ],
+          "value_counts": {
+            "TRAD": 20997,
+            "ULIP": 4003
+          }
+        },
+        {
+          "source_name": "Plan.Name",
+          "normalized_name": "plan_name",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 10,
+          "unique_pct": 0.04,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Canara HSBC Life Insurance Flexi Edge - Flexi Savings",
+            "Canara HSBC Life Insurance Flexi Edge - Flexi Savings",
+            "Canara HSBC Life Insurance Flexi Edge - Flexi Savings",
+            "Canara HSBC Life Insurance Flexi Edge - Flexi Savings",
+            "Canara HSBC Life Insurance Flexi Edge - Flexi Savings"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 43,
+          "max_length": 80,
+          "categorical_values": [
+            "Canara HSBC Guaranteed Assured INcome-Long Term",
+            "Canara HSBC Guaranteed Assured INcome-Short Term",
+            "Canara HSBC Guaranteed Income4Life GLI Plan",
+            "Canara HSBC Life Insurance Flexi Edge - Flexi Savings",
+            "Canara HSBC Life Insurance Guaranteed Fortune Plan - Guaranteed Savings Option",
+            "Canara HSBC Life Insurance Guaranteed Fortune Plan - Guaranteed Savings OptionV1",
+            "Canara HSBC Life Insurance Guaranteed Fortune Plan-Guaranteed Savings Option V3",
+            "Canara HSBC Life Insurance Pension4Life Plan",
+            "Canara HSBC Life Insurance Smart Guaranteed Pension",
+            "Canara HSBC Life Insurance Wealth Edge - Invest Plus"
+          ],
+          "value_counts": {
+            "Canara HSBC Life Insurance Guaranteed Fortune Plan-Guaranteed Savings Option V3": 7932,
+            "Canara HSBC Life Insurance Guaranteed Fortune Plan - Guaranteed Savings OptionV1": 4721,
+            "Canara HSBC Life Insurance Wealth Edge - Invest Plus": 4003,
+            "Canara HSBC Life Insurance Guaranteed Fortune Plan - Guaranteed Savings Option": 2587,
+            "Canara HSBC Life Insurance Smart Guaranteed Pension": 2054,
+            "Canara HSBC Life Insurance Flexi Edge - Flexi Savings": 1962,
+            "Canara HSBC Guaranteed Assured INcome-Long Term": 1050,
+            "Canara HSBC Guaranteed Assured INcome-Short Term": 415,
+            "Canara HSBC Guaranteed Income4Life GLI Plan": 265,
+            "Canara HSBC Life Insurance Pension4Life Plan": 11
+          }
+        },
+        {
+          "source_name": "Mode",
+          "normalized_name": "mode",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 1,
+          "unique_pct": 0.004,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Annually",
+            "Annually",
+            "Annually",
+            "Annually",
+            "Annually"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 8,
+          "max_length": 8,
+          "categorical_values": [
+            "Annually"
+          ],
+          "value_counts": {
+            "Annually": 25000
+          }
+        },
+        {
+          "source_name": "PREMIUM.PAYING.TERM",
+          "normalized_name": "premium_paying_term",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 11,
+          "unique_pct": 0.044,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "7",
+            "7",
+            "7",
+            "10",
+            "7"
+          ],
+          "inferred_type": "integer",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 1,
+          "max": 20,
+          "mean": 6.98712,
+          "median": 6.0,
+          "std": 2.418708,
+          "zero_count": 0,
+          "negative_count": 0,
+          "categorical_values": [
+            1,
+            4,
+            5,
+            6,
+            7,
+            8,
+            10,
+            11,
+            12,
+            15,
+            20
+          ]
+        },
+        {
+          "source_name": "Policy.Term",
+          "normalized_name": "policy_term",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 43,
+          "unique_pct": 0.172,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "12",
+            "12",
+            "12",
+            "15",
+            "12"
+          ],
+          "inferred_type": "integer",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 5,
+          "max": 99,
+          "mean": 20.01956,
+          "median": 12.0,
+          "std": 24.090287,
+          "zero_count": 0,
+          "negative_count": 0,
+          "categorical_values": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47,
+            99
+          ]
+        },
+        {
+          "source_name": "Sum.Assured",
+          "normalized_name": "sum_assured",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 3279,
+          "unique_pct": 13.116,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "142850",
+            "290441",
+            "540347",
+            "827409",
+            "299151"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 14000.0,
+          "max": 28708128.0,
+          "mean": 841062.142796,
+          "median": 557000.0,
+          "std": 1013849.820528,
+          "zero_count": 0,
+          "negative_count": 0
+        },
+        {
+          "source_name": "APE",
+          "normalized_name": "ape",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 685,
+          "unique_pct": 2.74,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "25000",
+            "50000",
+            "100000",
+            "100000",
+            "50239"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 6000.0,
+          "max": 2500000.0,
+          "mean": 92248.106476,
+          "median": 50000.0,
+          "std": 114032.870684,
+          "zero_count": 0,
+          "negative_count": 0
+        }
+      ]
+    },
+    "owner": {
+      "table_key": "owner",
+      "file": "data/csv/Owner_Details.csv",
+      "file_bytes": 2602029,
+      "row_count": 25000,
+      "column_count": 12,
+      "source_columns": [
+        "AppID",
+        "ClientID",
+        "Owner.Given.Name",
+        "Owner.Gender",
+        "Owner.Age",
+        "Owner.Education",
+        "Owner.Earned.Income",
+        "Owner.Comm.City.Name",
+        "Owner.Comm.State",
+        "Owner.Comm.Country",
+        "Owner.Comm.Postal.Code",
+        "Owner.Occupation"
+      ],
+      "normalized_columns": [
+        "appid",
+        "clientid",
+        "owner_given_name",
+        "owner_gender",
+        "owner_age",
+        "owner_education",
+        "owner_earned_income",
+        "owner_comm_city_name",
+        "owner_comm_state",
+        "owner_comm_country",
+        "owner_comm_postal_code",
+        "owner_occupation"
+      ],
+      "candidate_primary_keys": [
+        "AppID"
+      ],
+      "columns": [
+        {
+          "source_name": "AppID",
+          "normalized_name": "appid",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 25000,
+          "unique_pct": 100.0,
+          "is_unique_over_non_null": true,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "11000000015",
+            "11000000033",
+            "11000000097",
+            "11000000122",
+            "11000000494"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 8,
+          "max_length": 11,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "ClientID",
+          "normalized_name": "clientid",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 24757,
+          "unique_pct": 99.028,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "17140735859",
+            "13775493405",
+            "17946770095",
+            "18223103462",
+            "19512247441"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 9,
+          "max_length": 11,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "Owner.Given.Name",
+          "normalized_name": "owner_given_name",
+          "row_count": 25000,
+          "null_count": 7,
+          "null_pct": 0.028,
+          "non_null_count": 24993,
+          "unique_count": 13137,
+          "unique_pct": 52.5627,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "RAVI KUMAR",
+            "GARGI",
+            "SHASHI",
+            "PARVEZ",
+            "NAVNEET KUMAR"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 1,
+          "max_length": 33
+        },
+        {
+          "source_name": "Owner.Gender",
+          "normalized_name": "owner_gender",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 3,
+          "unique_pct": 0.012,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "M",
+            "F",
+            "F",
+            "M",
+            "M"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 1,
+          "max_length": 1,
+          "categorical_values": [
+            "C",
+            "F",
+            "M"
+          ],
+          "value_counts": {
+            "M": 17427,
+            "F": 7565,
+            "C": 8
+          }
+        },
+        {
+          "source_name": "Owner.Age",
+          "normalized_name": "owner_age",
+          "row_count": 25000,
+          "null_count": 8,
+          "null_pct": 0.032,
+          "non_null_count": 24992,
+          "unique_count": 87,
+          "unique_pct": 0.3481,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "40",
+            "38",
+            "64",
+            "22",
+            "59"
+          ],
+          "inferred_type": "integer",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 1,
+          "max": 97,
+          "mean": 43.987436,
+          "median": 43.0,
+          "std": 12.978138,
+          "zero_count": 0,
+          "negative_count": 0
+        },
+        {
+          "source_name": "Owner.Education",
+          "normalized_name": "owner_education",
+          "row_count": 25000,
+          "null_count": 4,
+          "null_pct": 0.016,
+          "non_null_count": 24996,
+          "unique_count": 9,
+          "unique_pct": 0.036,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Graduate",
+            "Graduate",
+            "Std XII pass",
+            "Graduate",
+            "Graduate"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 7,
+          "max_length": 21,
+          "categorical_values": [
+            "Below std X",
+            "Diploma",
+            "Graduate",
+            "Illiterate",
+            "Post graduate & above",
+            "Std X pass",
+            "Std XII Fail",
+            "Std XII pass",
+            "Unanswered"
+          ],
+          "value_counts": {
+            "Graduate": 13561,
+            "Std XII pass": 3874,
+            "Post graduate & above": 3020,
+            "Std X pass": 2354,
+            "Below std X": 1303,
+            "Diploma": 579,
+            "Illiterate": 182,
+            "Std XII Fail": 84,
+            "Unanswered": 39
+          }
+        },
+        {
+          "source_name": "Owner.Earned.Income",
+          "normalized_name": "owner_earned_income",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 451,
+          "unique_pct": 1.804,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "1500000",
+            "1000000",
+            "450000",
+            "400000",
+            "1200000"
+          ],
+          "inferred_type": "integer",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 0,
+          "max": 8384891049,
+          "mean": 1245962.65024,
+          "median": 600000.0,
+          "std": 53346037.516709,
+          "zero_count": 150,
+          "negative_count": 0
+        },
+        {
+          "source_name": "Owner.Comm.City.Name",
+          "normalized_name": "owner_comm_city_name",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 6018,
+          "unique_pct": 24.072,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 17,
+          "sample_values": [
+            "NORTH EAST DELHI",
+            "GHAZIABAD",
+            "GHAZIABAD",
+            "NORTH EAST DELHI",
+            "GHAZIABAD"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 2,
+          "max_length": 30
+        },
+        {
+          "source_name": "Owner.Comm.State",
+          "normalized_name": "owner_comm_state",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 34,
+          "unique_pct": 0.136,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Delhi",
+            "Uttar Pradesh",
+            "Uttar Pradesh",
+            "Delhi",
+            "Uttar Pradesh"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 3,
+          "max_length": 36,
+          "categorical_values": [
+            "Andaman and Nicobar Islands",
+            "Andhra Pradesh",
+            "Arunachal Pradesh",
+            "Assam",
+            "Bihar",
+            "Chandigarh",
+            "Chattisgarh",
+            "Dadra & Nagar Haveli and Daman & Diu",
+            "Delhi",
+            "Goa",
+            "Gujarat",
+            "Haryana",
+            "Himachal Pradesh",
+            "Jammu & Kashmir",
+            "Jharkhand",
+            "Karnataka",
+            "Kerala",
+            "Madhya Pradesh",
+            "Maharashtra",
+            "Manipur",
+            "Meghalaya",
+            "Mizoram",
+            "NRI",
+            "Odisha",
+            "Pondicherry",
+            "Punjab",
+            "Rajasthan",
+            "Sikkim",
+            "Tamil Nadu",
+            "Telangana",
+            "Tripura",
+            "Uttar Pradesh",
+            "Uttarakhand",
+            "West Bengal"
+          ],
+          "value_counts": {
+            "Uttar Pradesh": 4581,
+            "Karnataka": 4017,
+            "Tamil Nadu": 2442,
+            "West Bengal": 1551,
+            "Bihar": 1522,
+            "Maharashtra": 1363,
+            "Delhi": 1288,
+            "Andhra Pradesh": 1229,
+            "Haryana": 1078,
+            "Odisha": 1039,
+            "Punjab": 913,
+            "Kerala": 675,
+            "Madhya Pradesh": 543,
+            "Telangana": 409,
+            "Jharkhand": 359,
+            "Uttarakhand": 339,
+            "Assam": 315,
+            "Rajasthan": 304,
+            "Himachal Pradesh": 176,
+            "Chattisgarh": 136,
+            "Goa": 133,
+            "Jammu & Kashmir": 132,
+            "Gujarat": 120,
+            "Tripura": 93,
+            "Meghalaya": 70,
+            "Chandigarh": 60,
+            "Andaman and Nicobar Islands": 23,
+            "Manipur": 23,
+            "Arunachal Pradesh": 18,
+            "NRI": 14,
+            "Mizoram": 13,
+            "Sikkim": 8,
+            "Dadra & Nagar Haveli and Daman & Diu": 7,
+            "Pondicherry": 7
+          }
+        },
+        {
+          "source_name": "Owner.Comm.Country",
+          "normalized_name": "owner_comm_country",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 9,
+          "unique_pct": 0.036,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "India",
+            "India",
+            "India",
+            "India",
+            "India"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 4,
+          "max_length": 20,
+          "categorical_values": [
+            "Bahrain",
+            "Canada",
+            "Germany",
+            "India",
+            "Oman",
+            "Papua New Guinea",
+            "Sri Lanka",
+            "United Arab Emirates",
+            "United Kingdom"
+          ],
+          "value_counts": {
+            "India": 24992,
+            "United Arab Emirates": 1,
+            "Bahrain": 1,
+            "Papua New Guinea": 1,
+            "United Kingdom": 1,
+            "Canada": 1,
+            "Germany": 1,
+            "Oman": 1,
+            "Sri Lanka": 1
+          }
+        },
+        {
+          "source_name": "Owner.Comm.Postal.Code",
+          "normalized_name": "owner_comm_postal_code",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 6837,
+          "unique_pct": 27.348,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "110094",
+            "201005",
+            "201005",
+            "110053",
+            "201002"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 1,
+          "max_length": 7,
+          "non_numeric_count": 2,
+          "non_numeric_examples": [
+            "L9T 6X4",
+            "TW149RE"
+          ]
+        },
+        {
+          "source_name": "Owner.Occupation",
+          "normalized_name": "owner_occupation",
+          "row_count": 25000,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 25000,
+          "unique_count": 6,
+          "unique_pct": 0.024,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Business Owner",
+            "Salaried",
+            "Others",
+            "Business Owner",
+            "Salaried"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 6,
+          "max_length": 14,
+          "categorical_values": [
+            "Agriculture",
+            "Business Owner",
+            "Empty Nester",
+            "Others",
+            "Salaried",
+            "Self Employed"
+          ],
+          "value_counts": {
+            "Business Owner": 10496,
+            "Salaried": 4817,
+            "Agriculture": 3733,
+            "Empty Nester": 3347,
+            "Self Employed": 1405,
+            "Others": 1202
+          }
+        }
+      ]
+    },
+    "sales": {
+      "table_key": "sales",
+      "file": "data/csv/Sales_Details.csv",
+      "file_bytes": 107162,
+      "row_count": 1956,
+      "column_count": 10,
+      "source_columns": [
+        "SALES_ID",
+        "Surrender Rate",
+        "Early Claim Rate",
+        "PIVC Number Mismatch Rate",
+        "PIVC Concern Raised Rate",
+        "RCU Rejections Rate",
+        "Free Look  Cancellation Rate",
+        "Sales Related Complaint",
+        "First Year Persistency Rate",
+        "Type"
+      ],
+      "normalized_columns": [
+        "sales_id",
+        "surrender_rate",
+        "early_claim_rate",
+        "pivc_number_mismatch_rate",
+        "pivc_concern_raised_rate",
+        "rcu_rejections_rate",
+        "free_look_cancellation_rate",
+        "sales_related_complaint",
+        "first_year_persistency_rate",
+        "type"
+      ],
+      "candidate_primary_keys": [
+        "SALES_ID"
+      ],
+      "columns": [
+        {
+          "source_name": "SALES_ID",
+          "normalized_name": "sales_id",
+          "row_count": 1956,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 1956,
+          "unique_count": 1956,
+          "unique_pct": 100.0,
+          "is_unique_over_non_null": true,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "270084",
+            "800722",
+            "800812",
+            "800947",
+            "801055"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 6,
+          "max_length": 6,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "Surrender Rate",
+          "normalized_name": "surrender_rate",
+          "row_count": 1956,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 1956,
+          "unique_count": 10,
+          "unique_pct": 0.5112,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "0.00",
+            "0.00",
+            "0.00",
+            "0.00",
+            "0.00"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 0.0,
+          "max": 1.28,
+          "mean": 0.004116,
+          "median": 0.0,
+          "std": 0.059843,
+          "zero_count": 1946,
+          "negative_count": 0,
+          "categorical_values": [
+            0.0,
+            0.39,
+            0.61,
+            0.7,
+            0.75,
+            0.79,
+            0.83,
+            0.91,
+            1.09,
+            1.28
+          ]
+        },
+        {
+          "source_name": "Early Claim Rate",
+          "normalized_name": "early_claim_rate",
+          "row_count": 1956,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 1956,
+          "unique_count": 132,
+          "unique_pct": 6.7485,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "0.00",
+            "0.47",
+            "3.55",
+            "0.46",
+            "0.00"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 0.0,
+          "max": 10.0,
+          "mean": 0.164223,
+          "median": 0.0,
+          "std": 0.444249,
+          "zero_count": 1553,
+          "negative_count": 0
+        },
+        {
+          "source_name": "PIVC Number Mismatch Rate",
+          "normalized_name": "pivc_number_mismatch_rate",
+          "row_count": 1956,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 1956,
+          "unique_count": 284,
+          "unique_pct": 14.5194,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "0.00",
+            "0.64",
+            "0.00",
+            "0.00",
+            "7.11"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 0.0,
+          "max": 25.96,
+          "mean": 0.698885,
+          "median": 0.0,
+          "std": 2.354298,
+          "zero_count": 1457,
+          "negative_count": 0
+        },
+        {
+          "source_name": "PIVC Concern Raised Rate",
+          "normalized_name": "pivc_concern_raised_rate",
+          "row_count": 1956,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 1956,
+          "unique_count": 354,
+          "unique_pct": 18.0982,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "0.00",
+            "3.20",
+            "1.38",
+            "0.45",
+            "0.79"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 0.0,
+          "max": 10.96,
+          "mean": 1.093839,
+          "median": 0.81,
+          "std": 1.296337,
+          "zero_count": 771,
+          "negative_count": 0
+        },
+        {
+          "source_name": "RCU Rejections Rate",
+          "normalized_name": "rcu_rejections_rate",
+          "row_count": 1956,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 1956,
+          "unique_count": 285,
+          "unique_pct": 14.5706,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "1.05",
+            "2.13",
+            "1.38",
+            "0.00",
+            "0.40"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 0.0,
+          "max": 13.64,
+          "mean": 0.665107,
+          "median": 0.0,
+          "std": 1.15404,
+          "zero_count": 1097,
+          "negative_count": 0
+        },
+        {
+          "source_name": "Free Look  Cancellation Rate",
+          "normalized_name": "free_look_cancellation_rate",
+          "row_count": 1956,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 1956,
+          "unique_count": 206,
+          "unique_pct": 10.5317,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "0.00",
+            "0.00",
+            "0.00",
+            "0.46",
+            "0.41"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 0.0,
+          "max": 6.67,
+          "mean": 0.357142,
+          "median": 0.0,
+          "std": 0.667034,
+          "zero_count": 1305,
+          "negative_count": 0
+        },
+        {
+          "source_name": "Sales Related Complaint",
+          "normalized_name": "sales_related_complaint",
+          "row_count": 1956,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 1956,
+          "unique_count": 166,
+          "unique_pct": 8.4867,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "0.00",
+            "0.64",
+            "0.00",
+            "0.00",
+            "0.00"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 0.0,
+          "max": 7.14,
+          "mean": 0.203272,
+          "median": 0.0,
+          "std": 0.559849,
+          "zero_count": 1560,
+          "negative_count": 0
+        },
+        {
+          "source_name": "First Year Persistency Rate",
+          "normalized_name": "first_year_persistency_rate",
+          "row_count": 1956,
+          "null_count": 369,
+          "null_pct": 18.865,
+          "non_null_count": 1587,
+          "unique_count": 396,
+          "unique_pct": 24.9527,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "75.0",
+            "74.5",
+            "60.2",
+            "81.1",
+            "72.1"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 0.0,
+          "max": 100.0,
+          "mean": 79.546377,
+          "median": 82.6,
+          "std": 16.437284,
+          "zero_count": 34,
+          "negative_count": 0
+        },
+        {
+          "source_name": "Type",
+          "normalized_name": "type",
+          "row_count": 1956,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 1956,
+          "unique_count": 2,
+          "unique_pct": 0.1022,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Active",
+            "Active",
+            "Active",
+            "Active",
+            "Active"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 6,
+          "max_length": 8,
+          "categorical_values": [
+            "Active",
+            "Inactive"
+          ],
+          "value_counts": {
+            "Active": 1922,
+            "Inactive": 34
+          }
+        }
+      ]
+    },
+    "claims": {
+      "table_key": "claims",
+      "file": "data/csv/Claims_Details.csv",
+      "file_bytes": 11208,
+      "row_count": 134,
+      "column_count": 9,
+      "source_columns": [
+        "AppID",
+        "Claim_No",
+        "Date.of.Death",
+        "Cause.of.Death",
+        "Claim.Amount",
+        "Date.of.Intimation",
+        "Status.of.Claim",
+        "Amount.Paid",
+        "Settlement.Date"
+      ],
+      "normalized_columns": [
+        "appid",
+        "claim_no",
+        "date_of_death",
+        "cause_of_death",
+        "claim_amount",
+        "date_of_intimation",
+        "status_of_claim",
+        "amount_paid",
+        "settlement_date"
+      ],
+      "candidate_primary_keys": [
+        "AppID",
+        "Claim_No"
+      ],
+      "columns": [
+        {
+          "source_name": "AppID",
+          "normalized_name": "appid",
+          "row_count": 134,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 134,
+          "unique_count": 134,
+          "unique_pct": 100.0,
+          "is_unique_over_non_null": true,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "11000010875",
+            "11000991171",
+            "11350017290",
+            "11501502524",
+            "11896322265"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 11,
+          "max_length": 11,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "Claim_No",
+          "normalized_name": "claim_no",
+          "row_count": 134,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 134,
+          "unique_count": 134,
+          "unique_pct": 100.0,
+          "is_unique_over_non_null": true,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "490",
+            "333",
+            "607",
+            "867",
+            "368"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 3,
+          "max_length": 3,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "Date.of.Death",
+          "normalized_name": "date_of_death",
+          "row_count": 134,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 134,
+          "unique_count": 126,
+          "unique_pct": 94.0299,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "30-May-25",
+            "03-Apr-25",
+            "28-Nov-23",
+            "28-Dec-25",
+            "23-Aug-25"
+          ],
+          "inferred_type": "date",
+          "parse": {
+            "kind": "date",
+            "formats": [
+              {
+                "format": "%d-%b-%y",
+                "matched": 134
+              }
+            ],
+            "coverage_pct": 100.0,
+            "unparsed_count": 0,
+            "unparsed_values": []
+          },
+          "min": "2023-08-13",
+          "max": "2026-04-27"
+        },
+        {
+          "source_name": "Cause.of.Death",
+          "normalized_name": "cause_of_death",
+          "row_count": 134,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 134,
+          "unique_count": 45,
+          "unique_pct": 33.5821,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "CANCER",
+            "HEART ATTACK",
+            "ALTERED SENSORIUM",
+            "NATURAL",
+            "NATURAL DEATH"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 5,
+          "max_length": 27,
+          "categorical_values": [
+            "ACCIDENT",
+            "ACUTE IMMUNE DISORDER",
+            "ACUTE MYOCARDIAL INFARCTION",
+            "ALTERED SENSORIUM",
+            "CANCER",
+            "CARDIAC ARREST",
+            "CARDIO",
+            "CARDIO PULMONARY",
+            "CARDIO PULONARY ARREST",
+            "CARDIO REPIRATORY ARREST",
+            "CARDIO RESPIRATORY ARREST",
+            "CARDIO RESPIRATORY FAILURE",
+            "CARDIOGENIC SHOCK",
+            "CHEST PAIN",
+            "CHRONIC KIDNEY DISEASE",
+            "CVA LEFT HEMIPERESIS",
+            "DROWNING",
+            "FEVER",
+            "HEART ATTACK",
+            "HEART DISEASE",
+            "HEART FAILURE",
+            "HYPERTENSION",
+            "JAUNDICE",
+            "LIVER DISEASE",
+            "LOW BP",
+            "LUNG CANCER",
+            "MASSIVE HEART ATTACK",
+            "MURDER",
+            "MYOCARDIAL INFARCTION",
+            "NATURAL",
+            "NATURAL DEATH",
+            "NOT KNOWN",
+            "RESPIRATORY CARDIAC ARREST",
+            "ROAD ACCIDENT",
+            "SEIZURE DISORDER",
+            "SEPSIS",
+            "SEPTIC SHOCK",
+            "SILENT ATTACK",
+            "SILENT HEART ATTACK",
+            "SILNET HEART ATTACK",
+            "SUDDEN CARDIAC ARREST",
+            "SUDDEN DEATH",
+            "SUICIDE",
+            "Sepsis with Septic Shock",
+            "THRYMBOLYSIS"
+          ],
+          "value_counts": {
+            "SUDDEN DEATH": 30,
+            "HEART ATTACK": 19,
+            "NATURAL DEATH": 15,
+            "NATURAL": 13,
+            "ACCIDENT": 5,
+            "NOT KNOWN": 4,
+            "HEART DISEASE": 3,
+            "DROWNING": 2,
+            "CANCER": 2,
+            "SEPSIS": 2,
+            "LIVER DISEASE": 2,
+            "SEIZURE DISORDER": 2,
+            "CARDIOGENIC SHOCK": 2,
+            "SEPTIC SHOCK": 2,
+            "SILNET HEART ATTACK": 1,
+            "LUNG CANCER": 1,
+            "CVA LEFT HEMIPERESIS": 1,
+            "ALTERED SENSORIUM": 1,
+            "HYPERTENSION": 1,
+            "ACUTE MYOCARDIAL INFARCTION": 1,
+            "SUDDEN CARDIAC ARREST": 1,
+            "ROAD ACCIDENT": 1,
+            "SUICIDE": 1,
+            "CARDIO PULMONARY": 1,
+            "CARDIAC ARREST": 1,
+            "CARDIO REPIRATORY ARREST": 1,
+            "Sepsis with Septic Shock": 1,
+            "MYOCARDIAL INFARCTION": 1,
+            "CHRONIC KIDNEY DISEASE": 1,
+            "CARDIO RESPIRATORY FAILURE": 1,
+            "SILENT HEART ATTACK": 1,
+            "THRYMBOLYSIS": 1,
+            "FEVER": 1,
+            "RESPIRATORY CARDIAC ARREST": 1,
+            "CARDIO": 1,
+            "JAUNDICE": 1,
+            "CARDIO RESPIRATORY ARREST": 1,
+            "MURDER": 1,
+            "MASSIVE HEART ATTACK": 1,
+            "CARDIO PULONARY ARREST": 1,
+            "LOW BP": 1,
+            "HEART FAILURE": 1,
+            "ACUTE IMMUNE DISORDER": 1,
+            "CHEST PAIN": 1,
+            "SILENT ATTACK": 1
+          }
+        },
+        {
+          "source_name": "Claim.Amount",
+          "normalized_name": "claim_amount",
+          "row_count": 134,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 134,
+          "unique_count": 116,
+          "unique_pct": 86.5672,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 59,
+          "sample_values": [
+            "1250000",
+            "1702500",
+            "57,750.00",
+            "572500",
+            "875000"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 26250.0,
+          "max": 5000000.0,
+          "mean": 694259.256194,
+          "median": 376500.0,
+          "std": 771919.67077,
+          "zero_count": 0,
+          "negative_count": 0
+        },
+        {
+          "source_name": "Date.of.Intimation",
+          "normalized_name": "date_of_intimation",
+          "row_count": 134,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 134,
+          "unique_count": 107,
+          "unique_pct": 79.8507,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "06-Mar-26",
+            "18-Jun-25",
+            "29-Apr-24",
+            "16-May-26",
+            "15-Sep-25"
+          ],
+          "inferred_type": "date",
+          "parse": {
+            "kind": "date",
+            "formats": [
+              {
+                "format": "%d-%b-%y",
+                "matched": 133
+              },
+              {
+                "format": "%m/%d/%Y",
+                "matched": 1
+              }
+            ],
+            "coverage_pct": 100.0,
+            "unparsed_count": 0,
+            "unparsed_values": []
+          },
+          "min": "2023-09-25",
+          "max": "2026-06-17"
+        },
+        {
+          "source_name": "Status.of.Claim",
+          "normalized_name": "status_of_claim",
+          "row_count": 134,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 134,
+          "unique_count": 2,
+          "unique_pct": 1.4925,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Paid",
+            "Paid",
+            "Paid",
+            "Paid",
+            "Paid"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 3,
+          "max_length": 4,
+          "categorical_values": [
+            "Paid",
+            "WIP"
+          ],
+          "value_counts": {
+            "Paid": 133,
+            "WIP": 1
+          }
+        },
+        {
+          "source_name": "Amount.Paid",
+          "normalized_name": "amount_paid",
+          "row_count": 134,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 134,
+          "unique_count": 100,
+          "unique_pct": 74.6269,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 1,
+          "sample_values": [
+            "1250000",
+            "1702500",
+            "57750",
+            "572500",
+            "875000"
+          ],
+          "inferred_type": "float",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 1
+          },
+          "min": 26250.0,
+          "max": 5000000.0,
+          "mean": 695283.753534,
+          "median": 357000.0,
+          "std": 774746.644797,
+          "zero_count": 0,
+          "negative_count": 0
+        },
+        {
+          "source_name": "Settlement.Date",
+          "normalized_name": "settlement_date",
+          "row_count": 134,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 134,
+          "unique_count": 108,
+          "unique_pct": 80.597,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "31-Mar-26",
+            "31-Jul-25",
+            "14-May-24",
+            "26-May-26",
+            "15-Oct-25"
+          ],
+          "inferred_type": "date",
+          "parse": {
+            "kind": "date",
+            "formats": [
+              {
+                "format": "%d-%b-%y",
+                "matched": 132
+              },
+              {
+                "format": "%m/%d/%Y",
+                "matched": 1
+              }
+            ],
+            "coverage_pct": 99.2537,
+            "unparsed_count": 1,
+            "unparsed_values": [
+              "WIP"
+            ]
+          },
+          "min": "2023-09-30",
+          "max": "2026-06-30"
+        }
+      ]
+    },
+    "persistency": {
+      "table_key": "persistency",
+      "file": "data/csv/Persistency_Details.csv",
+      "file_bytes": 2778639,
+      "row_count": 24542,
+      "column_count": 12,
+      "source_columns": [
+        "AppID",
+        "SALES_ID",
+        "POLICY.STATUS",
+        "CHANNEL",
+        "Inforce.Date",
+        "PREMIUM.PAYING.TERM",
+        "Renewal_Due_Date",
+        "Renewal_Paid_Date",
+        "Renewal_Status",
+        "Renewal_Premium_Amount",
+        "Persistency_Bucket",
+        "Payment_Mode"
+      ],
+      "normalized_columns": [
+        "appid",
+        "sales_id",
+        "policy_status",
+        "channel",
+        "inforce_date",
+        "premium_paying_term",
+        "renewal_due_date",
+        "renewal_paid_date",
+        "renewal_status",
+        "renewal_premium_amount",
+        "persistency_bucket",
+        "payment_mode"
+      ],
+      "candidate_primary_keys": [
+        "AppID"
+      ],
+      "columns": [
+        {
+          "source_name": "AppID",
+          "normalized_name": "appid",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 24542,
+          "unique_pct": 100.0,
+          "is_unique_over_non_null": true,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "15000635514",
+            "19102471149",
+            "19102206801",
+            "11811317856",
+            "15000383901"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 8,
+          "max_length": 11,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "SALES_ID",
+          "normalized_name": "sales_id",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 1955,
+          "unique_pct": 7.9659,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "977337",
+            "970998",
+            "979400",
+            "965280",
+            "977153"
+          ],
+          "inferred_type": "identifier",
+          "parse": {
+            "kind": "identifier",
+            "strip_whitespace": true,
+            "rationale": "an identifier or code, not a quantity: kept as text so joins compare exactly and non-numeric values survive"
+          },
+          "min_length": 6,
+          "max_length": 6,
+          "non_numeric_count": 0
+        },
+        {
+          "source_name": "POLICY.STATUS",
+          "normalized_name": "policy_status",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 2,
+          "unique_pct": 0.0081,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Premium paying (regular)",
+            "Premium paying (regular)",
+            "Premium paying (regular)",
+            "Premium paying (regular)",
+            "Premium paying (regular)"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 6,
+          "max_length": 24,
+          "categorical_values": [
+            "Lapsed",
+            "Premium paying (regular)"
+          ],
+          "value_counts": {
+            "Premium paying (regular)": 21805,
+            "Lapsed": 2737
+          }
+        },
+        {
+          "source_name": "CHANNEL",
+          "normalized_name": "channel",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 1,
+          "unique_pct": 0.0041,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Banca",
+            "Banca",
+            "Banca",
+            "Banca",
+            "Banca"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 5,
+          "max_length": 5,
+          "categorical_values": [
+            "Banca"
+          ],
+          "value_counts": {
+            "Banca": 24542
+          }
+        },
+        {
+          "source_name": "Inforce.Date",
+          "normalized_name": "inforce_date",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 856,
+          "unique_pct": 3.4879,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "07/29/2023",
+            "08/30/2024",
+            "08/30/2023",
+            "11/14/2023",
+            "09/13/2023"
+          ],
+          "inferred_type": "date",
+          "parse": {
+            "kind": "date",
+            "formats": [
+              {
+                "format": "%m/%d/%Y",
+                "matched": 24542
+              }
+            ],
+            "coverage_pct": 100.0,
+            "unparsed_count": 0,
+            "unparsed_values": []
+          },
+          "min": "2023-01-08",
+          "max": "2025-12-31"
+        },
+        {
+          "source_name": "PREMIUM.PAYING.TERM",
+          "normalized_name": "premium_paying_term",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 11,
+          "unique_pct": 0.0448,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "7",
+            "7",
+            "7",
+            "10",
+            "7"
+          ],
+          "inferred_type": "integer",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 1,
+          "max": 20,
+          "mean": 6.992014,
+          "median": 6.0,
+          "std": 2.417292,
+          "zero_count": 0,
+          "negative_count": 0,
+          "categorical_values": [
+            1,
+            4,
+            5,
+            6,
+            7,
+            8,
+            10,
+            11,
+            12,
+            15,
+            20
+          ]
+        },
+        {
+          "source_name": "Renewal_Due_Date",
+          "normalized_name": "renewal_due_date",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 339,
+          "unique_pct": 1.3813,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "07/29/2026",
+            "08/30/2026",
+            "08/30/2026",
+            "11/14/2026",
+            "09/13/2026"
+          ],
+          "inferred_type": "date",
+          "parse": {
+            "kind": "date",
+            "formats": [
+              {
+                "format": "%m/%d/%Y",
+                "matched": 24542
+              }
+            ],
+            "coverage_pct": 100.0,
+            "unparsed_count": 0,
+            "unparsed_values": []
+          },
+          "min": "2026-01-03",
+          "max": "2026-12-31"
+        },
+        {
+          "source_name": "Renewal_Paid_Date",
+          "normalized_name": "renewal_paid_date",
+          "row_count": 24542,
+          "null_count": 12103,
+          "null_pct": 49.3155,
+          "non_null_count": 12439,
+          "unique_count": 229,
+          "unique_pct": 1.841,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "08/08/2026",
+            "02/03/2026",
+            "07/22/2026",
+            "04/07/2026",
+            "07/22/2026"
+          ],
+          "inferred_type": "date",
+          "parse": {
+            "kind": "date",
+            "formats": [
+              {
+                "format": "%m/%d/%Y",
+                "matched": 12439
+              }
+            ],
+            "coverage_pct": 100.0,
+            "unparsed_count": 0,
+            "unparsed_values": []
+          },
+          "min": "2026-01-03",
+          "max": "2026-08-20"
+        },
+        {
+          "source_name": "Renewal_Status",
+          "normalized_name": "renewal_status",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 2,
+          "unique_pct": 0.0081,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Paid",
+            "Pending",
+            "Pending",
+            "Pending",
+            "Pending"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 4,
+          "max_length": 7,
+          "categorical_values": [
+            "Paid",
+            "Pending"
+          ],
+          "value_counts": {
+            "Paid": 12439,
+            "Pending": 12103
+          }
+        },
+        {
+          "source_name": "Renewal_Premium_Amount",
+          "normalized_name": "renewal_premium_amount",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 554,
+          "unique_pct": 2.2574,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "25000",
+            "50000",
+            "100000",
+            "100000",
+            "50239"
+          ],
+          "inferred_type": "integer",
+          "parse": {
+            "kind": "numeric",
+            "strip_thousands_separator": true,
+            "unparsed_count": 0
+          },
+          "min": 6000,
+          "max": 2500000,
+          "mean": 92477.220112,
+          "median": 50000.0,
+          "std": 113717.742347,
+          "zero_count": 0,
+          "negative_count": 0
+        },
+        {
+          "source_name": "Persistency_Bucket",
+          "normalized_name": "persistency_bucket",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 3,
+          "unique_pct": 0.0122,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "37th Month",
+            "25th Month",
+            "37th Month",
+            "37th Month",
+            "37th Month"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 10,
+          "max_length": 10,
+          "categorical_values": [
+            "13th Month",
+            "25th Month",
+            "37th Month"
+          ],
+          "value_counts": {
+            "37th Month": 9410,
+            "25th Month": 8189,
+            "13th Month": 6943
+          }
+        },
+        {
+          "source_name": "Payment_Mode",
+          "normalized_name": "payment_mode",
+          "row_count": 24542,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "non_null_count": 24542,
+          "unique_count": 5,
+          "unique_pct": 0.0204,
+          "is_unique_over_non_null": false,
+          "comma_formatted_count": 0,
+          "sample_values": [
+            "Online/UPI",
+            "ECS/Auto-Debit",
+            "Cheque",
+            "Credit Card",
+            "Online/UPI"
+          ],
+          "inferred_type": "string",
+          "parse": {
+            "kind": "string",
+            "strip_whitespace": true
+          },
+          "min_length": 4,
+          "max_length": 14,
+          "categorical_values": [
+            "Cash",
+            "Cheque",
+            "Credit Card",
+            "ECS/Auto-Debit",
+            "Online/UPI"
+          ],
+          "value_counts": {
+            "Cheque": 4986,
+            "Online/UPI": 4985,
+            "Credit Card": 4923,
+            "Cash": 4839,
+            "ECS/Auto-Debit": 4809
+          }
+        }
+      ]
+    }
+  },
+  "key_integrity": {
+    "policy": [
+      {
+        "column": "AppID",
+        "present": true,
+        "non_null_values": 25000,
+        "distinct_values": 25000,
+        "duplicated_rows": 0,
+        "distinct_duplicated_values": 0,
+        "example_duplicated_values": [],
+        "max_rows_per_value": 1
+      },
+      {
+        "column": "SALES_ID",
+        "present": true,
+        "non_null_values": 25000,
+        "distinct_values": 1956,
+        "duplicated_rows": 24724,
+        "distinct_duplicated_values": 1680,
+        "example_duplicated_values": [
+          "977337",
+          "970998",
+          "979400",
+          "965280",
+          "977153"
+        ],
+        "max_rows_per_value": 151
+      }
+    ],
+    "owner": [
+      {
+        "column": "AppID",
+        "present": true,
+        "non_null_values": 25000,
+        "distinct_values": 25000,
+        "duplicated_rows": 0,
+        "distinct_duplicated_values": 0,
+        "example_duplicated_values": [],
+        "max_rows_per_value": 1
+      },
+      {
+        "column": "ClientID",
+        "present": true,
+        "non_null_values": 25000,
+        "distinct_values": 24757,
+        "duplicated_rows": 480,
+        "distinct_duplicated_values": 237,
+        "example_duplicated_values": [
+          "18672279612",
+          "15415649474",
+          "12510392439",
+          "15654423693",
+          "16483459113"
+        ],
+        "max_rows_per_value": 3
+      }
+    ],
+    "sales": [
+      {
+        "column": "SALES_ID",
+        "present": true,
+        "non_null_values": 1956,
+        "distinct_values": 1956,
+        "duplicated_rows": 0,
+        "distinct_duplicated_values": 0,
+        "example_duplicated_values": [],
+        "max_rows_per_value": 1
+      }
+    ],
+    "claims": [
+      {
+        "column": "AppID",
+        "present": true,
+        "non_null_values": 134,
+        "distinct_values": 134,
+        "duplicated_rows": 0,
+        "distinct_duplicated_values": 0,
+        "example_duplicated_values": [],
+        "max_rows_per_value": 1
+      },
+      {
+        "column": "Claim_No",
+        "present": true,
+        "non_null_values": 134,
+        "distinct_values": 134,
+        "duplicated_rows": 0,
+        "distinct_duplicated_values": 0,
+        "example_duplicated_values": [],
+        "max_rows_per_value": 1
+      }
+    ],
+    "persistency": [
+      {
+        "column": "AppID",
+        "present": true,
+        "non_null_values": 24542,
+        "distinct_values": 24542,
+        "duplicated_rows": 0,
+        "distinct_duplicated_values": 0,
+        "example_duplicated_values": [],
+        "max_rows_per_value": 1
+      },
+      {
+        "column": "SALES_ID",
+        "present": true,
+        "non_null_values": 24542,
+        "distinct_values": 1955,
+        "duplicated_rows": 24266,
+        "distinct_duplicated_values": 1679,
+        "example_duplicated_values": [
+          "977337",
+          "970998",
+          "979400",
+          "965280",
+          "977153"
+        ],
+        "max_rows_per_value": 141
+      }
+    ]
+  },
+  "joins": [
+    {
+      "name": "policy_owner",
+      "left": "policy",
+      "left_key": "AppID",
+      "right": "owner",
+      "right_key": "AppID",
+      "documented_cardinality": "1:1",
+      "left_key_present": true,
+      "right_key_present": true,
+      "validated": true,
+      "left_rows": 25000,
+      "right_rows": 25000,
+      "left_distinct_keys": 25000,
+      "right_distinct_keys": 25000,
+      "left_key_unique": true,
+      "right_key_unique": true,
+      "observed_cardinality": "1:1",
+      "documented_cardinality_is_upper_bound": true,
+      "matched_keys": 24999,
+      "left_coverage_pct": 99.996,
+      "right_coverage_pct": 99.996,
+      "left_orphan_keys": 1,
+      "right_orphan_keys": 1,
+      "example_left_orphans": [
+        "15011000000"
+      ],
+      "example_right_orphans": [
+        "1.50E+10"
+      ],
+      "max_right_rows_per_key": 1,
+      "max_left_rows_per_key": 1
+    },
+    {
+      "name": "policy_claims",
+      "left": "policy",
+      "left_key": "AppID",
+      "right": "claims",
+      "right_key": "AppID",
+      "documented_cardinality": "1:N",
+      "left_key_present": true,
+      "right_key_present": true,
+      "validated": true,
+      "left_rows": 25000,
+      "right_rows": 134,
+      "left_distinct_keys": 25000,
+      "right_distinct_keys": 134,
+      "left_key_unique": true,
+      "right_key_unique": true,
+      "observed_cardinality": "1:1",
+      "documented_cardinality_is_upper_bound": true,
+      "matched_keys": 134,
+      "left_coverage_pct": 0.536,
+      "right_coverage_pct": 100.0,
+      "left_orphan_keys": 24866,
+      "right_orphan_keys": 0,
+      "example_left_orphans": [
+        "11000000015",
+        "11000000033",
+        "11000000097",
+        "11000000122",
+        "11000000494"
+      ],
+      "example_right_orphans": [],
+      "max_right_rows_per_key": 1,
+      "max_left_rows_per_key": 1
+    },
+    {
+      "name": "policy_sales",
+      "left": "policy",
+      "left_key": "SALES_ID",
+      "right": "sales",
+      "right_key": "SALES_ID",
+      "documented_cardinality": "N:1",
+      "left_key_present": true,
+      "right_key_present": true,
+      "validated": true,
+      "left_rows": 25000,
+      "right_rows": 1956,
+      "left_distinct_keys": 1956,
+      "right_distinct_keys": 1956,
+      "left_key_unique": false,
+      "right_key_unique": true,
+      "observed_cardinality": "N:1",
+      "documented_cardinality_is_upper_bound": true,
+      "matched_keys": 1956,
+      "left_coverage_pct": 100.0,
+      "right_coverage_pct": 100.0,
+      "left_orphan_keys": 0,
+      "right_orphan_keys": 0,
+      "example_left_orphans": [],
+      "example_right_orphans": [],
+      "max_right_rows_per_key": 1,
+      "max_left_rows_per_key": 151
+    },
+    {
+      "name": "policy_persistency",
+      "left": "policy",
+      "left_key": "AppID",
+      "right": "persistency",
+      "right_key": "AppID",
+      "documented_cardinality": "1:N",
+      "left_key_present": true,
+      "right_key_present": true,
+      "validated": true,
+      "left_rows": 25000,
+      "right_rows": 24542,
+      "left_distinct_keys": 25000,
+      "right_distinct_keys": 24542,
+      "left_key_unique": true,
+      "right_key_unique": true,
+      "observed_cardinality": "1:1",
+      "documented_cardinality_is_upper_bound": true,
+      "matched_keys": 24541,
+      "left_coverage_pct": 98.164,
+      "right_coverage_pct": 99.9959,
+      "left_orphan_keys": 459,
+      "right_orphan_keys": 1,
+      "example_left_orphans": [
+        "11000010875",
+        "11000078891",
+        "11000991171",
+        "11005052004",
+        "11021062214"
+      ],
+      "example_right_orphans": [
+        "1.50E+10"
+      ],
+      "max_right_rows_per_key": 1,
+      "max_left_rows_per_key": 1
+    }
+  ],
+  "cross_validation": {
+    "policy_inforce_date": {
+      "joined_rows": 24541,
+      "reference": "Persistency_Details.Inforce.Date (unambiguous %m/%d/%Y)",
+      "candidates": [
+        {
+          "interpretation": "month-first",
+          "formats": [
+            "%m/%d/%Y",
+            "%m-%d-%Y"
+          ],
+          "parsed": 24541,
+          "equal_to_reference": 24541
+        },
+        {
+          "interpretation": "day-first",
+          "formats": [
+            "%d/%m/%Y",
+            "%d-%m-%Y"
+          ],
+          "parsed": 4309,
+          "equal_to_reference": 274
+        }
+      ],
+      "conclusion": "month-first",
+      "conclusive": true
+    }
+  },
+  "semantic_checks": {
+    "death_status_matches_claims_exactly": true,
+    "death_status_count": 134,
+    "claims_row_count": 134,
+    "persistency_population": {
+      "policy_active_or_lapsed": 24542,
+      "persistency_rows": 24542,
+      "policies_absent_from_persistency": 1,
+      "note": "Persistency covers only Premium paying (regular) and Lapsed policies; Surrendered and Death policies are absent by design."
+    },
+    "policy_status_agreement_with_persistency": {
+      "compared": 24541,
+      "agree": 24541
+    },
+    "renewal_status_consistent_with_paid_date": true,
+    "renewal_delay_days": {
+      "paid_rows": 12439,
+      "min": 0.0,
+      "median": 10.0,
+      "max": 20.0,
+      "late_gt_0_days": 11835,
+      "on_or_before_due": 604
+    },
+    "owner_clientid_multi_policy": {
+      "distinct_clients": 24757,
+      "clients_with_multiple_policies": 237,
+      "max_policies_per_client": 3
+    }
+  },
+  "data_quality_findings": [
+    {
+      "id": "DQ-001",
+      "severity": "high",
+      "tables": [
+        "owner",
+        "persistency"
+      ],
+      "columns": [
+        "AppID"
+      ],
+      "finding": "One AppID is stored in Excel scientific notation '1.50E+10' in Owner_Details and Persistency_Details. It is the only 8-character AppID in either file; every other AppID is 11 characters.",
+      "evidence": {
+        "owner_rows_affected": 1,
+        "persistency_rows_affected": 1,
+        "policy_appid_unmatched_by_owner": [
+          "15011000000"
+        ]
+      },
+      "impact": "Breaks the Policy-Owner and Policy-Persistency join for exactly one policy.",
+      "handling": "NOT silently repaired. The loader exposes it as an explicit, logged repair rule (config: repair_scientific_notation_appid). When disabled, the row is reported as an orphan rather than guessed."
+    },
+    {
+      "id": "DQ-002",
+      "severity": "high",
+      "tables": [
+        "policy"
+      ],
+      "columns": [
+        "Login.Date",
+        "Inforce.Date"
+      ],
+      "finding": "Both Policy date columns mix separators ('/' and '-') within the same column. All values are month-first; the dash-separated subset is ambiguous on its own and was resolved by cross-validation.",
+      "evidence": {
+        "login_slash": 16772,
+        "login_dash": 8228,
+        "inforce_slash": 20601,
+        "inforce_dash": 4399,
+        "cross_validation": {
+          "joined_rows": 24541,
+          "reference": "Persistency_Details.Inforce.Date (unambiguous %m/%d/%Y)",
+          "candidates": [
+            {
+              "interpretation": "month-first",
+              "formats": [
+                "%m/%d/%Y",
+                "%m-%d-%Y"
+              ],
+              "parsed": 24541,
+              "equal_to_reference": 24541
+            },
+            {
+              "interpretation": "day-first",
+              "formats": [
+                "%d/%m/%Y",
+                "%d-%m-%Y"
+              ],
+              "parsed": 4309,
+              "equal_to_reference": 274
+            }
+          ],
+          "conclusion": "month-first",
+          "conclusive": true
+        }
+      },
+      "impact": "Naive single-format parsing silently drops ~17-33% of rows.",
+      "handling": "Contract prescribes the ordered format list ['%m/%d/%Y', '%m-%d-%Y']."
+    },
+    {
+      "id": "DQ-003",
+      "severity": "medium",
+      "tables": [
+        "claims"
+      ],
+      "columns": [
+        "Claim.Amount",
+        "Amount.Paid"
+      ],
+      "finding": "Monetary values are stored as text with thousands separators, including Indian lakh grouping (e.g. '12,50,000.00', '1,66,500').",
+      "evidence": {
+        "claim_amount_comma_values": 59,
+        "amount_paid_comma_values": 1
+      },
+      "impact": "float() on the raw string raises; naive coercion yields nulls.",
+      "handling": "Contract prescribes comma stripping before numeric coercion."
+    },
+    {
+      "id": "DQ-004",
+      "severity": "medium",
+      "tables": [
+        "claims"
+      ],
+      "columns": [
+        "Date.of.Intimation",
+        "Settlement.Date",
+        "Status.of.Claim",
+        "Amount.Paid"
+      ],
+      "finding": "Claim date columns are predominantly '%d-%b-%y' but contain a small number of '%m/%d/%Y' values. The single unsettled claim carries the literal string 'WIP' in three columns at once - Status.of.Claim, Amount.Paid and Settlement.Date - so 'WIP' is a sentinel in a monetary and a date column, not only in the status column.",
+      "evidence": {
+        "wip_columns": {
+          "Status.of.Claim": 1,
+          "Amount.Paid": 1,
+          "Settlement.Date": 1
+        },
+        "wip_claim_appids": [
+          "19102699165"
+        ],
+        "settled_claims": 133
+      },
+      "impact": "Settlement-lag and amount-paid metrics must exclude the unsettled claim rather than coerce 'WIP' to zero or null silently.",
+      "handling": "'WIP' is a declared sentinel meaning not-yet-settled. It is treated as missing for date and money maths, and the claim is excluded from settlement-lag and payout-ratio metrics with the exclusion reported."
+    },
+    {
+      "id": "DQ-005",
+      "severity": "medium",
+      "tables": [
+        "sales"
+      ],
+      "columns": [
+        "First Year Persistency Rate"
+      ],
+      "finding": "First Year Persistency Rate is null for a material share of agents.",
+      "evidence": {
+        "null_rows": 369,
+        "total_rows": 1956,
+        "null_pct": 18.87
+      },
+      "impact": "Agent persistency rankings must declare the eligible population.",
+      "handling": "Rankings exclude null-rate agents and report the excluded count."
+    },
+    {
+      "id": "DQ-006",
+      "severity": "medium",
+      "tables": [
+        "policy",
+        "persistency"
+      ],
+      "columns": [
+        "POLICY.STATUS"
+      ],
+      "finding": "Persistency_Details contains only Premium paying (regular) and Lapsed policies. Surrendered and Death policies have no persistency row.",
+      "evidence": {
+        "policy_active_or_lapsed": 24542,
+        "persistency_rows": 24542,
+        "policies_absent_from_persistency": 1,
+        "note": "Persistency covers only Premium paying (regular) and Lapsed policies; Surrendered and Death policies are absent by design."
+      },
+      "impact": "Persistency metrics computed over Policy_Details would use a wrong denominator.",
+      "handling": "Persistency PSs declare the eligible population explicitly."
+    },
+    {
+      "id": "DQ-007",
+      "severity": "low",
+      "tables": [
+        "policy",
+        "claims"
+      ],
+      "columns": [
+        "AppID"
+      ],
+      "finding": "Claims and Persistency are 1:1 with Policy in this dataset, not 1:N as the documented relationship allows. At most one claim row exists per policy.",
+      "evidence": {
+        "policy_claims": {
+          "observed": "1:1",
+          "max_right_rows_per_key": 1
+        },
+        "policy_persistency": {
+          "observed": "1:1",
+          "max_right_rows_per_key": 1
+        }
+      },
+      "impact": "Joins cannot fan out, but code must not hard-code the 1:1 assumption.",
+      "handling": "Joins remain many-safe; row-count assertions guard against silent fan-out."
+    },
+    {
+      "id": "DQ-008",
+      "severity": "low",
+      "tables": [
+        "policy"
+      ],
+      "columns": [
+        "CHANNEL",
+        "Mode"
+      ],
+      "finding": "CHANNEL is 'Banca' for all 25,000 rows and Mode is 'Annually' for all rows.",
+      "evidence": {
+        "channel_distinct": 1,
+        "mode_distinct": 1
+      },
+      "impact": "Channel and payment-mode comparison questions cannot be answered.",
+      "handling": "No PS may offer channel or mode comparison; the limitation is stated."
+    },
+    {
+      "id": "DQ-009",
+      "severity": "low",
+      "tables": [
+        "owner"
+      ],
+      "columns": [
+        "Owner.Age",
+        "Owner.Earned.Income",
+        "Owner.Comm.Postal.Code",
+        "Owner.Gender"
+      ],
+      "finding": "Owner attributes contain implausible values: ages as low as 1, an earned income up to 8,384,891,049, postal codes as low as 1, and a third gender code 'C' alongside M/F.",
+      "evidence": {
+        "age_min": 1,
+        "age_under_18": 113,
+        "income_max": 8384891049.0,
+        "gender_values": {
+          "M": 17427,
+          "F": 7565,
+          "C": 8
+        }
+      },
+      "impact": "Means are distorted by extreme values; demographic PSs need medians or caveats.",
+      "handling": "Distribution PSs report medians alongside means and flag outliers."
+    },
+    {
+      "id": "DQ-010",
+      "severity": "low",
+      "tables": [
+        "policy"
+      ],
+      "columns": [
+        "Inforce.month"
+      ],
+      "finding": "Inforce.month is an unpadded YYYYM/YYYYMM integer: '20231' means 2023-01 while '202310' means 2023-10. Lexical or numeric sorting is wrong.",
+      "evidence": {
+        "distinct": 36,
+        "examples": [
+          "20231",
+          "202310",
+          "202311",
+          "202312",
+          "20232",
+          "20233"
+        ]
+      },
+      "impact": "Trend ordering breaks unless the field is decomposed into year and month.",
+      "handling": "Contract prescribes deriving period from Inforce.Date, not this column."
+    },
+    {
+      "id": "DQ-011",
+      "severity": "low",
+      "tables": [
+        "policy"
+      ],
+      "columns": [
+        "Login.Date",
+        "Inforce.Date"
+      ],
+      "finding": "A policy has a Login.Date later than its Inforce.Date.",
+      "evidence": {
+        "rows_affected": 1
+      },
+      "impact": "Underwriting-turnaround metrics can produce a negative duration.",
+      "handling": "Turnaround PSs report and exclude negative durations."
+    },
+    {
+      "id": "DQ-012",
+      "severity": "medium",
+      "tables": [
+        "owner"
+      ],
+      "columns": [
+        "Owner.Comm.Postal.Code"
+      ],
+      "finding": "Owner.Comm.Postal.Code is not numeric. Two records hold alphanumeric foreign postal codes, matching owners with a non-India address.",
+      "evidence": {
+        "non_numeric_rows": 2,
+        "examples": [
+          "L9T 6X4",
+          "TW149RE"
+        ],
+        "countries": [
+          "Canada",
+          "United Kingdom"
+        ]
+      },
+      "impact": "Coercing the column to a number silently discards these two values and would strip leading zeros from any code that has one.",
+      "handling": "The column is typed as an identifier and kept as text. Identifier columns are never summed or averaged, and join keys compare exactly rather than through floating-point equality."
+    },
+    {
+      "id": "DQ-013",
+      "severity": "low",
+      "tables": [
+        "policy",
+        "owner",
+        "sales",
+        "claims",
+        "persistency"
+      ],
+      "columns": [
+        "claims.AppID",
+        "claims.Claim_No",
+        "owner.AppID",
+        "owner.ClientID",
+        "owner.Owner.Comm.Postal.Code",
+        "persistency.AppID",
+        "persistency.SALES_ID",
+        "policy.AppID",
+        "policy.Branch_No",
+        "policy.Inforce.month",
+        "policy.SALES_ID",
+        "sales.SALES_ID"
+      ],
+      "finding": "Twelve columns are numeric-looking identifiers or codes rather than quantities: AppID, ClientID, SALES_ID, Branch_No, Claim_No, Inforce.month and Owner.Comm.Postal.Code.",
+      "evidence": {
+        "identifier_columns": [
+          "claims.AppID",
+          "claims.Claim_No",
+          "owner.AppID",
+          "owner.ClientID",
+          "owner.Owner.Comm.Postal.Code",
+          "persistency.AppID",
+          "persistency.SALES_ID",
+          "policy.AppID",
+          "policy.Branch_No",
+          "policy.Inforce.month",
+          "policy.SALES_ID",
+          "sales.SALES_ID"
+        ],
+        "count": 12
+      },
+      "impact": "Typed as numbers they would permit meaningless arithmetic such as an average AppID, and would make every join depend on float equality.",
+      "handling": "All are typed as identifiers and held as text throughout the system."
+    }
+  ],
+  "unanswerable_domains": [
+    {
+      "domain": "channel comparison",
+      "reason": "CHANNEL has a single value ('Banca') across all 25,000 policies."
+    },
+    {
+      "domain": "payment-mode comparison at policy level",
+      "reason": "Policy.Mode has a single value ('Annually'). Persistency.Payment_Mode does vary."
+    },
+    {
+      "domain": "premium collection / payment transactions",
+      "reason": "No transaction-level premium table exists in the five CSVs."
+    },
+    {
+      "domain": "agent demographics, tenure, hierarchy or geography",
+      "reason": "Sales_Details holds only performance rates and an Active/Inactive Type flag."
+    },
+    {
+      "domain": "policyholder health, medical underwriting or risk scoring",
+      "reason": "No underwriting, medical or risk-score columns exist."
+    },
+    {
+      "domain": "commission, cost, profitability or expense analysis",
+      "reason": "No commission or expense columns exist in any of the five files."
+    },
+    {
+      "domain": "fund performance / NAV analysis for ULIP policies",
+      "reason": "No fund, NAV or unit columns exist despite ULIP policies being present."
+    },
+    {
+      "domain": "customer contact, servicing or complaint case history",
+      "reason": "Only an aggregate agent-level complaint rate exists, with no case records."
+    }
+  ]
+}

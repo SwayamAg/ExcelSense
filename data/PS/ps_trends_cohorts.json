@@ -1,0 +1,1003 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_trends_cohorts",
+  "business_domains": [
+    "Trends & Cohorts"
+  ],
+  "problem_count": 7,
+  "problem_ids": [
+    "PS-032",
+    "PS-033",
+    "PS-041",
+    "PS-091",
+    "PS-092",
+    "PS-093",
+    "PS-094"
+  ],
+  "routing_hints": {
+    "tables": [
+      "persistency",
+      "policy"
+    ],
+    "concepts": [
+      "baseline",
+      "case size",
+      "cohort",
+      "comparison",
+      "growth",
+      "lapse",
+      "new business",
+      "period comparison",
+      "premium",
+      "product mix",
+      "share shift",
+      "time series",
+      "trend",
+      "vintage"
+    ],
+    "intent_structures": [
+      "Cohort",
+      "Temporal",
+      "Time-Series"
+    ],
+    "analysis_tiers": [
+      "analytical"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-032",
+      "problem_statement": "How many policies were issued each month?",
+      "intent_type": "Time-Series/Count",
+      "business_intent": "Track new-business volume over time.",
+      "business_domain": "Trends & Cohorts",
+      "business_objective": "Produce a monthly time series of policies going in force.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Monthly policy volume",
+        "New business trend",
+        "How many policies per month?",
+        "Issuance trend over time",
+        "Policies issued by month"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Inforce.Date",
+        "policy.inforce_month",
+        "policy.AppID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "date_bucket",
+        "derive_column",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "timeseries",
+        "base": "policy",
+        "date_column": "Inforce.Date",
+        "grain": "month",
+        "trend_measure": "policies",
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ]
+        }
+      },
+      "concepts": [
+        "trend",
+        "time series",
+        "new business"
+      ],
+      "analytical_steps": [
+        "Parse Inforce.Date using the contract format list.",
+        "Derive a year-month period from the parsed date, not from Inforce.month.",
+        "Group by period and count policies and sum APE.",
+        "Order chronologically and report the series."
+      ],
+      "expected_answer_type": "timeseries",
+      "answer_template": "Monthly issuance runs from {first_period} to {last_period}, peaking at {peak_count} in {peak_period}.",
+      "parameters": {},
+      "population": "All 25,000 policies, spanning January 2023 to December 2025.",
+      "caveat": "The period is derived from Inforce.Date. The Inforce.month column is an unpadded YYYYM/YYYYMM integer that sorts incorrectly (DQ-010) and is not used.",
+      "evidence_requirements": {
+        "aggregates": [
+          "count and APE by month"
+        ],
+        "data_quality_notes": [
+          "DQ-002",
+          "DQ-010"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Inforce.Date",
+          "policy.inforce_month",
+          "policy.AppID",
+          "policy.APE"
+        ],
+        "population_definition": "All 25,000 policies, spanning January 2023 to December 2025."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "line",
+      "formula_ids": [
+        "F-DATEBUCKET"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-033",
+      "problem_statement": "What is the premium trend over time?",
+      "intent_type": "Time-Series/Sum/Trend",
+      "business_intent": "Track premium generation over time.",
+      "business_domain": "Trends & Cohorts",
+      "business_objective": "Produce a monthly APE series and quantify the direction of travel.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "What is the APE trend?",
+        "Is premium growing?",
+        "Premium over time",
+        "Monthly premium trend",
+        "How has APE changed?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Inforce.Date",
+        "policy.APE",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "date_bucket",
+        "GROUP BY",
+        "SUM",
+        "AVG",
+        "COUNT",
+        "ORDER BY",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "total_ape",
+        "avg_ape",
+        "policy_count",
+        "pct_delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "timeseries",
+        "base": "policy",
+        "date_column": "Inforce.Date",
+        "grain": "month",
+        "trend_measure": "total_ape",
+        "measures": {
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ]
+        }
+      },
+      "concepts": [
+        "trend",
+        "premium",
+        "growth"
+      ],
+      "analytical_steps": [
+        "Derive the year-month period from Inforce.Date.",
+        "Sum APE and count policies per period.",
+        "Compute average APE per policy per period.",
+        "Compare the latest period and the latest quarter against earlier ones.",
+        "Report direction with the underlying volumes so a mix shift is visible."
+      ],
+      "expected_answer_type": "timeseries",
+      "answer_template": "APE moved from {first_ape} in {first_period} to {last_ape} in {last_period}.",
+      "parameters": {},
+      "population": "All policies with a parsed Inforce.Date.",
+      "caveat": "A change in total APE can come from volume or from average case size; both are reported so the two are not confused. The extract ends in December 2025 and the final period may be partial.",
+      "evidence_requirements": {
+        "aggregates": [
+          "APE and count by month"
+        ],
+        "comparison_baseline": "prior period",
+        "limitations": [
+          "final period may be incomplete"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Inforce.Date",
+          "policy.APE",
+          "policy.AppID"
+        ],
+        "population_definition": "All policies with a parsed Inforce.Date."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "multi_line",
+      "formula_ids": [
+        "F-SUM",
+        "F-PCT-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-041",
+      "problem_statement": "How does lapse rate vary by policy vintage?",
+      "intent_type": "Cohort/Ratio",
+      "business_intent": "See whether newer or older business persists better.",
+      "business_domain": "Trends & Cohorts",
+      "business_objective": "Compute lapse rate by in-force cohort period.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Lapse by vintage",
+        "Do older policies lapse more?",
+        "Lapse rate by issue year",
+        "Cohort lapse analysis",
+        "Which vintage performs best?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Inforce.Date",
+        "policy.inforce_year",
+        "policy.POLICY.STATUS",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "date_bucket",
+        "cohort_split",
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "ORDER BY",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "inforce_rate",
+        "policy_count",
+        "delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": "cohort_year",
+        "derive": [
+          {
+            "kind": "date_bucket",
+            "name": "cohort_year",
+            "column": "Inforce.Date",
+            "grain": "year"
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_inforce",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Premium paying (regular)"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "inforce": [
+            "is_inforce",
+            "sum"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          },
+          "inforce_rate": {
+            "numerator": "inforce",
+            "denominator": "policies"
+          }
+        },
+        "sort_by_group": "cohort_year",
+        "baseline": {
+          "kind": "rate",
+          "measure": "lapse_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Lapsed"
+          ],
+          "description": "portfolio lapse rate across all policies"
+        }
+      },
+      "concepts": [
+        "cohort",
+        "vintage",
+        "lapse"
+      ],
+      "analytical_steps": [
+        "Derive the in-force year from Inforce.Date.",
+        "Group policies into annual cohorts.",
+        "Compute lapse rate and policy count per cohort.",
+        "Report exposure duration per cohort so unequal maturity is visible.",
+        "Compare cohorts against each other rather than against a single baseline."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "The {worst_cohort} cohort lapses at {worst_rate}% against {best_rate}% for {best_cohort}.",
+      "parameters": {},
+      "population": "All policies, grouped by year of Inforce.Date (2023-2025).",
+      "caveat": "Cohorts have unequal exposure: 2023 business has had up to three years to lapse while 2025 business has had months. Rates are therefore not directly comparable, and this is stated rather than adjusted, because There is no lapse-date or lapse-reason column. Lapse is a status only, so it cannot be attributed to a period, a cause or a sequence of events.",
+      "evidence_requirements": {
+        "aggregates": [
+          "lapse rate by cohort year"
+        ],
+        "limitations": [
+          "unequal exposure across cohorts"
+        ],
+        "data_quality_notes": [
+          "DQ-002"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Inforce.Date",
+          "policy.inforce_year",
+          "policy.POLICY.STATUS",
+          "policy.AppID"
+        ],
+        "population_definition": "All policies, grouped by year of Inforce.Date (2023-2025)."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DATEBUCKET"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-091",
+      "problem_statement": "How has average case size changed over time?",
+      "intent_type": "Time-Series/Average/Trend",
+      "business_intent": "Detect drift in the value of business being written.",
+      "business_domain": "Trends & Cohorts",
+      "business_objective": "Track average APE and sum assured by in-force period.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Is average premium rising?",
+        "Case size trend",
+        "Average APE over time",
+        "Are we writing bigger policies?",
+        "Trend in policy value"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Inforce.Date",
+        "policy.inforce_quarter",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "date_bucket",
+        "derive_column",
+        "GROUP BY",
+        "AVG",
+        "MEDIAN",
+        "COUNT",
+        "ORDER BY",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "avg_ape",
+        "median_ape",
+        "avg_sum_assured",
+        "policy_count",
+        "pct_delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "timeseries",
+        "base": "policy",
+        "date_column": "Inforce.Date",
+        "grain": "quarter",
+        "trend_measure": "median_ape",
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "median_ape": [
+            "APE",
+            "median"
+          ],
+          "avg_sum_assured": [
+            "Sum.Assured",
+            "mean"
+          ]
+        }
+      },
+      "concepts": [
+        "trend",
+        "case size",
+        "time series"
+      ],
+      "analytical_steps": [
+        "Derive the quarter from Inforce.Date.",
+        "Group policies by quarter.",
+        "Compute mean and median APE and mean sum assured per quarter.",
+        "Compute the change from the first to the latest quarter.",
+        "Report volumes alongside so a mix shift is visible."
+      ],
+      "expected_answer_type": "timeseries",
+      "answer_template": "Median APE moved from {first_value} to {last_value} between {first_period} and {last_period}.",
+      "parameters": {},
+      "population": "All 25,000 policies bucketed by quarter of Inforce.Date.",
+      "caveat": "Median is tracked alongside mean because a handful of very large cases can move the mean of a single quarter. The final quarter may be partial, which is stated with the series.",
+      "evidence_requirements": {
+        "aggregates": [
+          "APE by quarter"
+        ],
+        "comparison_baseline": "first quarter in the series",
+        "limitations": [
+          "final period may be incomplete"
+        ],
+        "data_quality_notes": [
+          "DQ-002"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Inforce.Date",
+          "policy.inforce_quarter",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies bucketed by quarter of Inforce.Date."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "multi_line",
+      "formula_ids": [
+        "F-DATEBUCKET",
+        "F-AVG",
+        "F-MEDIAN",
+        "F-PCT-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-092",
+      "problem_statement": "How has the product mix shifted over time?",
+      "intent_type": "Time-Series/Distribution",
+      "business_intent": "See which products are gaining or losing share.",
+      "business_domain": "Trends & Cohorts",
+      "business_objective": "Track each product's share of new business by period.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Product mix over time",
+        "Which products are growing?",
+        "Has the product mix changed?",
+        "Product share trend",
+        "Are we selling more ULIP over time?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Inforce.Date",
+        "policy.inforce_quarter",
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.Trad.ULIP",
+        "policy.AppID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "date_bucket",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "share_of_total",
+        "ORDER BY",
+        "crosstab_metric",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "share_of_portfolio",
+        "ulip_share",
+        "delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "period",
+          "Prod_No"
+        ],
+        "derive": [
+          {
+            "kind": "date_bucket",
+            "name": "period",
+            "column": "Inforce.Date",
+            "grain": "quarter"
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ]
+        },
+        "sort_by_group": "period"
+      },
+      "concepts": [
+        "product mix",
+        "trend",
+        "share shift"
+      ],
+      "analytical_steps": [
+        "Derive the quarter from Inforce.Date.",
+        "Cross-tabulate product against quarter.",
+        "Compute each product share of new business in each quarter.",
+        "Compute the share change from the first period to the latest.",
+        "Rank products by share gained or lost."
+      ],
+      "expected_answer_type": "timeseries",
+      "answer_template": "{gaining_product} gained the most share and {losing_product} lost the most.",
+      "parameters": {},
+      "population": "All 25,000 policies bucketed by quarter of Inforce.Date.",
+      "caveat": "Share shifts reflect what was sold, not product withdrawal or launch, because the data has no product launch or closure date. A product appearing only in later periods may be new or may simply be rare.",
+      "evidence_requirements": {
+        "aggregates": [
+          "product share by quarter"
+        ],
+        "comparison_baseline": "first period share",
+        "limitations": [
+          "no product launch or withdrawal dates"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Inforce.Date",
+          "policy.inforce_quarter",
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.Trad.ULIP",
+          "policy.AppID",
+          "policy.APE"
+        ],
+        "population_definition": "All 25,000 policies bucketed by quarter of Inforce.Date."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "stacked_bar",
+      "formula_ids": [
+        "F-DATEBUCKET",
+        "F-SHARE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-093",
+      "problem_statement": "Compare the most recent period against the previous one.",
+      "intent_type": "Temporal/Comparison",
+      "business_intent": "Give leadership a period-on-period read.",
+      "business_domain": "Trends & Cohorts",
+      "business_objective": "Compare volume, premium and mix between two adjacent periods.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "How did last quarter compare?",
+        "Period on period comparison",
+        "Latest versus previous quarter",
+        "Recent performance versus before",
+        "Quarter over quarter change"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Inforce.Date",
+        "policy.inforce_quarter",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.Prod_No",
+        "policy.Trad.ULIP",
+        "policy.SALES_ID"
+      ],
+      "required_operations": [
+        "date_bucket",
+        "WHERE",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "DISTINCT",
+        "compare_to_baseline",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "total_sum_assured",
+        "agent_count",
+        "delta_vs_baseline",
+        "pct_delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": "period",
+        "derive": [
+          {
+            "kind": "date_bucket",
+            "name": "period",
+            "column": "Inforce.Date",
+            "grain": "$granularity"
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "total_sum_assured": [
+            "Sum.Assured",
+            "sum"
+          ],
+          "agents": [
+            "SALES_ID",
+            "distinct"
+          ]
+        },
+        "sort_by_group": "period",
+        "tail_n": 2
+      },
+      "concepts": [
+        "period comparison",
+        "growth",
+        "baseline"
+      ],
+      "analytical_steps": [
+        "Derive the period from Inforce.Date at the requested granularity.",
+        "Select the two most recent complete periods, or the two the user names.",
+        "Compute volume, APE, average case size, product mix and active agent count for each period.",
+        "Compute the absolute and percentage change for each metric.",
+        "Report the changes with the underlying values, not percentages alone."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "{latest_period} wrote {latest_count} policies versus {prior_count} in {prior_period}, a {pct_change}% change.",
+      "parameters": {
+        "granularity": {
+          "type": "enum",
+          "values": [
+            "month",
+            "quarter",
+            "year"
+          ],
+          "default": "quarter"
+        },
+        "period": {
+          "type": "string",
+          "required": false,
+          "description": "explicit period, otherwise the latest is used"
+        }
+      },
+      "population": "Policies in the two selected periods, bucketed by Inforce.Date.",
+      "caveat": "The extract ends in December 2025 and the final period may be incomplete; a comparison against a partial period would overstate a decline, so period completeness is reported with the result. The extract is a single point in time. Status fields carry no date, so a trend in status cannot be produced; only a trend in when policies went in force is observable.",
+      "evidence_requirements": {
+        "aggregates": [
+          "metrics per period"
+        ],
+        "comparison_baseline": "the prior period",
+        "calculations": [
+          "absolute and percentage change"
+        ],
+        "limitations": [
+          "final period may be incomplete"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Inforce.Date",
+          "policy.inforce_quarter",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.Prod_No",
+          "policy.Trad.ULIP",
+          "policy.SALES_ID"
+        ],
+        "population_definition": "Policies in the two selected periods, bucketed by Inforce.Date."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-DATEBUCKET",
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-094",
+      "problem_statement": "How do policy cohorts compare as they age?",
+      "intent_type": "Cohort/Comparison",
+      "business_intent": "Compare the quality of business written in different periods.",
+      "business_domain": "Trends & Cohorts",
+      "business_objective": "Profile each in-force cohort on status mix, case size and renewal outcome.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Cohort comparison",
+        "How do different vintages perform?",
+        "Compare policies by issue year",
+        "Vintage analysis",
+        "Which cohort is performing best?"
+      ],
+      "relevant_tables": [
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.Inforce.Date",
+        "policy.inforce_year",
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS",
+        "policy.Prod_No",
+        "persistency.AppID",
+        "persistency.Renewal_Status",
+        "persistency.Persistency_Bucket"
+      ],
+      "required_operations": [
+        "date_bucket",
+        "cohort_split",
+        "LEFT JOIN",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "CASE WHEN",
+        "ratio",
+        "multi_metric_table",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "avg_ape",
+        "lapse_rate",
+        "inforce_rate",
+        "renewal_paid_rate",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_persistency"
+        ],
+        "group_by": "cohort_year",
+        "derive": [
+          {
+            "kind": "date_bucket",
+            "name": "cohort_year",
+            "column": "Inforce.Date",
+            "grain": "year"
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_inforce",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Premium paying (regular)"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "inforce": [
+            "is_inforce",
+            "sum"
+          ],
+          "renewals": [
+            "persistency_Renewal_Status",
+            "count"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          },
+          "inforce_rate": {
+            "numerator": "inforce",
+            "denominator": "policies"
+          },
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          }
+        },
+        "sort_by_group": "cohort_year"
+      },
+      "concepts": [
+        "cohort",
+        "vintage",
+        "comparison"
+      ],
+      "analytical_steps": [
+        "Derive the in-force year from Inforce.Date to form cohorts.",
+        "Left join Persistency_Details for renewal outcomes.",
+        "For each cohort compute status mix, average case size and renewal paid rate.",
+        "Report the elapsed exposure of each cohort alongside its rates.",
+        "Compare cohorts, making unequal maturity explicit."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "The {best_cohort} cohort shows the strongest retention at {best_rate}% in force.",
+      "parameters": {},
+      "population": "All 25,000 policies grouped into 2023, 2024 and 2025 in-force cohorts. Renewal figures within each cohort cover only its Persistency-eligible policies, which excludes surrendered and death cases (DQ-006).",
+      "caveat": "Cohorts have had different lengths of time to lapse, surrender or renew, so their rates are not directly comparable. The data has no status-change date, so exposure cannot be normalised; the difference is reported rather than adjusted away. The extract is a single point in time. Status fields carry no date, so a trend in status cannot be produced; only a trend in when policies went in force is observable.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = persistency.AppID",
+        "aggregates": [
+          "metrics by cohort"
+        ],
+        "limitations": [
+          "unequal exposure; no status-change dates"
+        ],
+        "data_quality_notes": [
+          "DQ-006"
+        ],
+        "tables_used": [
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.Inforce.Date",
+          "policy.inforce_year",
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS",
+          "policy.Prod_No",
+          "persistency.AppID",
+          "persistency.Renewal_Status",
+          "persistency.Persistency_Bucket"
+        ],
+        "population_definition": "All 25,000 policies grouped into 2023, 2024 and 2025 in-force cohorts. Renewal figures within each cohort cover only its Persistency-eligible policies, which excludes surrendered and death cases (DQ-006)."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-DATEBUCKET",
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

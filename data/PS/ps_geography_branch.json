@@ -1,0 +1,998 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_geography_branch",
+  "business_domains": [
+    "Branch Analysis",
+    "Geographic Analysis"
+  ],
+  "problem_count": 6,
+  "problem_ids": [
+    "PS-034",
+    "PS-084",
+    "PS-085",
+    "PS-086",
+    "PS-087",
+    "PS-089"
+  ],
+  "routing_hints": {
+    "tables": [
+      "owner",
+      "persistency",
+      "policy"
+    ],
+    "concepts": [
+      "NRI",
+      "branch performance",
+      "city",
+      "comparison",
+      "distribution",
+      "geography",
+      "lapse",
+      "market concentration",
+      "overseas",
+      "persistency",
+      "ranking",
+      "state"
+    ],
+    "intent_structures": [
+      "Filtering",
+      "GroupBy",
+      "Join",
+      "Multi-Join"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-034",
+      "problem_statement": "Which branches write the most business?",
+      "intent_type": "GroupBy/Ranking/Count",
+      "business_intent": "Identify the strongest branches.",
+      "business_domain": "Branch Analysis",
+      "business_objective": "Rank branches by policy volume and APE, with a sample guard.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Top branches by volume",
+        "Which branch sells most?",
+        "Best performing branches",
+        "Branch league table",
+        "Rank branches by business written"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Branch_No",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "ORDER BY",
+        "LIMIT",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "share_of_portfolio",
+        "branch_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": "Branch_No",
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "total_sum_assured": [
+            "Sum.Assured",
+            "sum"
+          ]
+        },
+        "shares": {
+          "share_pct": "policies"
+        },
+        "rank_by": "policies",
+        "top_n": 25
+      },
+      "concepts": [
+        "branch performance",
+        "ranking"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by Branch_No.",
+        "Count policies and sum APE per branch.",
+        "Compute each branch share of the portfolio.",
+        "Rank by the requested measure and return the top N."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_branch} leads with {top_count} policies and {top_ape} APE.",
+      "parameters": {
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 1,
+          "max": 100
+        },
+        "measure": {
+          "type": "enum",
+          "values": [
+            "policy_count",
+            "total_ape"
+          ],
+          "default": "policy_count"
+        }
+      },
+      "population": "All policies across 5,719 branches.",
+      "caveat": "The median branch has only 3 policies and the largest has 75, so most branch rates are small-sample. Branch_No is an opaque identifier with no name, region or hierarchy in the data.",
+      "evidence_requirements": {
+        "aggregates": [
+          "count and APE by branch"
+        ],
+        "ranking": "by requested measure",
+        "sample_sizes": "policy count per branch",
+        "limitations": [
+          "no branch name or geography available"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Branch_No",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured"
+        ],
+        "population_definition": "All policies across 5,719 branches."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-084",
+      "problem_statement": "Which states generate the most business?",
+      "intent_type": "Join/GroupBy/Ranking",
+      "business_intent": "Locate the geographic strength of the book.",
+      "business_domain": "Geographic Analysis",
+      "business_objective": "Rank states by policy volume and APE with their shares.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Top states by business",
+        "Which state sells most?",
+        "Business by state",
+        "Geographic distribution of policies",
+        "State-wise performance"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Comm.State",
+        "owner.AppID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "ORDER BY",
+        "LIMIT",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "share_of_portfolio"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "owner_Owner.Comm.State",
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ]
+        },
+        "shares": {
+          "share_pct": "policies"
+        },
+        "rank_by": "policies",
+        "top_n": "$n"
+      },
+      "concepts": [
+        "geography",
+        "state",
+        "distribution"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID.",
+        "Group by Owner.Comm.State.",
+        "Count policies and sum APE per state.",
+        "Compute each state share of the portfolio.",
+        "Rank by the requested measure and return the top N."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_state} leads with {top_count} policies ({top_share}% of the book).",
+      "parameters": {
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 1,
+          "max": 40
+        },
+        "measure": {
+          "type": "enum",
+          "values": [
+            "policy_count",
+            "total_ape"
+          ],
+          "default": "policy_count"
+        }
+      },
+      "population": "The 24,999 joined records across 34 states.",
+      "caveat": "Geography is the owner's communication address, not a branch or sales territory. There is no zone, region or territory hierarchy in the data, so state is the only geographic grouping available.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "count and APE by state"
+        ],
+        "ranking": "by requested measure",
+        "limitations": [
+          "no zone or territory hierarchy exists"
+        ],
+        "tables_used": [
+          "owner",
+          "policy"
+        ],
+        "columns_used": [
+          "owner.Owner.Comm.State",
+          "owner.AppID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured"
+        ],
+        "population_definition": "The 24,999 joined records across 34 states."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-085",
+      "problem_statement": "Which states have the worst persistency?",
+      "intent_type": "Multi-Join/GroupBy/Ranking",
+      "business_intent": "Find geographic retention weak spots.",
+      "business_domain": "Geographic Analysis",
+      "business_objective": "Rank states by lapse rate and renewal paid rate with sample guards.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Worst states for lapse",
+        "Which state has the highest lapse rate?",
+        "State persistency comparison",
+        "Geographic lapse analysis",
+        "Where are we losing customers?"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Comm.State",
+        "owner.AppID",
+        "policy.AppID",
+        "policy.POLICY.STATUS",
+        "policy.APE",
+        "persistency.AppID",
+        "persistency.Renewal_Status"
+      ],
+      "required_operations": [
+        "JOIN",
+        "LEFT JOIN",
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "ORDER BY",
+        "compare_to_baseline",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "renewal_paid_rate",
+        "policy_count",
+        "total_ape",
+        "delta_vs_baseline",
+        "peer_average"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner",
+          "policy_persistency"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "owner_Owner.Comm.State",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "renewals": [
+            "persistency_Renewal_Status",
+            "count"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          },
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          }
+        },
+        "min_sample": "$min_policies",
+        "rank_by": "lapse_rate",
+        "baseline": {
+          "kind": "rate",
+          "measure": "lapse_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Lapsed"
+          ],
+          "description": "portfolio lapse rate"
+        }
+      },
+      "concepts": [
+        "geography",
+        "persistency",
+        "lapse"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details and Policy_Details on AppID.",
+        "Left join Persistency_Details for renewal outcomes.",
+        "Group by state and compute lapse rate and renewal paid rate.",
+        "Apply a minimum policy threshold per state, default 100.",
+        "Compare each state against the portfolio baseline and rank."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{worst_state} has the highest lapse rate at {worst_rate}% versus {baseline_rate}% overall.",
+      "parameters": {
+        "min_policies": {
+          "type": "integer",
+          "default": 100,
+          "min": 20
+        }
+      },
+      "population": "States meeting the minimum policy threshold; 34 states in total.",
+      "caveat": "State volumes are very uneven, from Uttar Pradesh with 4,581 policies down to single-digit counts. States below the threshold are excluded from ranking and listed separately. Geographic differences may reflect product or agent mix rather than geography itself.Renewal metrics cover only the Persistency-eligible population, which excludes surrendered and death policies (DQ-006), so they rest on a different denominator from the policy-level figures reported alongside them.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID; policy.AppID = persistency.AppID",
+        "aggregates": [
+          "lapse and renewal rates by state"
+        ],
+        "comparison_baseline": "portfolio rates",
+        "sample_sizes": "policy count per state",
+        "limitations": [
+          "state excluded below threshold",
+          "mix effects not separable"
+        ],
+        "tables_used": [
+          "owner",
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "owner.Owner.Comm.State",
+          "owner.AppID",
+          "policy.AppID",
+          "policy.POLICY.STATUS",
+          "policy.APE",
+          "persistency.AppID",
+          "persistency.Renewal_Status"
+        ],
+        "population_definition": "States meeting the minimum policy threshold; 34 states in total."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-086",
+      "problem_statement": "Which cities are our biggest markets?",
+      "intent_type": "Join/GroupBy/Ranking",
+      "business_intent": "Locate concentration at city level.",
+      "business_domain": "Geographic Analysis",
+      "business_objective": "Rank cities by policy volume and APE with a sample guard.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Top cities",
+        "Which city has most policies?",
+        "City level breakdown",
+        "Biggest city markets",
+        "Business by city"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Comm.City.Name",
+        "owner.Owner.Comm.State",
+        "owner.AppID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "CASE WHEN",
+        "ratio",
+        "ORDER BY",
+        "LIMIT",
+        "share_of_total",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "lapse_rate",
+        "share_of_portfolio"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": [
+          "owner_Owner.Comm.State",
+          "owner_Owner.Comm.City.Name"
+        ],
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "shares": {
+          "share_pct": "policies"
+        },
+        "min_sample": "$min_policies",
+        "rank_by": "policies",
+        "top_n": "$n"
+      },
+      "concepts": [
+        "geography",
+        "city",
+        "market concentration"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID.",
+        "Group by city and state together, because city names repeat across states.",
+        "Count policies and sum APE per city.",
+        "Apply a minimum policy threshold before reporting rates.",
+        "Rank by volume and return the top N."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_city} is the largest market with {top_count} policies.",
+      "parameters": {
+        "n": {
+          "type": "integer",
+          "default": 15,
+          "min": 1,
+          "max": 50
+        },
+        "min_policies": {
+          "type": "integer",
+          "default": 50,
+          "min": 10
+        }
+      },
+      "population": "The 24,999 joined records across 6,018 distinct city names.",
+      "caveat": "City is free text with 6,018 distinct values across 25,000 records, so most cities have very few policies and spelling variants are not consolidated. Cities are grouped with their state to avoid merging same-named cities in different states.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "aggregates": [
+          "count and APE by city"
+        ],
+        "sample_sizes": "policy count per city",
+        "limitations": [
+          "free-text city names, variants not consolidated"
+        ],
+        "tables_used": [
+          "owner",
+          "policy"
+        ],
+        "columns_used": [
+          "owner.Owner.Comm.City.Name",
+          "owner.Owner.Comm.State",
+          "owner.AppID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS"
+        ],
+        "population_definition": "The 24,999 joined records across 6,018 distinct city names."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-SUM",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-087",
+      "problem_statement": "Do we have any overseas policyholders?",
+      "intent_type": "Filtering/Count",
+      "business_intent": "Identify non-resident business.",
+      "business_domain": "Geographic Analysis",
+      "business_objective": "Count and profile policyholders with a communication address outside India.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Overseas customers",
+        "Do we have NRI policyholders?",
+        "Non-India addresses",
+        "International customers",
+        "Customers outside India"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Comm.Country",
+        "owner.Owner.Comm.State",
+        "owner.AppID",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.POLICY.STATUS"
+      ],
+      "required_operations": [
+        "JOIN",
+        "WHERE",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "owner_count",
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "avg_sum_assured"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "filters": [
+          [
+            "owner_Owner.Comm.Country",
+            "ne",
+            "India"
+          ]
+        ],
+        "group_by": [
+          "owner_Owner.Comm.Country",
+          "owner_Owner.Comm.State"
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_sum_assured": [
+            "Sum.Assured",
+            "mean"
+          ]
+        },
+        "rank_by": "policies"
+      },
+      "concepts": [
+        "overseas",
+        "NRI",
+        "geography"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID.",
+        "Filter to records where Owner.Comm.Country is not 'India'.",
+        "Group by country and count policies and APE.",
+        "Report the full list, since the population is tiny."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{overseas_count} policies have an overseas address, across {country_count} countries.",
+      "parameters": {},
+      "population": "All 25,000 owner records in Owner_Details; 8 have a non-India country.",
+      "caveat": "Only 8 of 25,000 records have a non-India address, one per country across 8 countries. No statistic can be computed from this population, so the individual records are listed instead. A communication address abroad does not establish residency or NRI status, which is not recorded.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "records": "the overseas policy rows",
+        "limitations": [
+          "8 records only; no rates computable"
+        ],
+        "tables_used": [
+          "owner",
+          "policy"
+        ],
+        "columns_used": [
+          "owner.Owner.Comm.Country",
+          "owner.Owner.Comm.State",
+          "owner.AppID",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.POLICY.STATUS"
+        ],
+        "population_definition": "All 25,000 owner records in Owner_Details; 8 have a non-India country."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "limitations": [
+        "Population of 8; no rate or comparison is meaningful."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-089",
+      "problem_statement": "How does performance vary across branches?",
+      "intent_type": "GroupBy/Comparison",
+      "business_intent": "Compare branch outcomes on volume and quality.",
+      "business_domain": "Branch Analysis",
+      "business_objective": "Profile branches on volume, premium and lapse with a sample guard.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Branch performance comparison",
+        "How do branches compare?",
+        "Which branches underperform?",
+        "Which branches are lagging?",
+        "Best and worst branches",
+        "Branch quality analysis",
+        "Branch-wise metrics"
+      ],
+      "relevant_tables": [
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.Branch_No",
+        "policy.AppID",
+        "policy.APE",
+        "policy.POLICY.STATUS",
+        "policy.Sum.Assured",
+        "persistency.AppID",
+        "persistency.Renewal_Status"
+      ],
+      "required_operations": [
+        "LEFT JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "CASE WHEN",
+        "ratio",
+        "ORDER BY",
+        "compare_to_baseline",
+        "small_sample_guard",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "lapse_rate",
+        "renewal_paid_rate",
+        "branch_count",
+        "delta_vs_baseline"
+      ],
+      "relationships": [
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_persistency"
+        ],
+        "group_by": "Branch_No",
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_paid",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "renewals": [
+            "persistency_Renewal_Status",
+            "count"
+          ],
+          "paid": [
+            "is_paid",
+            "sum"
+          ]
+        },
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          },
+          "renewal_paid_rate": {
+            "numerator": "paid",
+            "denominator": "renewals"
+          }
+        },
+        "min_sample": "$min_policies",
+        "rank_by": "lapse_rate",
+        "top_n": 30,
+        "baseline": {
+          "kind": "rate",
+          "measure": "lapse_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Lapsed"
+          ],
+          "description": "portfolio lapse rate"
+        }
+      },
+      "concepts": [
+        "branch performance",
+        "comparison"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by Branch_No.",
+        "Left join Persistency_Details for renewal outcomes.",
+        "Compute volume, APE, lapse rate and renewal rate per branch.",
+        "Apply a minimum policy threshold, default 10.",
+        "Compare each qualifying branch against the portfolio baseline and rank."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "Of {qualifying_branches} branches above the threshold, {best_branch} performs best and {worst_branch} worst on lapse.",
+      "parameters": {
+        "min_policies": {
+          "type": "integer",
+          "default": 10,
+          "min": 5
+        }
+      },
+      "population": "Branches with at least the minimum policy count; 621 of 5,719 branches have 10 or more.",
+      "caveat": "The median branch has 3 policies and the largest has 75, so most branches cannot support a rate. Only 621 of 5,719 branches meet the default threshold and the remainder are excluded from ranking with their count reported. Branch_No is an opaque integer with no name, region or size in the data.Renewal metrics cover only the Persistency-eligible population, which excludes surrendered and death policies (DQ-006), so they rest on a different denominator from the policy-level figures reported alongside them.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = persistency.AppID",
+        "aggregates": [
+          "metrics by branch"
+        ],
+        "comparison_baseline": "portfolio rates",
+        "sample_sizes": "policy count per branch",
+        "limitations": [
+          "most branches below threshold",
+          "no branch attributes"
+        ],
+        "tables_used": [
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.Branch_No",
+          "policy.AppID",
+          "policy.APE",
+          "policy.POLICY.STATUS",
+          "policy.Sum.Assured",
+          "persistency.AppID",
+          "persistency.Renewal_Status"
+        ],
+        "population_definition": "Branches with at least the minimum policy count; 621 of 5,719 branches have 10 or more."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

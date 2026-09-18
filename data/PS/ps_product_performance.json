@@ -1,0 +1,1294 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_product_performance",
+  "business_domains": [
+    "Product Performance"
+  ],
+  "problem_count": 9,
+  "problem_ids": [
+    "PS-007",
+    "PS-008",
+    "PS-013",
+    "PS-015",
+    "PS-016",
+    "PS-017",
+    "PS-018",
+    "PS-020",
+    "PS-021"
+  ],
+  "routing_hints": {
+    "tables": [
+      "claims",
+      "persistency",
+      "policy"
+    ],
+    "concepts": [
+      "comparison",
+      "cover multiple",
+      "derived metric",
+      "lapse",
+      "multi-metric",
+      "plan",
+      "policy term",
+      "premium contribution",
+      "premium paying term",
+      "product class",
+      "product comparison",
+      "product mix",
+      "product performance",
+      "retention",
+      "scorecard",
+      "sum assured",
+      "value for money"
+    ],
+    "intent_structures": [
+      "Business",
+      "Derived-Metric",
+      "GroupBy"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive",
+      "multi_step_business"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-007",
+      "problem_statement": "How many policies does each product account for?",
+      "intent_type": "GroupBy/Count",
+      "business_intent": "Show which products carry the book.",
+      "business_domain": "Product Performance",
+      "business_objective": "Rank the ten products by policy volume and share.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Policies by product",
+        "Which product sells the most?",
+        "Product volume breakdown",
+        "Policy count per plan",
+        "How is the book split across products?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "ORDER BY",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ]
+        },
+        "shares": {
+          "share_pct": "policies"
+        },
+        "rank_by": "policies"
+      },
+      "concepts": [
+        "product mix",
+        "plan"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by Prod_No and Plan.Name.",
+        "Count policies per product.",
+        "Compute share of portfolio.",
+        "Order by count descending."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_product} leads with {top_count} policies ({top_share}% of the book).",
+      "parameters": {},
+      "population": "All 25,000 policies, spread across the 10 products.",
+      "caveat": "Prod_No maps one-to-one onto Plan.Name; the two are interchangeable labels.",
+      "evidence_requirements": {
+        "aggregates": [
+          "count by product"
+        ],
+        "ranking": "policy_count desc",
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies, spread across the 10 products."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-008",
+      "problem_statement": "Which products contribute the most APE?",
+      "intent_type": "GroupBy/Ranking/Sum",
+      "business_intent": "Identify the premium engines of the book.",
+      "business_domain": "Product Performance",
+      "business_objective": "Rank products by total APE and contrast with volume rank.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Top products by premium",
+        "Which product generates most APE?",
+        "Product premium contribution",
+        "APE by product",
+        "Which plans drive revenue?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.APE",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "SUM",
+        "COUNT",
+        "AVG",
+        "ORDER BY",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "total_ape",
+        "avg_ape",
+        "policy_count",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ]
+        },
+        "shares": {
+          "ape_share_pct": "total_ape"
+        },
+        "rank_by": "total_ape"
+      },
+      "concepts": [
+        "premium contribution",
+        "product mix"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by product.",
+        "Sum APE and count policies per product.",
+        "Compute average APE per policy per product.",
+        "Compute each product share of total APE.",
+        "Rank by total APE descending."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_product} contributes {top_share}% of total APE from {top_count} policies.",
+      "parameters": {},
+      "population": "All 25,000 policies grouped by product.",
+      "caveat": "Volume rank and APE rank can differ; a low-volume product with high average APE can outrank a high-volume one.",
+      "evidence_requirements": {
+        "aggregates": [
+          "APE by product"
+        ],
+        "ranking": "total_ape desc",
+        "supporting_metrics": [
+          "avg_ape",
+          "policy_count"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.APE",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies grouped by product."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-SUM",
+        "F-AVG",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-013",
+      "problem_statement": "Which product has the highest lapse rate?",
+      "intent_type": "GroupBy/Conditional/Ranking",
+      "business_intent": "Find the product losing the most customers proportionally.",
+      "business_domain": "Product Performance",
+      "business_objective": "Rank products by lapse rate and identify the worst performer with its peer context.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Which product lapses most?",
+        "Worst product for lapse",
+        "Product with highest lapse rate",
+        "Which plan has the most lapses?",
+        "Rank products by lapse rate"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.POLICY.STATUS",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "ORDER BY",
+        "compare_to_baseline",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "lapse_rate",
+        "policy_count",
+        "peer_average",
+        "delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ]
+        },
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          }
+        ],
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": 50,
+        "rank_by": "lapse_rate",
+        "baseline": {
+          "kind": "rate",
+          "measure": "lapse_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Lapsed"
+          ],
+          "description": "portfolio lapse rate across all policies"
+        }
+      },
+      "concepts": [
+        "lapse",
+        "product performance"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by product.",
+        "Count total policies and lapsed policies per product.",
+        "Compute lapse rate per product.",
+        "Compute the portfolio lapse rate as the baseline.",
+        "Flag products with fewer than 50 policies as low-sample.",
+        "Rank by lapse rate descending and report the leader against the baseline."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{worst_product} has the highest lapse rate at {worst_rate}% versus a portfolio average of {baseline_rate}%.",
+      "parameters": {},
+      "population": "All policies, grouped by product.",
+      "caveat": "Lapse is read from POLICY.STATUS = 'Lapsed'. There is no lapse-date column, so a lapse cannot be attributed to a period. Product P18 has only 11 policies, so its rate is statistically unstable and is flagged rather than ranked.",
+      "evidence_requirements": {
+        "aggregates": [
+          "lapse rate by product"
+        ],
+        "ranking": "lapse_rate desc",
+        "comparison_baseline": "portfolio lapse rate",
+        "sample_sizes": "policy count per product",
+        "limitations": [
+          "low-sample products flagged"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.POLICY.STATUS",
+          "policy.AppID"
+        ],
+        "population_definition": "All policies, grouped by product."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-015",
+      "problem_statement": "What is the average sum assured by product?",
+      "intent_type": "GroupBy/Average",
+      "business_intent": "Compare the cover level each product delivers.",
+      "business_domain": "Product Performance",
+      "business_objective": "Report mean and median sum assured per product.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Average sum assured per product",
+        "Which product gives the most cover?",
+        "Sum assured by plan",
+        "Mean cover by product",
+        "Compare sum assured across products"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.Sum.Assured",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "AVG",
+        "MEDIAN",
+        "COUNT",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "avg_sum_assured",
+        "median_sum_assured",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "avg_sum_assured": [
+            "Sum.Assured",
+            "mean"
+          ],
+          "median_sum_assured": [
+            "Sum.Assured",
+            "median"
+          ]
+        },
+        "rank_by": "avg_sum_assured"
+      },
+      "concepts": [
+        "sum assured",
+        "product comparison"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by product.",
+        "Compute mean and median Sum.Assured per product.",
+        "Include policy count for context.",
+        "Order by average descending."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_product} carries the highest average sum assured at {top_avg}.",
+      "parameters": {},
+      "population": "All 25,000 policies grouped by product.",
+      "caveat": "Sum assured ranges from 14,000 to 28,708,128; medians are reported because the mean is skewed by large cases.",
+      "evidence_requirements": {
+        "aggregates": [
+          "avg and median by product"
+        ],
+        "sample_sizes": "policy count per product",
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.Sum.Assured",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies grouped by product."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-016",
+      "problem_statement": "How do traditional and ULIP policies compare across key metrics?",
+      "intent_type": "GroupBy/Comparison",
+      "business_intent": "Contrast the two product classes on the measures that matter.",
+      "business_domain": "Product Performance",
+      "business_objective": "Produce a side-by-side metric table for TRAD versus ULIP.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Compare traditional and ULIP",
+        "TRAD vs ULIP performance",
+        "How do unit linked policies differ?",
+        "Traditional versus unit linked comparison",
+        "Which performs better, TRAD or ULIP?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Trad.ULIP",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.POLICY.STATUS",
+        "policy.Policy.Term",
+        "policy.PREMIUM.PAYING.TERM"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "MEDIAN",
+        "CASE WHEN",
+        "ratio",
+        "multi_metric_table",
+        "compare_to_baseline"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "avg_sum_assured",
+        "lapse_rate",
+        "inforce_rate",
+        "delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": "Trad.ULIP",
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "avg_sum_assured": [
+            "Sum.Assured",
+            "mean"
+          ],
+          "avg_term": [
+            "Policy.Term",
+            "mean"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "inforce": [
+            "is_inforce",
+            "sum"
+          ]
+        },
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_inforce",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Premium paying (regular)"
+            ]
+          }
+        ],
+        "rates": {
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          },
+          "inforce_rate": {
+            "numerator": "inforce",
+            "denominator": "policies"
+          }
+        },
+        "rank_by": "policies",
+        "baseline": {
+          "kind": "rate",
+          "measure": "lapse_rate",
+          "numerator_column": "POLICY.STATUS",
+          "numerator_values": [
+            "Lapsed"
+          ],
+          "description": "portfolio lapse rate across all policies"
+        }
+      },
+      "concepts": [
+        "product class",
+        "comparison"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by Trad.ULIP.",
+        "For each class compute policy count, total and average APE, average sum assured, average term and lapse rate.",
+        "Compute the difference between the two classes for each metric.",
+        "Present as a side-by-side comparison table."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "ULIP: {ulip_count} policies at {ulip_lapse}% lapse. TRAD: {trad_count} policies at {trad_lapse}% lapse.",
+      "parameters": {},
+      "population": "All policies split by Trad.ULIP.",
+      "caveat": "ULIP comprises a single product (P56), so this comparison is partly a single-product comparison rather than a like-for-like class comparison.",
+      "evidence_requirements": {
+        "aggregates": [
+          "metrics by class"
+        ],
+        "comparison_baseline": "the opposing class",
+        "limitations": [
+          "ULIP is one product only"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Trad.ULIP",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.POLICY.STATUS",
+          "policy.Policy.Term",
+          "policy.PREMIUM.PAYING.TERM"
+        ],
+        "population_definition": "All policies split by Trad.ULIP."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-AVG",
+        "F-RATE",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-017",
+      "problem_statement": "Which products have the best customer retention?",
+      "intent_type": "GroupBy/Conditional/Ranking",
+      "business_intent": "Identify products that keep customers.",
+      "business_domain": "Product Performance",
+      "business_objective": "Rank products by in-force rate, the inverse view of lapse.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Best products for retention",
+        "Which product retains customers best?",
+        "Top products by in-force rate",
+        "Most sticky products",
+        "Rank products by retention"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.POLICY.STATUS",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "CASE WHEN",
+        "COUNT",
+        "ratio",
+        "ORDER BY",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "inforce_rate",
+        "lapse_rate",
+        "surrender_rate",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "inforce": [
+            "is_inforce",
+            "sum"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "surrendered": [
+            "is_surrendered",
+            "sum"
+          ]
+        },
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_inforce",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Premium paying (regular)"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_surrendered",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Surrendered"
+            ]
+          }
+        ],
+        "rates": {
+          "inforce_rate": {
+            "numerator": "inforce",
+            "denominator": "policies"
+          },
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          },
+          "surrender_rate": {
+            "numerator": "surrendered",
+            "denominator": "policies"
+          }
+        },
+        "min_sample": 50,
+        "rank_by": "inforce_rate"
+      },
+      "concepts": [
+        "retention",
+        "product performance"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by product.",
+        "Compute in-force, lapse and surrender rates per product.",
+        "Flag products with fewer than 50 policies.",
+        "Rank by in-force rate descending."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{best_product} retains best with {best_rate}% still premium paying.",
+      "parameters": {},
+      "population": "All policies, grouped by product, with low-sample products flagged.",
+      "caveat": "Retention here is a snapshot status share, not a time-based persistency measure. Products sold more recently have had less time to lapse.",
+      "evidence_requirements": {
+        "aggregates": [
+          "status rates by product"
+        ],
+        "ranking": "inforce_rate desc",
+        "sample_sizes": "policy count per product",
+        "limitations": [
+          "no vintage adjustment possible from status alone"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.POLICY.STATUS",
+          "policy.AppID"
+        ],
+        "population_definition": "All policies, grouped by product, with low-sample products flagged."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-018",
+      "problem_statement": "What is the average premium paying term by product?",
+      "intent_type": "GroupBy/Average",
+      "business_intent": "Understand the commitment length each product asks of customers.",
+      "business_domain": "Product Performance",
+      "business_objective": "Compare premium paying term across products.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Average premium paying term per product",
+        "How long do customers pay by product?",
+        "PPT by plan",
+        "Premium paying term comparison",
+        "Which product has the longest paying term?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.PREMIUM.PAYING.TERM",
+        "policy.Policy.Term",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "AVG",
+        "MEDIAN",
+        "COUNT",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "percentile"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "avg_premium_paying_term": [
+            "PREMIUM.PAYING.TERM",
+            "mean"
+          ],
+          "avg_policy_term": [
+            "Policy.Term",
+            "mean"
+          ]
+        },
+        "rank_by": "avg_premium_paying_term"
+      },
+      "concepts": [
+        "premium paying term",
+        "policy term"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by product.",
+        "Compute average and median PREMIUM.PAYING.TERM and Policy.Term.",
+        "Report both so limited-pay structures are visible.",
+        "Order by average premium paying term."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_product} has the longest average premium paying term at {top_ppt} years.",
+      "parameters": {},
+      "population": "All policies; both term columns are fully populated.",
+      "caveat": "Where premium paying term is shorter than policy term the product is limited-pay; the data does not label this explicitly.",
+      "evidence_requirements": {
+        "aggregates": [
+          "avg PPT and term by product"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.PREMIUM.PAYING.TERM",
+          "policy.Policy.Term",
+          "policy.AppID"
+        ],
+        "population_definition": "All policies; both term columns are fully populated."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-AVG"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-020",
+      "problem_statement": "Give me a full performance scorecard for every product.",
+      "intent_type": "Business/Profile",
+      "business_intent": "One table that ranks every product on every available dimension.",
+      "business_domain": "Product Performance",
+      "business_objective": "Build a multi-metric product scorecard combining volume, value, retention and claims.",
+      "analysis_tier": "multi_step_business",
+      "example_queries": [
+        "Product scorecard",
+        "Compare all products across metrics",
+        "Full product performance table",
+        "How does each product perform?",
+        "Rank products on everything",
+        "Product league table"
+      ],
+      "relevant_tables": [
+        "policy",
+        "claims",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.POLICY.STATUS",
+        "policy.Trad.ULIP",
+        "claims.AppID",
+        "claims.Claim.Amount",
+        "persistency.AppID",
+        "persistency.Renewal_Status"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "AVG",
+        "CASE WHEN",
+        "ratio",
+        "LEFT JOIN",
+        "multi_metric_table",
+        "rank_entities",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "avg_ape",
+        "avg_sum_assured",
+        "lapse_rate",
+        "inforce_rate",
+        "surrender_rate",
+        "claim_incidence_rate",
+        "renewal_paid_rate",
+        "share_of_portfolio"
+      ],
+      "relationships": [
+        "policy_claims",
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_claims",
+          "policy_persistency"
+        ],
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "avg_sum_assured": [
+            "Sum.Assured",
+            "mean"
+          ],
+          "inforce": [
+            "is_inforce",
+            "sum"
+          ],
+          "lapsed": [
+            "is_lapsed",
+            "sum"
+          ],
+          "surrendered": [
+            "is_surrendered",
+            "sum"
+          ],
+          "claims": [
+            "claims_Claim_No",
+            "count"
+          ],
+          "renewal_rows": [
+            "persistency_Renewal_Status",
+            "count"
+          ],
+          "renewals_paid": [
+            "is_renewal_paid",
+            "sum"
+          ]
+        },
+        "derive": [
+          {
+            "kind": "flag",
+            "name": "is_inforce",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Premium paying (regular)"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_lapsed",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Lapsed"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_surrendered",
+            "column": "POLICY.STATUS",
+            "values": [
+              "Surrendered"
+            ]
+          },
+          {
+            "kind": "flag",
+            "name": "is_renewal_paid",
+            "column": "persistency_Renewal_Status",
+            "values": [
+              "Paid"
+            ]
+          }
+        ],
+        "rates": {
+          "inforce_rate": {
+            "numerator": "inforce",
+            "denominator": "policies"
+          },
+          "lapse_rate": {
+            "numerator": "lapsed",
+            "denominator": "policies"
+          },
+          "surrender_rate": {
+            "numerator": "surrendered",
+            "denominator": "policies"
+          },
+          "claim_incidence_rate": {
+            "numerator": "claims",
+            "denominator": "policies"
+          },
+          "renewal_paid_rate": {
+            "numerator": "renewals_paid",
+            "denominator": "renewal_rows"
+          }
+        },
+        "shares": {
+          "portfolio_share_pct": "policies"
+        },
+        "min_sample": 50,
+        "rank_by": "inforce_rate"
+      },
+      "concepts": [
+        "scorecard",
+        "product performance",
+        "multi-metric"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by product for volume, APE and status rates.",
+        "Left join Claims on AppID and compute claim incidence per product.",
+        "Left join Persistency on AppID and compute the renewal paid rate per product over the eligible population only.",
+        "Assemble all metrics into one row per product.",
+        "Flag products below the 50-policy sample threshold.",
+        "Rank products and present the scorecard."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "Product scorecard across {product_count} products; {best_product} leads on retention, {worst_product} on lapse.",
+      "parameters": {},
+      "population": "All policies for volume and status metrics; the Persistency-eligible subset for renewal metrics; all claims for incidence.",
+      "caveat": "Renewal metrics use a different denominator from status metrics because Persistency excludes surrendered and death policies (DQ-006). Claim incidence is based on 134 claims across 25,000 policies, so per-product claim rates are small-sample.",
+      "evidence_requirements": {
+        "aggregates": [
+          "all metrics by product"
+        ],
+        "join_path": "policy.AppID = claims.AppID; policy.AppID = persistency.AppID",
+        "sample_sizes": "policy and claim counts per product",
+        "data_quality_notes": [
+          "DQ-006",
+          "DQ-007"
+        ],
+        "limitations": [
+          "claim rates are small-sample per product"
+        ],
+        "tables_used": [
+          "policy",
+          "claims",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.POLICY.STATUS",
+          "policy.Trad.ULIP",
+          "claims.AppID",
+          "claims.Claim.Amount",
+          "persistency.AppID",
+          "persistency.Renewal_Status"
+        ],
+        "population_definition": "All policies for volume and status metrics; the Persistency-eligible subset for renewal metrics; all claims for incidence."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-RATE",
+        "F-AVG",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-021",
+      "problem_statement": "Which products show the widest gap between sum assured and premium?",
+      "intent_type": "Derived-Metric/GroupBy/Ranking",
+      "business_intent": "Identify which products deliver the most cover per premium rupee.",
+      "business_domain": "Product Performance",
+      "business_objective": "Compute the sum assured to APE multiple per product and rank it.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Which product gives most cover per premium?",
+        "Sum assured to premium ratio by product",
+        "Best value product for customers",
+        "Cover multiple by plan",
+        "Which plan has the highest sum assured multiple?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.Sum.Assured",
+        "policy.APE",
+        "policy.sum_assured_multiple",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "derive_column",
+        "GROUP BY",
+        "AVG",
+        "MEDIAN",
+        "ORDER BY",
+        "COUNT"
+      ],
+      "required_metrics": [
+        "sum_assured_to_ape_ratio",
+        "avg_sum_assured",
+        "avg_ape",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "derive": [
+          {
+            "kind": "ratio",
+            "name": "sum_assured_multiple",
+            "numerator": "Sum.Assured",
+            "denominator": "APE"
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "median_multiple": [
+            "sum_assured_multiple",
+            "median"
+          ],
+          "avg_sum_assured": [
+            "Sum.Assured",
+            "mean"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ]
+        },
+        "rank_by": "median_multiple"
+      },
+      "concepts": [
+        "cover multiple",
+        "value for money",
+        "derived metric"
+      ],
+      "analytical_steps": [
+        "Derive sum_assured_multiple as Sum.Assured divided by APE for each policy.",
+        "Guard against zero or null APE before dividing.",
+        "Group by product and compute the median multiple, which resists outliers.",
+        "Rank products by median multiple descending."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{top_product} delivers the highest cover multiple at {top_multiple}x premium.",
+      "parameters": {},
+      "population": "All policies with non-zero APE; APE has no zeros in this dataset so all 25,000 qualify.",
+      "caveat": "The multiple is a structural product feature, not a measure of customer value or profitability. No cost or margin data exists.",
+      "evidence_requirements": {
+        "calculations": [
+          "sum_assured_multiple per policy"
+        ],
+        "aggregates": [
+          "median multiple by product"
+        ],
+        "ranking": "median multiple desc",
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.Sum.Assured",
+          "policy.APE",
+          "policy.sum_assured_multiple",
+          "policy.AppID"
+        ],
+        "population_definition": "All policies with non-zero APE; APE has no zeros in this dataset so all 25,000 qualify."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-RATIO",
+        "F-MEDIAN"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

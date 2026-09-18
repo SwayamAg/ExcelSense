@@ -1,0 +1,1145 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_anomaly_concentration",
+  "business_domains": [
+    "Anomaly / Concentration / Risk"
+  ],
+  "problem_count": 9,
+  "problem_ids": [
+    "PS-019",
+    "PS-024",
+    "PS-025",
+    "PS-062",
+    "PS-070",
+    "PS-075",
+    "PS-088",
+    "PS-090",
+    "PS-097"
+  ],
+  "routing_hints": {
+    "tables": [
+      "claims",
+      "owner",
+      "policy",
+      "sales"
+    ],
+    "concepts": [
+      "IQR",
+      "agent quality",
+      "anomaly",
+      "anomaly detection",
+      "branch network",
+      "concentration",
+      "data review",
+      "distribution risk",
+      "geographic risk",
+      "key person",
+      "loss severity",
+      "outlier detection",
+      "outliers",
+      "plausibility rules",
+      "premium risk",
+      "product risk"
+    ],
+    "intent_structures": [
+      "Anomaly",
+      "Concentration",
+      "Multi-Condition"
+    ],
+    "analysis_tiers": [
+      "analytical"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-019",
+      "problem_statement": "How concentrated is the portfolio across products?",
+      "intent_type": "Concentration/Ratio",
+      "business_intent": "Assess product concentration risk.",
+      "business_domain": "Anomaly / Concentration / Risk",
+      "business_objective": "Quantify how much of the book depends on the top products.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "How concentrated is the product mix?",
+        "Product concentration risk",
+        "What share do the top 3 products hold?",
+        "Is the book too dependent on one product?",
+        "Product concentration analysis"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.AppID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "ORDER BY",
+        "concentration",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "top_n_share",
+        "herfindahl_index",
+        "share_of_portfolio",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "concentration",
+        "base": "policy",
+        "group_by": "Prod_No",
+        "measure": [
+          null,
+          "count_all"
+        ],
+        "top_points": {
+          "top_1": 1,
+          "top_3": 3,
+          "top_5": 5
+        }
+      },
+      "concepts": [
+        "concentration",
+        "product risk"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by product and count policies and APE.",
+        "Sort products by share descending.",
+        "Compute the cumulative share of the top 1, top 3 and top 5 products.",
+        "Compute a Herfindahl-style concentration index from the shares.",
+        "Report both volume and APE concentration."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "The top 3 products hold {top3_share}% of policies and {top3_ape_share}% of APE.",
+      "parameters": {},
+      "population": "All 25,000 policies distributed across the 10 products.",
+      "caveat": "Concentration is measured on a 10-product book; the index is not comparable to industry benchmarks without the same product granularity.",
+      "evidence_requirements": {
+        "aggregates": [
+          "share by product"
+        ],
+        "calculations": [
+          "cumulative share",
+          "HHI"
+        ],
+        "supporting_metrics": [
+          "top_n_share"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.AppID",
+          "policy.APE"
+        ],
+        "population_definition": "All 25,000 policies distributed across the 10 products."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-SHARE",
+        "F-HHI"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-024",
+      "problem_statement": "How concentrated is premium among the largest policies?",
+      "intent_type": "Concentration/Ratio",
+      "business_intent": "Assess dependence on a small number of large cases.",
+      "business_domain": "Anomaly / Concentration / Risk",
+      "business_objective": "Measure what share of APE the top percentile of policies represents.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Premium concentration",
+        "What share of APE comes from the top 1%?",
+        "Are we dependent on a few big policies?",
+        "APE concentration analysis",
+        "How much premium sits in the largest cases?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.APE",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "ORDER BY",
+        "SUM",
+        "PERCENTILE",
+        "concentration",
+        "share_of_total",
+        "WINDOW"
+      ],
+      "required_metrics": [
+        "top_n_share",
+        "total_ape",
+        "percentile",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "concentration",
+        "base": "policy",
+        "group_by": "AppID",
+        "measure": [
+          "APE",
+          "sum"
+        ],
+        "table_rows": 10,
+        "top_points": {
+          "top_10": 10,
+          "top_100": 100
+        },
+        "top_percentiles": [
+          1,
+          5,
+          10,
+          20
+        ]
+      },
+      "concepts": [
+        "concentration",
+        "premium risk"
+      ],
+      "analytical_steps": [
+        "Sort policies by APE descending.",
+        "Compute cumulative APE.",
+        "Determine the APE share held by the top 1%, 5%, 10% and 20% of policies.",
+        "Report the concentration curve points."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "The top 1% of policies hold {top1_share}% of APE; the top 10% hold {top10_share}%.",
+      "parameters": {},
+      "population": "All 25,000 policies in Policy_Details, ordered by APE descending.",
+      "caveat": "Concentration is measured on APE, not on collected premium or profit, neither of which exists in the data.",
+      "evidence_requirements": {
+        "calculations": [
+          "cumulative APE share"
+        ],
+        "supporting_metrics": [
+          "top_n_share"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.APE",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies in Policy_Details, ordered by APE descending."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "line",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-025",
+      "problem_statement": "Are there policies with anomalous premium relative to their cover?",
+      "intent_type": "Anomaly/Outliers",
+      "business_intent": "Surface cases whose pricing structure looks unusual.",
+      "business_domain": "Anomaly / Concentration / Risk",
+      "business_objective": "Flag policies whose sum assured to APE multiple is a statistical outlier within their product.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Find policies with an unusual cover multiple",
+        "Premium anomalies",
+        "Which policies look mispriced?",
+        "Outliers in sum assured to premium",
+        "Detect abnormal cover multiples"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.Prod_No",
+        "policy.Sum.Assured",
+        "policy.APE",
+        "policy.sum_assured_multiple",
+        "policy.Plan.Name"
+      ],
+      "required_operations": [
+        "derive_column",
+        "GROUP BY",
+        "MEDIAN",
+        "PERCENTILE",
+        "outliers",
+        "CASE WHEN",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "sum_assured_to_ape_ratio",
+        "iqr_bounds",
+        "z_score",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "outliers",
+        "base": "policy",
+        "measure": "sum_assured_multiple",
+        "within": "Prod_No",
+        "derive": [
+          {
+            "kind": "ratio",
+            "name": "sum_assured_multiple",
+            "numerator": "Sum.Assured",
+            "denominator": "APE"
+          }
+        ],
+        "columns": [
+          "AppID",
+          "Prod_No",
+          "Sum.Assured",
+          "APE"
+        ]
+      },
+      "concepts": [
+        "anomaly detection",
+        "outliers",
+        "IQR"
+      ],
+      "analytical_steps": [
+        "Derive the sum assured to APE multiple per policy.",
+        "Within each product compute the first and third quartile and the interquartile range.",
+        "Flag policies outside 1.5 times the IQR from the quartiles as outliers.",
+        "Compare within product rather than across, because products differ structurally.",
+        "Return the flagged policies with their product median for context."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{outlier_count} policies fall outside the expected cover multiple range for their product.",
+      "parameters": {
+        "iqr_multiplier": {
+          "type": "number",
+          "default": 1.5,
+          "min": 1.0,
+          "max": 3.0,
+          "description": "interquartile fence width (BR-007)"
+        }
+      },
+      "population": "All policies, assessed within their own product group.",
+      "caveat": "An outlier is a statistical flag, not evidence of an error or of mis-selling. The data contains no underwriting or pricing rules against which to verify correctness.",
+      "evidence_requirements": {
+        "calculations": [
+          "IQR bounds per product",
+          "multiple per policy"
+        ],
+        "records": "flagged policy rows",
+        "comparison_baseline": "product median multiple",
+        "limitations": [
+          "no pricing rule reference exists"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.Prod_No",
+          "policy.Sum.Assured",
+          "policy.APE",
+          "policy.sum_assured_multiple",
+          "policy.Plan.Name"
+        ],
+        "population_definition": "All policies, assessed within their own product group."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "box",
+      "formula_ids": [
+        "F-RATIO",
+        "F-IQR"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-062",
+      "problem_statement": "How concentrated is our claims exposure?",
+      "intent_type": "Concentration/Ratio",
+      "business_intent": "Assess whether a few claims dominate the loss experience.",
+      "business_domain": "Anomaly / Concentration / Risk",
+      "business_objective": "Measure the share of total claim value held by the largest claims.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Claims concentration",
+        "Do a few claims dominate losses?",
+        "Share of claim value in the top claims",
+        "Claim value concentration",
+        "Loss concentration analysis"
+      ],
+      "relevant_tables": [
+        "claims"
+      ],
+      "relevant_columns": [
+        "claims.Claim.Amount",
+        "claims.Claim_No"
+      ],
+      "required_operations": [
+        "ORDER BY",
+        "SUM",
+        "concentration",
+        "share_of_total",
+        "PERCENTILE",
+        "WINDOW"
+      ],
+      "required_metrics": [
+        "top_n_share",
+        "total_claim_amount",
+        "claim_count",
+        "herfindahl_index"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "concentration",
+        "base": "claims",
+        "group_by": "Claim_No",
+        "measure": [
+          "Claim.Amount",
+          "sum"
+        ],
+        "table_rows": 10,
+        "top_points": {
+          "top_5": 5,
+          "top_10": 10,
+          "top_20": 20
+        }
+      },
+      "concepts": [
+        "concentration",
+        "loss severity"
+      ],
+      "analytical_steps": [
+        "Sort claims by amount descending.",
+        "Compute cumulative claim value.",
+        "Determine the share held by the top 5, top 10 and top 20 claims.",
+        "Report the concentration curve."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "The top 10 claims account for {top10_share}% of total claim value.",
+      "parameters": {},
+      "population": "All 134 claims in Claims_Details, ordered by amount.",
+      "caveat": "With only 134 claims, concentration is high by construction and is not comparable to a large-book statistic. The book contains 134 claims against 25,000 policies. Any breakdown of claims by a dimension produces small cells, so counts are reported alongside every rate and minimum cell sizes are enforced.",
+      "evidence_requirements": {
+        "calculations": [
+          "cumulative claim share"
+        ],
+        "supporting_metrics": [
+          "top_n_share"
+        ],
+        "limitations": [
+          "small claim count inflates concentration"
+        ],
+        "tables_used": [
+          "claims"
+        ],
+        "columns_used": [
+          "claims.Claim.Amount",
+          "claims.Claim_No"
+        ],
+        "population_definition": "All 134 claims in Claims_Details, ordered by amount."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "line",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-070",
+      "problem_statement": "How much of the book depends on the top agents?",
+      "intent_type": "Concentration/Ratio",
+      "business_intent": "Assess key-person concentration risk in distribution.",
+      "business_domain": "Anomaly / Concentration / Risk",
+      "business_objective": "Measure the share of policies and APE written by the largest agents.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Agent concentration",
+        "Do a few agents write most business?",
+        "Key person risk in distribution",
+        "Share of book from top agents",
+        "How dependent are we on top agents?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.SALES_ID",
+        "policy.AppID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "ORDER BY",
+        "concentration",
+        "share_of_total",
+        "WINDOW",
+        "PERCENTILE"
+      ],
+      "required_metrics": [
+        "top_n_share",
+        "herfindahl_index",
+        "agent_count",
+        "policy_count",
+        "total_ape",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "concentration",
+        "base": "policy",
+        "group_by": "SALES_ID",
+        "measure": [
+          null,
+          "count_all"
+        ],
+        "table_rows": 15,
+        "top_points": {
+          "top_10": 10,
+          "top_50": 50,
+          "top_100": 100
+        },
+        "top_percentiles": [
+          1,
+          5,
+          10,
+          20
+        ]
+      },
+      "concepts": [
+        "concentration",
+        "distribution risk",
+        "key person"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by SALES_ID and compute policy count and APE.",
+        "Sort agents by contribution descending and compute cumulative share.",
+        "Determine the share held by the top 1%, 5%, 10% and 20% of agents.",
+        "Compute a Herfindahl-style index over agent shares.",
+        "Report both the volume and the APE concentration curves."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "The top 10% of agents write {top10_share}% of policies and {top10_ape_share}% of APE.",
+      "parameters": {},
+      "population": "All 1,956 agents and 25,000 policies.",
+      "caveat": "Agent production ranges from 1 to 151 policies with a median of 8, so concentration is substantial by construction. There is no agent hierarchy or team structure in the data, so this measures individual, not team, concentration.",
+      "evidence_requirements": {
+        "aggregates": [
+          "share by agent"
+        ],
+        "calculations": [
+          "cumulative share",
+          "HHI"
+        ],
+        "supporting_metrics": [
+          "top_n_share"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.SALES_ID",
+          "policy.AppID",
+          "policy.APE"
+        ],
+        "population_definition": "All 1,956 agents and 25,000 policies."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "line",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE",
+        "F-HHI"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-075",
+      "problem_statement": "Which agents are statistical outliers on quality metrics?",
+      "intent_type": "Anomaly/Outliers",
+      "business_intent": "Surface agents whose metrics sit far outside the population.",
+      "business_domain": "Anomaly / Concentration / Risk",
+      "business_objective": "Flag agents beyond a statistical threshold on any supplied quality rate.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Agent outliers",
+        "Which agents are abnormal?",
+        "Statistical outliers among agents",
+        "Flag unusual agents",
+        "Detect anomalous agent metrics"
+      ],
+      "relevant_tables": [
+        "sales",
+        "policy"
+      ],
+      "relevant_columns": [
+        "sales.SALES_ID",
+        "sales.Surrender Rate",
+        "sales.Early Claim Rate",
+        "sales.PIVC Number Mismatch Rate",
+        "sales.PIVC Concern Raised Rate",
+        "sales.RCU Rejections Rate",
+        "sales.Free Look  Cancellation Rate",
+        "sales.Sales Related Complaint",
+        "sales.First Year Persistency Rate",
+        "policy.SALES_ID",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "AVG",
+        "STDDEV",
+        "PERCENTILE",
+        "outliers",
+        "CASE WHEN",
+        "ORDER BY",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "z_score",
+        "iqr_bounds",
+        "std_deviation",
+        "agent_count",
+        "policy_count",
+        "agent_surrender_rate",
+        "agent_complaint_rate",
+        "agent_rcu_rejection_rate",
+        "agent_early_claim_rate"
+      ],
+      "relationships": [
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "outliers",
+        "base": "sales",
+        "measure": "Sales Related Complaint",
+        "columns": [
+          "SALES_ID",
+          "Sales Related Complaint",
+          "RCU Rejections Rate",
+          "Surrender Rate",
+          "Early Claim Rate",
+          "Type"
+        ]
+      },
+      "concepts": [
+        "outlier detection",
+        "anomaly",
+        "agent quality"
+      ],
+      "analytical_steps": [
+        "Restrict to agents meeting the minimum policy threshold.",
+        "Join Policy_Details to Sales_Details on SALES_ID to establish each agent's book size.",
+        "For each supplied rate compute the population median and interquartile range.",
+        "Flag agents beyond 1.5 times the IQR above the third quartile.",
+        "Record which metrics each flagged agent breaches and by how much.",
+        "Rank flagged agents by the number of metrics breached, then by severity."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{outlier_count} agents are statistical outliers on at least one quality metric.",
+      "parameters": {
+        "min_policies": {
+          "type": "integer",
+          "default": 30,
+          "min": 5
+        },
+        "iqr_multiplier": {
+          "type": "number",
+          "default": 1.5,
+          "min": 1.0,
+          "max": 3.0
+        }
+      },
+      "population": "Agents above the minimum policy threshold with non-null rates.",
+      "caveat": "IQR-based flagging is used rather than standard deviations because the supplied rates are heavily skewed and mostly zero. An outlier flag is a prompt to look, not a conclusion. Agents with a null persistency rate are assessed on their remaining metrics only (DQ-005).",
+      "evidence_requirements": {
+        "join_path": "policy.SALES_ID = sales.SALES_ID",
+        "calculations": [
+          "IQR bounds per metric",
+          "breach magnitude"
+        ],
+        "records": "flagged agent rows",
+        "sample_sizes": "policy count per agent",
+        "data_quality_notes": [
+          "DQ-005"
+        ],
+        "limitations": [
+          "statistical flag only"
+        ],
+        "tables_used": [
+          "sales",
+          "policy"
+        ],
+        "columns_used": [
+          "sales.SALES_ID",
+          "sales.Surrender Rate",
+          "sales.Early Claim Rate",
+          "sales.PIVC Number Mismatch Rate",
+          "sales.PIVC Concern Raised Rate",
+          "sales.RCU Rejections Rate",
+          "sales.Free Look  Cancellation Rate",
+          "sales.Sales Related Complaint",
+          "sales.First Year Persistency Rate",
+          "policy.SALES_ID",
+          "policy.AppID"
+        ],
+        "population_definition": "Agents above the minimum policy threshold with non-null rates."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "box",
+      "formula_ids": [
+        "F-IQR",
+        "F-ZSCORE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-088",
+      "problem_statement": "How geographically concentrated is the portfolio?",
+      "intent_type": "Concentration/Ratio",
+      "business_intent": "Assess dependence on a few geographies.",
+      "business_domain": "Anomaly / Concentration / Risk",
+      "business_objective": "Measure the share of the book held by the largest states and cities.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Geographic concentration",
+        "Are we too concentrated in one state?",
+        "Share of business from top states",
+        "Geographic risk",
+        "State concentration analysis"
+      ],
+      "relevant_tables": [
+        "owner",
+        "policy"
+      ],
+      "relevant_columns": [
+        "owner.Owner.Comm.State",
+        "owner.AppID",
+        "policy.AppID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "JOIN",
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "ORDER BY",
+        "concentration",
+        "share_of_total",
+        "WINDOW"
+      ],
+      "required_metrics": [
+        "top_n_share",
+        "herfindahl_index",
+        "share_of_portfolio",
+        "policy_count"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "concentration",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "group_by": "owner_Owner.Comm.State",
+        "measure": [
+          null,
+          "count_all"
+        ],
+        "top_points": {
+          "top_1": 1,
+          "top_3": 3,
+          "top_5": 5
+        }
+      },
+      "concepts": [
+        "concentration",
+        "geographic risk"
+      ],
+      "analytical_steps": [
+        "Join Owner_Details to Policy_Details on AppID.",
+        "Aggregate policies and APE by state.",
+        "Sort by share descending and compute cumulative share.",
+        "Report the top 1, 3 and 5 state shares and a Herfindahl-style index."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "The top 3 states hold {top3_share}% of policies and {top3_ape_share}% of APE.",
+      "parameters": {},
+      "population": "The 24,999 joined records across 34 states.",
+      "caveat": "Concentration is measured on the owner's communication address, which is a proxy for market presence and not a sales territory.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "calculations": [
+          "cumulative state share",
+          "HHI"
+        ],
+        "supporting_metrics": [
+          "top_n_share"
+        ],
+        "tables_used": [
+          "owner",
+          "policy"
+        ],
+        "columns_used": [
+          "owner.Owner.Comm.State",
+          "owner.AppID",
+          "policy.AppID",
+          "policy.APE"
+        ],
+        "population_definition": "The 24,999 joined records across 34 states."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "line",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE",
+        "F-HHI"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-090",
+      "problem_statement": "How concentrated is business across branches?",
+      "intent_type": "Concentration/Ratio",
+      "business_intent": "Assess whether a few branches carry the book.",
+      "business_domain": "Anomaly / Concentration / Risk",
+      "business_objective": "Measure the share of policies and APE held by the largest branches.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Branch concentration",
+        "Do a few branches write most business?",
+        "Share of book from top branches",
+        "Branch concentration risk",
+        "How spread out is our branch network?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Branch_No",
+        "policy.AppID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "ORDER BY",
+        "concentration",
+        "share_of_total",
+        "WINDOW",
+        "PERCENTILE"
+      ],
+      "required_metrics": [
+        "top_n_share",
+        "herfindahl_index",
+        "branch_count",
+        "policy_count",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "concentration",
+        "base": "policy",
+        "group_by": "Branch_No",
+        "measure": [
+          null,
+          "count_all"
+        ],
+        "table_rows": 15,
+        "top_points": {
+          "top_10": 10,
+          "top_100": 100,
+          "top_500": 500
+        },
+        "top_percentiles": [
+          1,
+          5,
+          10
+        ]
+      },
+      "concepts": [
+        "concentration",
+        "branch network"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by Branch_No and compute policy count and APE.",
+        "Sort branches by contribution and compute cumulative share.",
+        "Report the share held by the top 1%, 5% and 10% of branches.",
+        "Compute a Herfindahl-style index over branch shares."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "The top 10% of branches write {top10_share}% of policies.",
+      "parameters": {},
+      "population": "All 25,000 policies across 5,719 branches.",
+      "caveat": "With 5,719 branches for 25,000 policies the network is highly fragmented by construction, averaging 4.4 policies per branch. The index reflects that fragmentation and is not comparable to a network with fewer, larger branches.",
+      "evidence_requirements": {
+        "aggregates": [
+          "share by branch"
+        ],
+        "calculations": [
+          "cumulative share",
+          "HHI"
+        ],
+        "supporting_metrics": [
+          "top_n_share"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Branch_No",
+          "policy.AppID",
+          "policy.APE"
+        ],
+        "population_definition": "All 25,000 policies across 5,719 branches."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "line",
+      "formula_ids": [
+        "F-SHARE",
+        "F-CUMSHARE",
+        "F-HHI"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-097",
+      "problem_statement": "Find policies with unusual attribute combinations.",
+      "intent_type": "Multi-Condition/Anomaly",
+      "business_intent": "Surface records worth manual review.",
+      "business_domain": "Anomaly / Concentration / Risk",
+      "business_objective": "Flag policies breaching configured plausibility rules across joined tables.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Find policies that breach plausibility rules",
+        "Anomaly detection on policies",
+        "Which records look wrong?",
+        "Flag suspicious policies",
+        "Data anomalies in the book"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.Login.Date",
+        "policy.Inforce.Date",
+        "policy.underwriting_days",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.Policy.Term",
+        "policy.PREMIUM.PAYING.TERM",
+        "policy.sum_assured_multiple",
+        "policy.Prod_No",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Earned.Income",
+        "owner.Owner.Comm.Postal.Code"
+      ],
+      "required_operations": [
+        "JOIN",
+        "derive_column",
+        "date_diff",
+        "CASE WHEN",
+        "WHERE",
+        "COUNT",
+        "outliers",
+        "ORDER BY",
+        "multi_metric_table"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "underwriting_turnaround_days",
+        "sum_assured_to_ape_ratio",
+        "z_score",
+        "iqr_bounds"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "rule_breach",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "join_how": {
+          "policy_owner": "inner"
+        },
+        "derive": [
+          {
+            "kind": "date_diff",
+            "name": "underwriting_days",
+            "end": "Inforce.Date",
+            "start": "Login.Date"
+          },
+          {
+            "kind": "ratio",
+            "name": "sum_assured_multiple",
+            "numerator": "Sum.Assured",
+            "denominator": "APE"
+          }
+        ],
+        "checks": [
+          {
+            "name": "negative underwriting duration",
+            "column": "underwriting_days",
+            "test": "lt",
+            "value": 0
+          },
+          {
+            "name": "owner age below 18",
+            "column": "owner_Owner.Age",
+            "test": "lt",
+            "value": 18
+          },
+          {
+            "name": "owner age above 90",
+            "column": "owner_Owner.Age",
+            "test": "gt",
+            "value": 90
+          },
+          {
+            "name": "premium paying term exceeds policy term",
+            "column": "PREMIUM.PAYING.TERM",
+            "test": "greater_than_column",
+            "other": "Policy.Term"
+          },
+          {
+            "name": "declared income above 100 crore",
+            "column": "owner_Owner.Earned.Income",
+            "test": "gt",
+            "value": 1000000000
+          },
+          {
+            "name": "cover multiple outside 1x-500x",
+            "column": "sum_assured_multiple",
+            "test": "outside",
+            "low": 1.0,
+            "high": 500.0
+          }
+        ],
+        "columns": [
+          "AppID",
+          "Prod_No",
+          "APE",
+          "Sum.Assured",
+          "underwriting_days",
+          "owner_Owner.Age"
+        ]
+      },
+      "concepts": [
+        "anomaly",
+        "plausibility rules",
+        "data review"
+      ],
+      "analytical_steps": [
+        "Join Policy_Details to Owner_Details on AppID.",
+        "Apply each declared plausibility rule: negative underwriting duration, owner age below 18 or above 90, premium paying term exceeding policy term, cover multiple outside its product's interquartile fence, and implausible declared income or postal code.",
+        "Record which rules each policy breaches.",
+        "Rank flagged policies by the number of rules breached.",
+        "Report the rule set alongside the results so the flags are auditable."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{flagged_count} policies breach at least one plausibility rule.",
+      "parameters": {},
+      "population": "The 24,999 joined policy and owner records.",
+      "caveat": "A flag identifies a record worth checking, not an error. The rules are a declared analytical convention stored in config and shown with the output, not a company validation standard. The source data is never modified.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = owner.AppID",
+        "business_rules_applied": [
+          "plausibility rule set"
+        ],
+        "records": "flagged rows with the rules they breach",
+        "data_quality_notes": [
+          "DQ-009",
+          "DQ-011"
+        ],
+        "tables_used": [
+          "policy",
+          "owner"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.Login.Date",
+          "policy.Inforce.Date",
+          "policy.underwriting_days",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.Policy.Term",
+          "policy.PREMIUM.PAYING.TERM",
+          "policy.sum_assured_multiple",
+          "policy.Prod_No",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Earned.Income",
+          "owner.Owner.Comm.Postal.Code"
+        ],
+        "population_definition": "The 24,999 joined policy and owner records."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-IQR",
+        "F-DATEDIFF"
+      ],
+      "limitations": [
+        "Flags records for review; asserts no error."
+      ],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

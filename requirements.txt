@@ -1,0 +1,21 @@
+# Excel_sense_v2 - runtime and test dependencies.
+#
+# The analytics engine needs only pandas and NumPy. Streamlit is the web
+# interface; the terminal interface uses the standard library alone.
+#
+# `anthropic` is optional. Without it - or without an API key - the
+# deterministic composer writes the answers and every feature still works.
+# The model changes how the prose reads, never what it says.
+
+pandas>=2.0,<3.0
+numpy>=1.24,<3.0
+
+# Web interface
+streamlit>=1.30,<2.0
+
+# Language models (Groq primary, Anthropic optional)
+groq>=0.11.0
+anthropic>=0.40
+
+# Tests
+pytest>=8.0,<9.0

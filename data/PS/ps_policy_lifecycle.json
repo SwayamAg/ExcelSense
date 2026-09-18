@@ -1,0 +1,473 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_policy_lifecycle",
+  "business_domains": [
+    "Policy Lifecycle"
+  ],
+  "problem_count": 3,
+  "problem_ids": [
+    "PS-029",
+    "PS-030",
+    "PS-031"
+  ],
+  "routing_hints": {
+    "tables": [
+      "claims",
+      "owner",
+      "persistency",
+      "policy",
+      "sales"
+    ],
+    "concepts": [
+      "360 view",
+      "entity lookup",
+      "new business",
+      "operations",
+      "product comparison",
+      "turnaround",
+      "underwriting"
+    ],
+    "intent_structures": [
+      "Derived-Metric",
+      "GroupBy",
+      "Lookup"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-029",
+      "problem_statement": "How long does it take for a policy to go from login to in-force?",
+      "intent_type": "Derived-Metric/Average",
+      "business_intent": "Measure new-business processing speed.",
+      "business_domain": "Policy Lifecycle",
+      "business_objective": "Compute underwriting turnaround as the gap between Login.Date and Inforce.Date.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "What is our underwriting turnaround time?",
+        "How long to issue a policy?",
+        "Average days from login to inforce",
+        "Policy issuance speed",
+        "Time to issue"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Login.Date",
+        "policy.Inforce.Date",
+        "policy.underwriting_days",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "date_diff",
+        "derive_column",
+        "AVG",
+        "MEDIAN",
+        "MIN",
+        "MAX",
+        "COUNT"
+      ],
+      "required_metrics": [
+        "underwriting_turnaround_days",
+        "policy_count",
+        "percentile"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "distribution",
+        "base": "policy",
+        "column": "underwriting_days",
+        "derive": [
+          {
+            "kind": "date_diff",
+            "name": "underwriting_days",
+            "end": "Inforce.Date",
+            "start": "Login.Date"
+          }
+        ],
+        "rules": [
+          [
+            "BR-005",
+            {
+              "column": "underwriting_days"
+            }
+          ]
+        ],
+        "bins": [
+          -1,
+          0,
+          7,
+          14,
+          30,
+          60,
+          400
+        ],
+        "labels": [
+          "same_day",
+          "1_7d",
+          "8_14d",
+          "15_30d",
+          "31_60d",
+          "over_60d"
+        ]
+      },
+      "concepts": [
+        "turnaround",
+        "underwriting",
+        "new business"
+      ],
+      "analytical_steps": [
+        "Parse Login.Date and Inforce.Date using the contract's month-first format list.",
+        "Derive underwriting_days as Inforce.Date minus Login.Date.",
+        "Exclude any negative durations and report how many were excluded.",
+        "Compute mean, median, minimum and maximum turnaround."
+      ],
+      "expected_answer_type": "distribution",
+      "answer_template": "Median underwriting turnaround is {median_days} days (mean {avg_days}).",
+      "parameters": {},
+      "population": "All 25,000 policies; both dates parse fully under the contract.",
+      "caveat": "Policy dates mix '/' and '-' separators and are month-first; the parse contract in config/data_contract.json is applied (DQ-002). One policy has Login.Date after Inforce.Date (DQ-011) and is excluded from the duration statistics.",
+      "evidence_requirements": {
+        "calculations": [
+          "underwriting_days per policy"
+        ],
+        "aggregates": [
+          "mean, median, min, max"
+        ],
+        "data_quality_notes": [
+          "DQ-002",
+          "DQ-011"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Login.Date",
+          "policy.Inforce.Date",
+          "policy.underwriting_days",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies; both dates parse fully under the contract."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "histogram",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-AVG",
+        "F-MEDIAN"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-030",
+      "problem_statement": "Which products are slowest to issue?",
+      "intent_type": "GroupBy/Ranking/Average",
+      "business_intent": "Locate processing bottlenecks by product.",
+      "business_domain": "Policy Lifecycle",
+      "business_objective": "Rank products by median underwriting turnaround.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Which product takes longest to issue?",
+        "Turnaround by product",
+        "Slowest products to go in force",
+        "Issuance speed by plan",
+        "Rank products by processing time"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.Login.Date",
+        "policy.Inforce.Date",
+        "policy.underwriting_days",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "date_diff",
+        "derive_column",
+        "GROUP BY",
+        "MEDIAN",
+        "AVG",
+        "COUNT",
+        "ORDER BY",
+        "compare_to_baseline",
+        "small_sample_guard"
+      ],
+      "required_metrics": [
+        "underwriting_turnaround_days",
+        "policy_count",
+        "peer_average",
+        "delta_vs_baseline"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": [
+          "Prod_No",
+          "Plan.Name"
+        ],
+        "derive": [
+          {
+            "kind": "date_diff",
+            "name": "underwriting_days",
+            "end": "Inforce.Date",
+            "start": "Login.Date"
+          }
+        ],
+        "rules": [
+          [
+            "BR-005",
+            {
+              "column": "underwriting_days"
+            }
+          ]
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "median_days": [
+            "underwriting_days",
+            "median"
+          ],
+          "avg_days": [
+            "underwriting_days",
+            "mean"
+          ]
+        },
+        "min_sample": 50,
+        "rank_by": "median_days",
+        "baseline": {
+          "kind": "median",
+          "measure": "median_days",
+          "column": "underwriting_days",
+          "description": "portfolio median underwriting turnaround"
+        }
+      },
+      "concepts": [
+        "turnaround",
+        "product comparison",
+        "operations"
+      ],
+      "analytical_steps": [
+        "Derive underwriting_days per policy.",
+        "Group by product and compute median and mean turnaround.",
+        "Compute the portfolio median as the baseline.",
+        "Flag products with fewer than 50 policies.",
+        "Rank by median turnaround descending."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "{slowest_product} is slowest at a median {slowest_days} days versus {baseline_days} overall.",
+      "parameters": {},
+      "population": "All policies with a valid non-negative turnaround, grouped by product.",
+      "caveat": "Turnaround differences may reflect product complexity rather than operational performance; the data cannot separate the two.",
+      "evidence_requirements": {
+        "aggregates": [
+          "median turnaround by product"
+        ],
+        "comparison_baseline": "portfolio median turnaround",
+        "sample_sizes": "policy count per product",
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.Login.Date",
+          "policy.Inforce.Date",
+          "policy.underwriting_days",
+          "policy.AppID"
+        ],
+        "population_definition": "All policies with a valid non-negative turnaround, grouped by product."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "bar",
+      "formula_ids": [
+        "F-DATEDIFF",
+        "F-MEDIAN",
+        "F-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-031",
+      "problem_statement": "Show me everything about a specific policy.",
+      "intent_type": "Lookup/Record",
+      "business_intent": "Retrieve a single policy's full cross-table record.",
+      "business_domain": "Policy Lifecycle",
+      "business_objective": "Assemble one policy's details from all tables it appears in.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Tell me about policy 15011000000",
+        "Show policy details for AppID 11000000015",
+        "Look up this application",
+        "Give me the full record for this policy",
+        "Policy 19102929551 details"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner",
+        "persistency",
+        "claims",
+        "sales"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.Prod_No",
+        "policy.Plan.Name",
+        "policy.POLICY.STATUS",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.Login.Date",
+        "policy.Inforce.Date",
+        "policy.Policy.Term",
+        "policy.PREMIUM.PAYING.TERM",
+        "policy.SALES_ID",
+        "policy.Branch_No",
+        "owner.AppID",
+        "owner.Owner.Age",
+        "owner.Owner.Gender",
+        "owner.Owner.Occupation",
+        "owner.Owner.Comm.State",
+        "owner.ClientID",
+        "persistency.AppID",
+        "persistency.Renewal_Status",
+        "persistency.Renewal_Due_Date",
+        "persistency.Renewal_Paid_Date",
+        "persistency.Persistency_Bucket",
+        "persistency.Payment_Mode",
+        "claims.AppID",
+        "claims.Status.of.Claim",
+        "claims.Claim.Amount",
+        "claims.Cause.of.Death",
+        "sales.SALES_ID",
+        "sales.Type"
+      ],
+      "required_operations": [
+        "WHERE",
+        "LEFT JOIN",
+        "SELECT"
+      ],
+      "required_metrics": [
+        "policy_count"
+      ],
+      "relationships": [
+        "policy_owner",
+        "policy_persistency",
+        "policy_claims",
+        "policy_sales"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "record_lookup",
+        "base": "policy",
+        "key_column": "AppID",
+        "key_parameter": "app_id",
+        "joins": [
+          "policy_owner",
+          "policy_persistency",
+          "policy_claims",
+          "policy_sales"
+        ],
+        "optional_tables": [
+          "claims",
+          "persistency"
+        ]
+      },
+      "concepts": [
+        "entity lookup",
+        "360 view"
+      ],
+      "analytical_steps": [
+        "Validate the supplied AppID against Policy_Details.",
+        "Return the policy row.",
+        "Left join Owner_Details, Persistency_Details and Claims_Details on AppID.",
+        "Left join Sales_Details on SALES_ID for the selling agent.",
+        "Report which related records exist and which are absent, rather than presenting absence as a zero."
+      ],
+      "expected_answer_type": "record",
+      "answer_template": "Policy {app_id}: {plan_name}, status {status}, APE {ape}, sum assured {sum_assured}.",
+      "parameters": {
+        "app_id": {
+          "type": "string",
+          "required": true,
+          "description": "11-character policy AppID"
+        }
+      },
+      "population": "A single policy identified by AppID.",
+      "caveat": "Owner name and postal code are personal data and are withheld by default. Absent related records mean no claim or no renewal row exists, not a zero value: a surrendered or death policy has no Persistency row at all, because Persistency covers only the active-or-lapsed eligible population (DQ-006).",
+      "evidence_requirements": {
+        "records": "one row per related table",
+        "join_path": "policy.AppID = owner/persistency/claims.AppID; policy.SALES_ID = sales.SALES_ID",
+        "data_quality_notes": [
+          "DQ-001"
+        ],
+        "tables_used": [
+          "policy",
+          "owner",
+          "persistency",
+          "claims",
+          "sales"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.Prod_No",
+          "policy.Plan.Name",
+          "policy.POLICY.STATUS",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.Login.Date",
+          "policy.Inforce.Date",
+          "policy.Policy.Term",
+          "policy.PREMIUM.PAYING.TERM",
+          "policy.SALES_ID",
+          "policy.Branch_No",
+          "owner.AppID",
+          "owner.Owner.Age",
+          "owner.Owner.Gender",
+          "owner.Owner.Occupation",
+          "owner.Owner.Comm.State",
+          "owner.ClientID",
+          "persistency.AppID",
+          "persistency.Renewal_Status",
+          "persistency.Renewal_Due_Date",
+          "persistency.Renewal_Paid_Date",
+          "persistency.Persistency_Bucket",
+          "persistency.Payment_Mode",
+          "claims.AppID",
+          "claims.Status.of.Claim",
+          "claims.Claim.Amount",
+          "claims.Cause.of.Death",
+          "sales.SALES_ID",
+          "sales.Type"
+        ],
+        "population_definition": "A single policy identified by AppID."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

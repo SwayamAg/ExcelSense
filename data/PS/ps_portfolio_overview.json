@@ -1,0 +1,875 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_portfolio_overview",
+  "business_domains": [
+    "Portfolio Overview"
+  ],
+  "problem_count": 9,
+  "problem_ids": [
+    "PS-001",
+    "PS-002",
+    "PS-003",
+    "PS-004",
+    "PS-005",
+    "PS-006",
+    "PS-010",
+    "PS-011",
+    "PS-012"
+  ],
+  "routing_hints": {
+    "tables": [
+      "owner",
+      "policy"
+    ],
+    "concepts": [
+      "APE",
+      "central tendency",
+      "contract duration",
+      "customer base",
+      "distribution footprint",
+      "exposure",
+      "in force",
+      "policy count",
+      "policy status",
+      "policy term",
+      "portfolio composition",
+      "portfolio size",
+      "premium volume",
+      "product mix",
+      "retention",
+      "skew",
+      "sum assured",
+      "traditional",
+      "unit linked"
+    ],
+    "intent_structures": [
+      "Aggregation",
+      "Conditional",
+      "Distribution",
+      "GroupBy"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-001",
+      "problem_statement": "How many policies are in the portfolio?",
+      "intent_type": "Aggregation/Count",
+      "business_intent": "Establish the size of the book.",
+      "business_domain": "Portfolio Overview",
+      "business_objective": "Give the executive the single headline volume figure.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "How many policies are there?",
+        "What is the total policy count?",
+        "Size of the portfolio",
+        "How many applications do we have?",
+        "Total number of policies"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "COUNT",
+        "DISTINCT"
+      ],
+      "required_metrics": [
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "policy",
+        "measures": {
+          "policy_count": [
+            "AppID",
+            "distinct"
+          ]
+        }
+      },
+      "concepts": [
+        "portfolio size",
+        "policy count"
+      ],
+      "analytical_steps": [
+        "Load Policy_Details.",
+        "Count distinct AppID values.",
+        "Report the count."
+      ],
+      "expected_answer_type": "scalar",
+      "answer_template": "The portfolio contains {policy_count} policies.",
+      "parameters": {},
+      "population": "All rows in Policy_Details (one row per policy application).",
+      "caveat": "The five CSVs are a single point-in-time extract. Figures describe the portfolio as extracted, not a live book.",
+      "evidence_requirements": {
+        "aggregates": [
+          "policy_count"
+        ],
+        "data_quality_notes": [
+          "DQ-001"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.AppID"
+        ],
+        "population_definition": "All rows in Policy_Details (one row per policy application)."
+      },
+      "visualization_recommended": false,
+      "visualization_type": null,
+      "formula_ids": [
+        "F-COUNT"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-002",
+      "problem_statement": "What is the distribution of policies across policy statuses?",
+      "intent_type": "GroupBy/Distribution",
+      "business_intent": "Show the health mix of the book at a glance.",
+      "business_domain": "Portfolio Overview",
+      "business_objective": "Quantify how the portfolio splits across in-force, lapsed, surrendered and death.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Break down policies by status",
+        "What is the policy status split?",
+        "How many policies are lapsed, surrendered or in force?",
+        "Show the status distribution",
+        "Portfolio status mix"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.POLICY.STATUS",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "share_of_total",
+        "ORDER BY"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": "POLICY.STATUS",
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ]
+        },
+        "shares": {
+          "share_pct": "policies"
+        },
+        "rank_by": "policies"
+      },
+      "concepts": [
+        "policy status",
+        "portfolio composition"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by POLICY.STATUS.",
+        "Count policies per status.",
+        "Compute each status share of the total.",
+        "Order by count descending."
+      ],
+      "expected_answer_type": "distribution",
+      "answer_template": "Of {policy_count} policies, {top_status} accounts for {top_share}%.",
+      "parameters": {},
+      "population": "All 25,000 policies in Policy_Details.",
+      "caveat": "POLICY.STATUS has exactly four values; no other lifecycle state exists in the data.",
+      "evidence_requirements": {
+        "aggregates": [
+          "count by status"
+        ],
+        "supporting_metrics": [
+          "share_of_portfolio"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.POLICY.STATUS",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies in Policy_Details."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "donut",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-003",
+      "problem_statement": "What is the total annualised premium equivalent (APE) of the portfolio?",
+      "intent_type": "Aggregation/Sum",
+      "business_intent": "Quantify the premium scale of the book.",
+      "business_domain": "Portfolio Overview",
+      "business_objective": "Report total APE as the headline revenue-proxy measure.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "What is total APE?",
+        "Total annualised premium",
+        "Sum of APE",
+        "How much premium does the book represent?",
+        "Total premium value"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.APE"
+      ],
+      "required_operations": [
+        "SUM"
+      ],
+      "required_metrics": [
+        "total_ape"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "policy",
+        "measures": {
+          "total_ape": [
+            "APE",
+            "sum"
+          ]
+        }
+      },
+      "concepts": [
+        "APE",
+        "premium volume"
+      ],
+      "analytical_steps": [
+        "Load Policy_Details.",
+        "Sum the APE column across all policies.",
+        "Report the total."
+      ],
+      "expected_answer_type": "scalar",
+      "answer_template": "Total portfolio APE is {total_ape}.",
+      "parameters": {},
+      "population": "All 25,000 policies; APE is fully populated with no nulls.",
+      "caveat": "APE is an annualised premium measure, not collected cash. No payment data exists.",
+      "evidence_requirements": {
+        "aggregates": [
+          "total_ape"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.APE"
+        ],
+        "population_definition": "All 25,000 policies; APE is fully populated with no nulls."
+      },
+      "visualization_recommended": false,
+      "visualization_type": null,
+      "formula_ids": [
+        "F-SUM"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-004",
+      "problem_statement": "What is the total sum assured exposure of the portfolio?",
+      "intent_type": "Aggregation/Sum",
+      "business_intent": "Quantify gross risk exposure.",
+      "business_domain": "Portfolio Overview",
+      "business_objective": "Report total sum assured as the headline exposure measure.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Total sum assured",
+        "What is our total exposure?",
+        "Sum assured across the book",
+        "How much cover have we written?",
+        "Aggregate sum assured"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Sum.Assured"
+      ],
+      "required_operations": [
+        "SUM"
+      ],
+      "required_metrics": [
+        "total_sum_assured"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "policy",
+        "measures": {
+          "total_sum_assured": [
+            "Sum.Assured",
+            "sum"
+          ]
+        }
+      },
+      "concepts": [
+        "sum assured",
+        "exposure"
+      ],
+      "analytical_steps": [
+        "Load Policy_Details.",
+        "Sum Sum.Assured across all policies.",
+        "Report the total."
+      ],
+      "expected_answer_type": "scalar",
+      "answer_template": "Total sum assured exposure is {total_sum_assured}.",
+      "parameters": {},
+      "population": "All 25,000 policies; Sum.Assured is fully populated with no nulls.",
+      "caveat": "Gross exposure before any reinsurance; no reinsurance data exists in the CSVs.",
+      "evidence_requirements": {
+        "aggregates": [
+          "total_sum_assured"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Sum.Assured"
+        ],
+        "population_definition": "All 25,000 policies; Sum.Assured is fully populated with no nulls."
+      },
+      "visualization_recommended": false,
+      "visualization_type": null,
+      "formula_ids": [
+        "F-SUM"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-005",
+      "problem_statement": "What is the average and median APE per policy?",
+      "intent_type": "Aggregation/Average/Median",
+      "business_intent": "Understand typical policy value.",
+      "business_domain": "Portfolio Overview",
+      "business_objective": "Report central tendency of APE, using median alongside mean because APE is skewed.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "What is average APE?",
+        "Average premium per policy",
+        "What is the average policy size?",
+        "Average case size",
+        "Typical policy premium",
+        "Median APE",
+        "Mean and median premium"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.APE"
+      ],
+      "required_operations": [
+        "AVG",
+        "MEDIAN",
+        "COUNT"
+      ],
+      "required_metrics": [
+        "avg_ape",
+        "median_ape",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "policy",
+        "measures": {
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "median_ape": [
+            "APE",
+            "median"
+          ],
+          "policy_count": [
+            null,
+            "count_all"
+          ]
+        }
+      },
+      "concepts": [
+        "APE",
+        "central tendency",
+        "skew"
+      ],
+      "analytical_steps": [
+        "Load Policy_Details.",
+        "Compute mean APE.",
+        "Compute median APE.",
+        "Report both and note the gap as a skew indicator."
+      ],
+      "expected_answer_type": "scalar",
+      "answer_template": "Average APE is {avg_ape} and median APE is {median_ape} across {policy_count} policies.",
+      "parameters": {},
+      "population": "All 25,000 policies in Policy_Details.",
+      "caveat": "APE ranges from 6,000 to 2,500,000; the mean is pulled upward by large cases, so the median is the better typical value.",
+      "evidence_requirements": {
+        "aggregates": [
+          "avg_ape",
+          "median_ape"
+        ],
+        "supporting_metrics": [
+          "policy_count"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.APE"
+        ],
+        "population_definition": "All 25,000 policies in Policy_Details."
+      },
+      "visualization_recommended": false,
+      "visualization_type": null,
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-006",
+      "problem_statement": "What is the split between traditional and ULIP policies?",
+      "intent_type": "GroupBy/Distribution",
+      "business_intent": "Show the product-class mix of the book.",
+      "business_domain": "Portfolio Overview",
+      "business_objective": "Quantify traditional versus unit-linked composition by volume and premium.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Traditional vs ULIP split",
+        "How many ULIP policies do we have?",
+        "What share of the book is unit linked?",
+        "TRAD vs ULIP mix",
+        "Product class breakdown"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Trad.ULIP",
+        "policy.AppID",
+        "policy.APE"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "SUM",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "total_ape",
+        "ulip_share",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": "Trad.ULIP",
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "total_ape": [
+            "APE",
+            "sum"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ]
+        },
+        "shares": {
+          "policy_share_pct": "policies",
+          "ape_share_pct": "total_ape"
+        },
+        "rank_by": "policies"
+      },
+      "concepts": [
+        "traditional",
+        "unit linked",
+        "product mix"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by Trad.ULIP.",
+        "Count policies and sum APE per class.",
+        "Compute each class share of policies and of APE.",
+        "Report both views."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "ULIP accounts for {ulip_share}% of policies and a differing share of APE.",
+      "parameters": {},
+      "population": "All 25,000 policies; Trad.ULIP has exactly two values, TRAD and ULIP.",
+      "caveat": "Trad.ULIP maps deterministically onto Prod_No; ULIP is a single product (P56).",
+      "evidence_requirements": {
+        "aggregates": [
+          "count and APE by class"
+        ],
+        "supporting_metrics": [
+          "ulip_share"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Trad.ULIP",
+          "policy.AppID",
+          "policy.APE"
+        ],
+        "population_definition": "All 25,000 policies; Trad.ULIP has exactly two values, TRAD and ULIP."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "grouped_bar",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-010",
+      "problem_statement": "How many distinct agents, branches and clients does the portfolio involve?",
+      "intent_type": "Aggregation/Distinct",
+      "business_intent": "Size the distribution and customer base.",
+      "business_domain": "Portfolio Overview",
+      "business_objective": "Report the distinct entity counts underpinning the book.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "How many agents do we have?",
+        "Number of distinct branches",
+        "How many unique customers?",
+        "Count of agents and branches",
+        "Distinct client count"
+      ],
+      "relevant_tables": [
+        "policy",
+        "owner"
+      ],
+      "relevant_columns": [
+        "policy.SALES_ID",
+        "policy.Branch_No",
+        "owner.ClientID",
+        "owner.AppID"
+      ],
+      "required_operations": [
+        "DISTINCT",
+        "COUNT",
+        "JOIN"
+      ],
+      "required_metrics": [
+        "agent_count",
+        "branch_count",
+        "client_count"
+      ],
+      "relationships": [
+        "policy_owner"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "policy",
+        "joins": [
+          "policy_owner"
+        ],
+        "measures": {
+          "agent_count": [
+            "SALES_ID",
+            "distinct"
+          ],
+          "branch_count": [
+            "Branch_No",
+            "distinct"
+          ],
+          "client_count": [
+            "owner_ClientID",
+            "distinct"
+          ],
+          "policy_count": [
+            null,
+            "count_all"
+          ]
+        }
+      },
+      "concepts": [
+        "distribution footprint",
+        "customer base"
+      ],
+      "analytical_steps": [
+        "Count distinct SALES_ID and Branch_No in Policy_Details.",
+        "Join Owner_Details on AppID and count distinct ClientID.",
+        "Report all three counts and note that clients are fewer than policies."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "{agent_count} agents across {branch_count} branches serve {client_count} distinct clients.",
+      "parameters": {},
+      "population": "All policies, joined to owners on AppID.",
+      "caveat": "ClientID repeats: 237 clients hold more than one policy (max 3), so clients are fewer than policies.",
+      "evidence_requirements": {
+        "aggregates": [
+          "distinct counts"
+        ],
+        "join_path": "policy.AppID = owner.AppID",
+        "data_quality_notes": [
+          "DQ-001"
+        ],
+        "tables_used": [
+          "policy",
+          "owner"
+        ],
+        "columns_used": [
+          "policy.SALES_ID",
+          "policy.Branch_No",
+          "owner.ClientID",
+          "owner.AppID"
+        ],
+        "population_definition": "All policies, joined to owners on AppID."
+      },
+      "visualization_recommended": false,
+      "visualization_type": "table_only",
+      "formula_ids": [
+        "F-COUNT-DISTINCT"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-011",
+      "problem_statement": "What proportion of the portfolio is still actively paying premium?",
+      "intent_type": "Conditional/Ratio",
+      "business_intent": "Measure the healthy, revenue-generating share of the book.",
+      "business_domain": "Portfolio Overview",
+      "business_objective": "Compute the in-force rate as a headline retention indicator.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "What percentage of policies are in force?",
+        "In-force rate",
+        "How much of the book is still paying?",
+        "Active policy share",
+        "Share of premium paying policies"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.POLICY.STATUS",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "CASE WHEN",
+        "COUNT",
+        "ratio"
+      ],
+      "required_metrics": [
+        "inforce_rate",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "policy",
+        "measures": {
+          "policy_count": [
+            null,
+            "count_all"
+          ]
+        },
+        "condition_counts": {
+          "inforce": {
+            "column": "POLICY.STATUS",
+            "values": [
+              "Premium paying (regular)"
+            ]
+          }
+        },
+        "rates": {
+          "inforce_rate": {
+            "numerator": "inforce",
+            "denominator": "policy_count"
+          }
+        }
+      },
+      "concepts": [
+        "in force",
+        "retention"
+      ],
+      "analytical_steps": [
+        "Count policies with POLICY.STATUS = 'Premium paying (regular)'.",
+        "Divide by total policy count.",
+        "Express as a percentage."
+      ],
+      "expected_answer_type": "scalar",
+      "answer_template": "{inforce_rate}% of the {policy_count} policies are premium paying.",
+      "parameters": {},
+      "population": "All 25,000 policies in Policy_Details.",
+      "caveat": "'Premium paying (regular)' is the only in-force state present; there is no paid-up or reduced-paid-up state in the data.",
+      "evidence_requirements": {
+        "calculations": [
+          "inforce_rate"
+        ],
+        "aggregates": [
+          "count by status"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.POLICY.STATUS",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies in Policy_Details."
+      },
+      "visualization_recommended": false,
+      "visualization_type": null,
+      "formula_ids": [
+        "F-RATE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-012",
+      "problem_statement": "What is the distribution of policy terms across the book?",
+      "intent_type": "Distribution/Bucketing",
+      "business_intent": "Understand contract duration structure.",
+      "business_domain": "Portfolio Overview",
+      "business_objective": "Show how policy term is distributed and identify the dominant terms.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Policy term distribution",
+        "What terms do customers choose?",
+        "Spread of policy terms",
+        "How long are our policies?",
+        "Distribution of policy duration"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Policy.Term",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "ORDER BY",
+        "share_of_total",
+        "PERCENTILE"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "share_of_portfolio",
+        "percentile"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "distribution",
+        "base": "policy",
+        "column": "Policy.Term",
+        "bins": [
+          0,
+          10,
+          15,
+          20,
+          25,
+          100
+        ],
+        "labels": [
+          "upto_10y",
+          "11_15y",
+          "16_20y",
+          "21_25y",
+          "over_25y"
+        ]
+      },
+      "concepts": [
+        "policy term",
+        "contract duration"
+      ],
+      "analytical_steps": [
+        "Group Policy_Details by Policy.Term.",
+        "Count policies per term.",
+        "Compute share and cumulative share.",
+        "Report the dominant terms and the range."
+      ],
+      "expected_answer_type": "distribution",
+      "answer_template": "Policy terms range from {min_term} to {max_term} years; {top_term} years is most common at {top_share}%.",
+      "parameters": {},
+      "population": "All policies; Policy.Term is fully populated with 43 distinct values.",
+      "caveat": "Policy.Term is the contractual term, not elapsed duration. Elapsed tenure must be derived from Inforce.Date.",
+      "evidence_requirements": {
+        "aggregates": [
+          "count by term"
+        ],
+        "supporting_metrics": [
+          "percentile"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Policy.Term",
+          "policy.AppID"
+        ],
+        "population_definition": "All policies; Policy.Term is fully populated with 43 distinct values."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "histogram",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

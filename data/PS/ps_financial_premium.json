@@ -1,0 +1,628 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "shard": "ps_financial_premium",
+  "business_domains": [
+    "Financial / Premium Analysis"
+  ],
+  "problem_count": 5,
+  "problem_ids": [
+    "PS-022",
+    "PS-023",
+    "PS-026",
+    "PS-027",
+    "PS-028"
+  ],
+  "routing_hints": {
+    "tables": [
+      "persistency",
+      "policy"
+    ],
+    "concepts": [
+      "collections opportunity",
+      "distribution",
+      "high value",
+      "policy term",
+      "premium",
+      "premium consistency",
+      "reconciliation",
+      "relationship",
+      "renewal premium",
+      "skew",
+      "top N"
+    ],
+    "intent_structures": [
+      "Aggregation",
+      "Distribution",
+      "GroupBy",
+      "Join",
+      "Ranking"
+    ],
+    "analysis_tiers": [
+      "analytical",
+      "descriptive"
+    ]
+  },
+  "problem_statements": [
+    {
+      "problem_id": "PS-022",
+      "problem_statement": "What does the APE distribution look like across the portfolio?",
+      "intent_type": "Distribution/Bucketing",
+      "business_intent": "Understand the spread and skew of policy premium.",
+      "business_domain": "Financial / Premium Analysis",
+      "business_objective": "Bucket APE and report the distribution with percentiles.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "APE distribution",
+        "How is premium spread across policies?",
+        "Premium distribution analysis",
+        "Show me the APE histogram",
+        "What is the spread of premiums?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.APE",
+        "policy.AppID"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "COUNT",
+        "PERCENTILE",
+        "MEDIAN",
+        "AVG",
+        "share_of_total"
+      ],
+      "required_metrics": [
+        "policy_count",
+        "percentile",
+        "avg_ape",
+        "median_ape",
+        "share_of_portfolio"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "distribution",
+        "base": "policy",
+        "column": "APE",
+        "bins": [
+          0,
+          25000,
+          50000,
+          100000,
+          250000,
+          500000,
+          3000000
+        ],
+        "labels": [
+          "upto_25k",
+          "25k_50k",
+          "50k_100k",
+          "100k_250k",
+          "250k_500k",
+          "above_500k"
+        ]
+      },
+      "concepts": [
+        "distribution",
+        "premium",
+        "skew"
+      ],
+      "analytical_steps": [
+        "Bucket APE into bands.",
+        "Count policies per band and compute each band share.",
+        "Compute the 25th, 50th, 75th, 90th and 99th percentiles.",
+        "Report the distribution shape and the mean-median gap."
+      ],
+      "expected_answer_type": "distribution",
+      "answer_template": "APE runs from {min_ape} to {max_ape}; the median is {median_ape} and the 90th percentile {p90_ape}.",
+      "parameters": {},
+      "population": "All 25,000 policies in Policy_Details.",
+      "caveat": "APE is strongly right-skewed, so band widths are reported explicitly and the mean is not used as the typical value.",
+      "evidence_requirements": {
+        "aggregates": [
+          "count by APE band"
+        ],
+        "calculations": [
+          "percentiles"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.APE",
+          "policy.AppID"
+        ],
+        "population_definition": "All 25,000 policies in Policy_Details."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "histogram",
+      "formula_ids": [
+        "F-PERCENTILE",
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-023",
+      "problem_statement": "Which are the highest-value policies in the book?",
+      "intent_type": "Ranking/TopN",
+      "business_intent": "Surface the largest cases for relationship management.",
+      "business_domain": "Financial / Premium Analysis",
+      "business_objective": "List the top N policies by APE with their key attributes.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Top 10 policies by premium",
+        "Largest policies",
+        "Highest APE policies",
+        "Show me our biggest cases",
+        "Which policies are most valuable?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.APE",
+        "policy.Sum.Assured",
+        "policy.Plan.Name",
+        "policy.POLICY.STATUS",
+        "policy.SALES_ID"
+      ],
+      "required_operations": [
+        "ORDER BY",
+        "LIMIT",
+        "SELECT"
+      ],
+      "required_metrics": [
+        "total_ape",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "top_n",
+        "base": "policy",
+        "measure": "APE",
+        "default_n": 10,
+        "columns": [
+          "AppID",
+          "APE",
+          "Sum.Assured",
+          "Plan.Name",
+          "POLICY.STATUS",
+          "SALES_ID"
+        ]
+      },
+      "concepts": [
+        "top N",
+        "high value"
+      ],
+      "analytical_steps": [
+        "Sort Policy_Details by APE descending.",
+        "Take the top N, defaulting to 10.",
+        "Return AppID, APE, sum assured, plan, status and selling agent.",
+        "Report the combined share of the top N."
+      ],
+      "expected_answer_type": "ranked_table",
+      "answer_template": "The top {n} policies by APE total {topn_ape}, or {topn_share}% of portfolio APE.",
+      "parameters": {
+        "n": {
+          "type": "integer",
+          "default": 10,
+          "min": 1,
+          "max": 100
+        }
+      },
+      "population": "All 25,000 policies in Policy_Details, ranked by APE descending.",
+      "caveat": "AppID is a policy identifier. Owner names are available but are personal data and are excluded from this output by default.",
+      "evidence_requirements": {
+        "records": "top N policy rows",
+        "ranking": "APE desc",
+        "supporting_metrics": [
+          "share of total APE"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.APE",
+          "policy.Sum.Assured",
+          "policy.Plan.Name",
+          "policy.POLICY.STATUS",
+          "policy.SALES_ID"
+        ],
+        "population_definition": "All 25,000 policies in Policy_Details, ranked by APE descending."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "horizontal_bar",
+      "formula_ids": [
+        "F-SHARE"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-026",
+      "problem_statement": "What is the average APE by policy term band?",
+      "intent_type": "GroupBy/Average",
+      "business_intent": "See whether longer contracts carry larger premiums.",
+      "business_domain": "Financial / Premium Analysis",
+      "business_objective": "Relate policy term to average premium.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Does premium rise with term?",
+        "APE by policy term",
+        "Average premium for long term policies",
+        "Premium versus term",
+        "How does term affect premium?"
+      ],
+      "relevant_tables": [
+        "policy"
+      ],
+      "relevant_columns": [
+        "policy.Policy.Term",
+        "policy.APE",
+        "policy.AppID",
+        "policy.Sum.Assured"
+      ],
+      "required_operations": [
+        "GROUP BY",
+        "AVG",
+        "MEDIAN",
+        "COUNT",
+        "ORDER BY",
+        "derive_column"
+      ],
+      "required_metrics": [
+        "avg_ape",
+        "median_ape",
+        "avg_sum_assured",
+        "policy_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "group_by": "term_band",
+        "derive": [
+          {
+            "kind": "band",
+            "name": "term_band",
+            "column": "Policy.Term",
+            "bins": [
+              0,
+              10,
+              15,
+              20,
+              25,
+              100
+            ],
+            "labels": [
+              "upto_10y",
+              "11_15y",
+              "16_20y",
+              "21_25y",
+              "over_25y"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "median_ape": [
+            "APE",
+            "median"
+          ],
+          "avg_sum_assured": [
+            "Sum.Assured",
+            "mean"
+          ]
+        },
+        "sort_by_group": "term_band"
+      },
+      "concepts": [
+        "policy term",
+        "premium",
+        "relationship"
+      ],
+      "analytical_steps": [
+        "Band Policy.Term into ranges.",
+        "Group policies by band.",
+        "Compute average and median APE and average sum assured per band.",
+        "Report the trend across bands with policy counts."
+      ],
+      "expected_answer_type": "table",
+      "answer_template": "Average APE by term band ranges from {min_band_ape} to {max_band_ape}.",
+      "parameters": {},
+      "population": "All policies, banded by contractual policy term.",
+      "caveat": "An association between term and premium is descriptive only; product design drives both, and product is a confounding factor.",
+      "evidence_requirements": {
+        "aggregates": [
+          "avg APE by term band"
+        ],
+        "sample_sizes": "policy count per band",
+        "limitations": [
+          "product is a confounder"
+        ],
+        "tables_used": [
+          "policy"
+        ],
+        "columns_used": [
+          "policy.Policy.Term",
+          "policy.APE",
+          "policy.AppID",
+          "policy.Sum.Assured"
+        ],
+        "population_definition": "All policies, banded by contractual policy term."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "line",
+      "formula_ids": [
+        "F-AVG",
+        "F-MEDIAN"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-027",
+      "problem_statement": "What is the total and average renewal premium due?",
+      "intent_type": "Aggregation/Sum/Average",
+      "business_intent": "Size the renewal premium opportunity.",
+      "business_domain": "Financial / Premium Analysis",
+      "business_objective": "Report total and average renewal premium across the persistency population.",
+      "analysis_tier": "descriptive",
+      "example_queries": [
+        "Total renewal premium",
+        "How much renewal premium is due?",
+        "Average renewal amount",
+        "Renewal premium value",
+        "What is the renewal book worth?"
+      ],
+      "relevant_tables": [
+        "persistency"
+      ],
+      "relevant_columns": [
+        "persistency.Renewal_Premium_Amount",
+        "persistency.AppID"
+      ],
+      "required_operations": [
+        "SUM",
+        "AVG",
+        "MEDIAN",
+        "COUNT"
+      ],
+      "required_metrics": [
+        "total_renewal_premium",
+        "avg_renewal_premium",
+        "renewal_count"
+      ],
+      "relationships": [],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "aggregate",
+        "base": "persistency",
+        "measures": {
+          "total_renewal_premium": [
+            "Renewal_Premium_Amount",
+            "sum"
+          ],
+          "avg_renewal_premium": [
+            "Renewal_Premium_Amount",
+            "mean"
+          ],
+          "median_renewal_premium": [
+            "Renewal_Premium_Amount",
+            "median"
+          ],
+          "renewal_count": [
+            null,
+            "count_all"
+          ]
+        }
+      },
+      "concepts": [
+        "renewal premium",
+        "collections opportunity"
+      ],
+      "analytical_steps": [
+        "Load Persistency_Details.",
+        "Sum Renewal_Premium_Amount across all rows.",
+        "Compute average and median.",
+        "Report totals with the row count."
+      ],
+      "expected_answer_type": "scalar",
+      "answer_template": "Total renewal premium due is {total_renewal_premium} across {renewal_count} policies.",
+      "parameters": {},
+      "population": "The 24,542 policies present in Persistency_Details (active or lapsed only).",
+      "caveat": "This is premium due as recorded, covering only the persistency-eligible population; surrendered and death policies are excluded (DQ-006).",
+      "evidence_requirements": {
+        "aggregates": [
+          "total and avg renewal premium"
+        ],
+        "data_quality_notes": [
+          "DQ-006"
+        ],
+        "tables_used": [
+          "persistency"
+        ],
+        "columns_used": [
+          "persistency.Renewal_Premium_Amount",
+          "persistency.AppID"
+        ],
+        "population_definition": "The 24,542 policies present in Persistency_Details (active or lapsed only)."
+      },
+      "visualization_recommended": false,
+      "visualization_type": null,
+      "formula_ids": [
+        "F-SUM",
+        "F-AVG"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    },
+    {
+      "problem_id": "PS-028",
+      "problem_statement": "How does renewal premium compare to original APE?",
+      "intent_type": "Join/Derived-Metric/Comparison",
+      "business_intent": "Check whether renewal amounts track the original premium.",
+      "business_domain": "Financial / Premium Analysis",
+      "business_objective": "Compare Renewal_Premium_Amount against policy APE on the joined population.",
+      "analysis_tier": "analytical",
+      "example_queries": [
+        "Is renewal premium the same as APE?",
+        "Compare renewal amount to original premium",
+        "Renewal versus APE",
+        "Do renewal premiums match the original?",
+        "Renewal premium consistency check"
+      ],
+      "relevant_tables": [
+        "policy",
+        "persistency"
+      ],
+      "relevant_columns": [
+        "policy.AppID",
+        "policy.APE",
+        "persistency.AppID",
+        "persistency.Renewal_Premium_Amount"
+      ],
+      "required_operations": [
+        "JOIN",
+        "derive_column",
+        "AVG",
+        "MEDIAN",
+        "CASE WHEN",
+        "COUNT",
+        "ratio"
+      ],
+      "required_metrics": [
+        "avg_ape",
+        "avg_renewal_premium",
+        "delta_vs_baseline",
+        "pct_delta_vs_baseline",
+        "policy_count"
+      ],
+      "relationships": [
+        "policy_persistency"
+      ],
+      "independent_tables": null,
+      "mentions_unsupported_concepts": null,
+      "execution": {
+        "pattern": "group_metrics",
+        "base": "policy",
+        "joins": [
+          "policy_persistency"
+        ],
+        "join_how": {
+          "policy_persistency": "inner"
+        },
+        "group_by": "renewal_vs_ape",
+        "derive": [
+          {
+            "kind": "ratio",
+            "name": "renewal_ratio",
+            "numerator": "persistency_Renewal_Premium_Amount",
+            "denominator": "APE"
+          },
+          {
+            "kind": "band",
+            "name": "renewal_vs_ape",
+            "column": "renewal_ratio",
+            "bins": [
+              -1,
+              0.999,
+              1.001,
+              1000
+            ],
+            "labels": [
+              "below_ape",
+              "matches_ape",
+              "above_ape"
+            ]
+          }
+        ],
+        "measures": {
+          "policies": [
+            null,
+            "count_all"
+          ],
+          "avg_ape": [
+            "APE",
+            "mean"
+          ],
+          "avg_renewal": [
+            "persistency_Renewal_Premium_Amount",
+            "mean"
+          ]
+        },
+        "shares": {
+          "share_pct": "policies"
+        },
+        "rank_by": "policies"
+      },
+      "concepts": [
+        "reconciliation",
+        "premium consistency"
+      ],
+      "analytical_steps": [
+        "Join Policy_Details to Persistency_Details on AppID.",
+        "For each joined policy compute the difference between Renewal_Premium_Amount and APE.",
+        "Count exact matches, higher and lower cases.",
+        "Report the distribution of differences and the match rate."
+      ],
+      "expected_answer_type": "comparison",
+      "answer_template": "Renewal premium matches APE for {match_count} of {policy_count} joined policies.",
+      "parameters": {},
+      "population": "The 24,541 policies present in both Policy_Details and Persistency_Details.",
+      "caveat": "One policy cannot be joined because of the corrupted AppID (DQ-001) and is excluded from the comparison.",
+      "evidence_requirements": {
+        "join_path": "policy.AppID = persistency.AppID",
+        "calculations": [
+          "renewal minus APE per policy"
+        ],
+        "data_quality_notes": [
+          "DQ-001"
+        ],
+        "tables_used": [
+          "policy",
+          "persistency"
+        ],
+        "columns_used": [
+          "policy.AppID",
+          "policy.APE",
+          "persistency.AppID",
+          "persistency.Renewal_Premium_Amount"
+        ],
+        "population_definition": "The 24,541 policies present in both Policy_Details and Persistency_Details."
+      },
+      "visualization_recommended": true,
+      "visualization_type": "histogram",
+      "formula_ids": [
+        "F-DELTA",
+        "F-PCT-DELTA"
+      ],
+      "limitations": [],
+      "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4"
+    }
+  ]
+}

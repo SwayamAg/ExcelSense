@@ -1,0 +1,860 @@
+{
+  "catalogue_version": "1.0.0",
+  "generated_at_utc": "2026-09-16T07:46:38Z",
+  "generated_by": "scripts/build_ps_catalogue.py",
+  "data_contract_version": "1.0.0",
+  "grounded_in": "Talk_to_Data_PoC_Documentation_Metadata_V4",
+  "total_problem_statements": 103,
+  "description": "Domain-sharded Problem Statement catalogue. Resolve a PS id through problem_id_to_file, or shortlist a shard via routing_hints before loading it. config/problem_statements.json holds the same PSs merged.",
+  "shard_count": 15,
+  "shards": [
+    {
+      "shard": "ps_agent_performance",
+      "file": "ps_agent_performance.json",
+      "business_domains": [
+        "Agent / Sales Performance",
+        "Agent Quality & Conduct Risk"
+      ],
+      "problem_count": 9,
+      "problem_ids": [
+        "PS-039",
+        "PS-049",
+        "PS-066",
+        "PS-067",
+        "PS-069",
+        "PS-071",
+        "PS-072",
+        "PS-073",
+        "PS-074"
+      ],
+      "routing_hints": {
+        "tables": [
+          "persistency",
+          "policy",
+          "sales"
+        ],
+        "concepts": [
+          "agent performance",
+          "agent quality",
+          "agent status",
+          "association",
+          "attrition",
+          "benchmarking",
+          "comparison",
+          "complaints",
+          "composite score",
+          "conduct risk",
+          "lapse",
+          "mis-selling indicators",
+          "peer comparison",
+          "persistency",
+          "production",
+          "quartile analysis",
+          "ranking",
+          "renewal",
+          "risk ranking"
+        ],
+        "intent_structures": [
+          "Business",
+          "GroupBy",
+          "Join",
+          "Ranking"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "diagnostic",
+          "multi_step_business"
+        ]
+      }
+    },
+    {
+      "shard": "ps_anomaly_concentration",
+      "file": "ps_anomaly_concentration.json",
+      "business_domains": [
+        "Anomaly / Concentration / Risk"
+      ],
+      "problem_count": 9,
+      "problem_ids": [
+        "PS-019",
+        "PS-024",
+        "PS-025",
+        "PS-062",
+        "PS-070",
+        "PS-075",
+        "PS-088",
+        "PS-090",
+        "PS-097"
+      ],
+      "routing_hints": {
+        "tables": [
+          "claims",
+          "owner",
+          "policy",
+          "sales"
+        ],
+        "concepts": [
+          "IQR",
+          "agent quality",
+          "anomaly",
+          "anomaly detection",
+          "branch network",
+          "concentration",
+          "data review",
+          "distribution risk",
+          "geographic risk",
+          "key person",
+          "loss severity",
+          "outlier detection",
+          "outliers",
+          "plausibility rules",
+          "premium risk",
+          "product risk"
+        ],
+        "intent_structures": [
+          "Anomaly",
+          "Concentration",
+          "Multi-Condition"
+        ],
+        "analysis_tiers": [
+          "analytical"
+        ]
+      }
+    },
+    {
+      "shard": "ps_claims",
+      "file": "ps_claims.json",
+      "business_domains": [
+        "Claims & Risk",
+        "Claims Operations"
+      ],
+      "problem_count": 11,
+      "problem_ids": [
+        "PS-052",
+        "PS-053",
+        "PS-054",
+        "PS-055",
+        "PS-056",
+        "PS-058",
+        "PS-059",
+        "PS-060",
+        "PS-061",
+        "PS-063",
+        "PS-064"
+      ],
+      "routing_hints": {
+        "tables": [
+          "claims",
+          "owner",
+          "policy"
+        ],
+        "concepts": [
+          "age banding",
+          "anti-selection",
+          "cause of death",
+          "claim incidence",
+          "claim integrity",
+          "claims",
+          "claims operations",
+          "claims service",
+          "distribution",
+          "early claim",
+          "lag",
+          "large loss",
+          "mortality",
+          "payout",
+          "payout ratio",
+          "product risk",
+          "reconciliation",
+          "risk",
+          "seasonality",
+          "settlement",
+          "settlement integrity",
+          "sum assured",
+          "time series",
+          "top N",
+          "turnaround"
+        ],
+        "intent_structures": [
+          "Aggregation",
+          "Conditional",
+          "Derived-Metric",
+          "GroupBy",
+          "Join",
+          "Ranking",
+          "Time-Series"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive"
+        ]
+      }
+    },
+    {
+      "shard": "ps_customer_demographics",
+      "file": "ps_customer_demographics.json",
+      "business_domains": [
+        "Customer Segmentation"
+      ],
+      "problem_count": 7,
+      "problem_ids": [
+        "PS-077",
+        "PS-078",
+        "PS-079",
+        "PS-080",
+        "PS-081",
+        "PS-082",
+        "PS-083"
+      ],
+      "routing_hints": {
+        "tables": [
+          "owner",
+          "persistency",
+          "policy"
+        ],
+        "concepts": [
+          "affordability",
+          "age distribution",
+          "buying behaviour",
+          "cross-sell",
+          "customer value",
+          "demographics",
+          "education",
+          "gender",
+          "income",
+          "multi-policy",
+          "occupation",
+          "premium",
+          "segmentation",
+          "tiering"
+        ],
+        "intent_structures": [
+          "Business",
+          "Distribution",
+          "GroupBy",
+          "Join"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive",
+          "multi_step_business"
+        ]
+      }
+    },
+    {
+      "shard": "ps_diagnostic_rootcause",
+      "file": "ps_diagnostic_rootcause.json",
+      "business_domains": [
+        "Root-Cause / Diagnostic"
+      ],
+      "problem_count": 5,
+      "problem_ids": [
+        "PS-014",
+        "PS-040",
+        "PS-050",
+        "PS-057",
+        "PS-068"
+      ],
+      "routing_hints": {
+        "tables": [
+          "claims",
+          "owner",
+          "persistency",
+          "policy",
+          "sales"
+        ],
+        "concepts": [
+          "agent performance",
+          "association",
+          "claims operations",
+          "diagnostic",
+          "driver analysis",
+          "driver scan",
+          "peer comparison",
+          "persistency",
+          "root cause"
+        ],
+        "intent_structures": [
+          "Business"
+        ],
+        "analysis_tiers": [
+          "diagnostic"
+        ]
+      }
+    },
+    {
+      "shard": "ps_executive_business",
+      "file": "ps_executive_business.json",
+      "business_domains": [
+        "Executive / Portfolio Health",
+        "Prescriptive / Action Planning"
+      ],
+      "problem_count": 6,
+      "problem_ids": [
+        "PS-009",
+        "PS-076",
+        "PS-099",
+        "PS-100",
+        "PS-101",
+        "PS-102"
+      ],
+      "routing_hints": {
+        "tables": [
+          "claims",
+          "owner",
+          "persistency",
+          "policy",
+          "sales"
+        ],
+        "concepts": [
+          "executive",
+          "executive review",
+          "exposure",
+          "multi-domain",
+          "portfolio health",
+          "prescriptive",
+          "prioritisation",
+          "retention",
+          "value at risk"
+        ],
+        "intent_structures": [
+          "Business"
+        ],
+        "analysis_tiers": [
+          "multi_step_business"
+        ]
+      }
+    },
+    {
+      "shard": "ps_financial_premium",
+      "file": "ps_financial_premium.json",
+      "business_domains": [
+        "Financial / Premium Analysis"
+      ],
+      "problem_count": 5,
+      "problem_ids": [
+        "PS-022",
+        "PS-023",
+        "PS-026",
+        "PS-027",
+        "PS-028"
+      ],
+      "routing_hints": {
+        "tables": [
+          "persistency",
+          "policy"
+        ],
+        "concepts": [
+          "collections opportunity",
+          "distribution",
+          "high value",
+          "policy term",
+          "premium",
+          "premium consistency",
+          "reconciliation",
+          "relationship",
+          "renewal premium",
+          "skew",
+          "top N"
+        ],
+        "intent_structures": [
+          "Aggregation",
+          "Distribution",
+          "GroupBy",
+          "Join",
+          "Ranking"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive"
+        ]
+      }
+    },
+    {
+      "shard": "ps_geography_branch",
+      "file": "ps_geography_branch.json",
+      "business_domains": [
+        "Branch Analysis",
+        "Geographic Analysis"
+      ],
+      "problem_count": 6,
+      "problem_ids": [
+        "PS-034",
+        "PS-084",
+        "PS-085",
+        "PS-086",
+        "PS-087",
+        "PS-089"
+      ],
+      "routing_hints": {
+        "tables": [
+          "owner",
+          "persistency",
+          "policy"
+        ],
+        "concepts": [
+          "NRI",
+          "branch performance",
+          "city",
+          "comparison",
+          "distribution",
+          "geography",
+          "lapse",
+          "market concentration",
+          "overseas",
+          "persistency",
+          "ranking",
+          "state"
+        ],
+        "intent_structures": [
+          "Filtering",
+          "GroupBy",
+          "Join",
+          "Multi-Join"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive"
+        ]
+      }
+    },
+    {
+      "shard": "ps_integrity_reconciliation",
+      "file": "ps_integrity_reconciliation.json",
+      "business_domains": [
+        "Integrity & Reconciliation"
+      ],
+      "problem_count": 5,
+      "problem_ids": [
+        "PS-065",
+        "PS-095",
+        "PS-096",
+        "PS-098",
+        "PS-103"
+      ],
+      "routing_hints": {
+        "tables": [
+          "claims",
+          "owner",
+          "persistency",
+          "policy",
+          "sales"
+        ],
+        "concepts": [
+          "agent metrics",
+          "data integrity",
+          "data quality",
+          "grounding",
+          "limitations",
+          "reconciliation",
+          "referential integrity",
+          "refusal",
+          "scope",
+          "scope check",
+          "transparency"
+        ],
+        "intent_structures": [
+          "Reconciliation"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive"
+        ]
+      }
+    },
+    {
+      "shard": "ps_lapse_surrender",
+      "file": "ps_lapse_surrender.json",
+      "business_domains": [
+        "Lapse Analysis",
+        "Surrender Analysis"
+      ],
+      "problem_count": 6,
+      "problem_ids": [
+        "PS-035",
+        "PS-036",
+        "PS-037",
+        "PS-038",
+        "PS-042",
+        "PS-043"
+      ],
+      "routing_hints": {
+        "tables": [
+          "owner",
+          "policy"
+        ],
+        "concepts": [
+          "affordability",
+          "age segmentation",
+          "comparison",
+          "income segmentation",
+          "lapse",
+          "occupation segmentation",
+          "retention",
+          "segment profile",
+          "surrender",
+          "voluntary exit"
+        ],
+        "intent_structures": [
+          "Conditional",
+          "GroupBy",
+          "Join",
+          "Multi-Condition"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive",
+          "diagnostic"
+        ]
+      }
+    },
+    {
+      "shard": "ps_persistency_renewal",
+      "file": "ps_persistency_renewal.json",
+      "business_domains": [
+        "Persistency / Renewal"
+      ],
+      "problem_count": 6,
+      "problem_ids": [
+        "PS-044",
+        "PS-045",
+        "PS-046",
+        "PS-047",
+        "PS-048",
+        "PS-051"
+      ],
+      "routing_hints": {
+        "tables": [
+          "persistency",
+          "policy"
+        ],
+        "concepts": [
+          "collection",
+          "collections",
+          "comparison",
+          "payment delay",
+          "payment mode",
+          "persistency",
+          "persistency bucket",
+          "product performance",
+          "renewal",
+          "renewal behaviour",
+          "retention decay",
+          "value at risk"
+        ],
+        "intent_structures": [
+          "Conditional",
+          "Derived-Metric",
+          "GroupBy",
+          "Join"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive"
+        ]
+      }
+    },
+    {
+      "shard": "ps_policy_lifecycle",
+      "file": "ps_policy_lifecycle.json",
+      "business_domains": [
+        "Policy Lifecycle"
+      ],
+      "problem_count": 3,
+      "problem_ids": [
+        "PS-029",
+        "PS-030",
+        "PS-031"
+      ],
+      "routing_hints": {
+        "tables": [
+          "claims",
+          "owner",
+          "persistency",
+          "policy",
+          "sales"
+        ],
+        "concepts": [
+          "360 view",
+          "entity lookup",
+          "new business",
+          "operations",
+          "product comparison",
+          "turnaround",
+          "underwriting"
+        ],
+        "intent_structures": [
+          "Derived-Metric",
+          "GroupBy",
+          "Lookup"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive"
+        ]
+      }
+    },
+    {
+      "shard": "ps_portfolio_overview",
+      "file": "ps_portfolio_overview.json",
+      "business_domains": [
+        "Portfolio Overview"
+      ],
+      "problem_count": 9,
+      "problem_ids": [
+        "PS-001",
+        "PS-002",
+        "PS-003",
+        "PS-004",
+        "PS-005",
+        "PS-006",
+        "PS-010",
+        "PS-011",
+        "PS-012"
+      ],
+      "routing_hints": {
+        "tables": [
+          "owner",
+          "policy"
+        ],
+        "concepts": [
+          "APE",
+          "central tendency",
+          "contract duration",
+          "customer base",
+          "distribution footprint",
+          "exposure",
+          "in force",
+          "policy count",
+          "policy status",
+          "policy term",
+          "portfolio composition",
+          "portfolio size",
+          "premium volume",
+          "product mix",
+          "retention",
+          "skew",
+          "sum assured",
+          "traditional",
+          "unit linked"
+        ],
+        "intent_structures": [
+          "Aggregation",
+          "Conditional",
+          "Distribution",
+          "GroupBy"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive"
+        ]
+      }
+    },
+    {
+      "shard": "ps_product_performance",
+      "file": "ps_product_performance.json",
+      "business_domains": [
+        "Product Performance"
+      ],
+      "problem_count": 9,
+      "problem_ids": [
+        "PS-007",
+        "PS-008",
+        "PS-013",
+        "PS-015",
+        "PS-016",
+        "PS-017",
+        "PS-018",
+        "PS-020",
+        "PS-021"
+      ],
+      "routing_hints": {
+        "tables": [
+          "claims",
+          "persistency",
+          "policy"
+        ],
+        "concepts": [
+          "comparison",
+          "cover multiple",
+          "derived metric",
+          "lapse",
+          "multi-metric",
+          "plan",
+          "policy term",
+          "premium contribution",
+          "premium paying term",
+          "product class",
+          "product comparison",
+          "product mix",
+          "product performance",
+          "retention",
+          "scorecard",
+          "sum assured",
+          "value for money"
+        ],
+        "intent_structures": [
+          "Business",
+          "Derived-Metric",
+          "GroupBy"
+        ],
+        "analysis_tiers": [
+          "analytical",
+          "descriptive",
+          "multi_step_business"
+        ]
+      }
+    },
+    {
+      "shard": "ps_trends_cohorts",
+      "file": "ps_trends_cohorts.json",
+      "business_domains": [
+        "Trends & Cohorts"
+      ],
+      "problem_count": 7,
+      "problem_ids": [
+        "PS-032",
+        "PS-033",
+        "PS-041",
+        "PS-091",
+        "PS-092",
+        "PS-093",
+        "PS-094"
+      ],
+      "routing_hints": {
+        "tables": [
+          "persistency",
+          "policy"
+        ],
+        "concepts": [
+          "baseline",
+          "case size",
+          "cohort",
+          "comparison",
+          "growth",
+          "lapse",
+          "new business",
+          "period comparison",
+          "premium",
+          "product mix",
+          "share shift",
+          "time series",
+          "trend",
+          "vintage"
+        ],
+        "intent_structures": [
+          "Cohort",
+          "Temporal",
+          "Time-Series"
+        ],
+        "analysis_tiers": [
+          "analytical"
+        ]
+      }
+    }
+  ],
+  "problem_id_to_file": {
+    "PS-001": "ps_portfolio_overview.json",
+    "PS-002": "ps_portfolio_overview.json",
+    "PS-003": "ps_portfolio_overview.json",
+    "PS-004": "ps_portfolio_overview.json",
+    "PS-005": "ps_portfolio_overview.json",
+    "PS-006": "ps_portfolio_overview.json",
+    "PS-007": "ps_product_performance.json",
+    "PS-008": "ps_product_performance.json",
+    "PS-009": "ps_executive_business.json",
+    "PS-010": "ps_portfolio_overview.json",
+    "PS-011": "ps_portfolio_overview.json",
+    "PS-012": "ps_portfolio_overview.json",
+    "PS-013": "ps_product_performance.json",
+    "PS-014": "ps_diagnostic_rootcause.json",
+    "PS-015": "ps_product_performance.json",
+    "PS-016": "ps_product_performance.json",
+    "PS-017": "ps_product_performance.json",
+    "PS-018": "ps_product_performance.json",
+    "PS-019": "ps_anomaly_concentration.json",
+    "PS-020": "ps_product_performance.json",
+    "PS-021": "ps_product_performance.json",
+    "PS-022": "ps_financial_premium.json",
+    "PS-023": "ps_financial_premium.json",
+    "PS-024": "ps_anomaly_concentration.json",
+    "PS-025": "ps_anomaly_concentration.json",
+    "PS-026": "ps_financial_premium.json",
+    "PS-027": "ps_financial_premium.json",
+    "PS-028": "ps_financial_premium.json",
+    "PS-029": "ps_policy_lifecycle.json",
+    "PS-030": "ps_policy_lifecycle.json",
+    "PS-031": "ps_policy_lifecycle.json",
+    "PS-032": "ps_trends_cohorts.json",
+    "PS-033": "ps_trends_cohorts.json",
+    "PS-034": "ps_geography_branch.json",
+    "PS-035": "ps_lapse_surrender.json",
+    "PS-036": "ps_lapse_surrender.json",
+    "PS-037": "ps_lapse_surrender.json",
+    "PS-038": "ps_lapse_surrender.json",
+    "PS-039": "ps_agent_performance.json",
+    "PS-040": "ps_diagnostic_rootcause.json",
+    "PS-041": "ps_trends_cohorts.json",
+    "PS-042": "ps_lapse_surrender.json",
+    "PS-043": "ps_lapse_surrender.json",
+    "PS-044": "ps_persistency_renewal.json",
+    "PS-045": "ps_persistency_renewal.json",
+    "PS-046": "ps_persistency_renewal.json",
+    "PS-047": "ps_persistency_renewal.json",
+    "PS-048": "ps_persistency_renewal.json",
+    "PS-049": "ps_agent_performance.json",
+    "PS-050": "ps_diagnostic_rootcause.json",
+    "PS-051": "ps_persistency_renewal.json",
+    "PS-052": "ps_claims.json",
+    "PS-053": "ps_claims.json",
+    "PS-054": "ps_claims.json",
+    "PS-055": "ps_claims.json",
+    "PS-056": "ps_claims.json",
+    "PS-057": "ps_diagnostic_rootcause.json",
+    "PS-058": "ps_claims.json",
+    "PS-059": "ps_claims.json",
+    "PS-060": "ps_claims.json",
+    "PS-061": "ps_claims.json",
+    "PS-062": "ps_anomaly_concentration.json",
+    "PS-063": "ps_claims.json",
+    "PS-064": "ps_claims.json",
+    "PS-065": "ps_integrity_reconciliation.json",
+    "PS-066": "ps_agent_performance.json",
+    "PS-067": "ps_agent_performance.json",
+    "PS-068": "ps_diagnostic_rootcause.json",
+    "PS-069": "ps_agent_performance.json",
+    "PS-070": "ps_anomaly_concentration.json",
+    "PS-071": "ps_agent_performance.json",
+    "PS-072": "ps_agent_performance.json",
+    "PS-073": "ps_agent_performance.json",
+    "PS-074": "ps_agent_performance.json",
+    "PS-075": "ps_anomaly_concentration.json",
+    "PS-076": "ps_executive_business.json",
+    "PS-077": "ps_customer_demographics.json",
+    "PS-078": "ps_customer_demographics.json",
+    "PS-079": "ps_customer_demographics.json",
+    "PS-080": "ps_customer_demographics.json",
+    "PS-081": "ps_customer_demographics.json",
+    "PS-082": "ps_customer_demographics.json",
+    "PS-083": "ps_customer_demographics.json",
+    "PS-084": "ps_geography_branch.json",
+    "PS-085": "ps_geography_branch.json",
+    "PS-086": "ps_geography_branch.json",
+    "PS-087": "ps_geography_branch.json",
+    "PS-088": "ps_anomaly_concentration.json",
+    "PS-089": "ps_geography_branch.json",
+    "PS-090": "ps_anomaly_concentration.json",
+    "PS-091": "ps_trends_cohorts.json",
+    "PS-092": "ps_trends_cohorts.json",
+    "PS-093": "ps_trends_cohorts.json",
+    "PS-094": "ps_trends_cohorts.json",
+    "PS-095": "ps_integrity_reconciliation.json",
+    "PS-096": "ps_integrity_reconciliation.json",
+    "PS-097": "ps_anomaly_concentration.json",
+    "PS-098": "ps_integrity_reconciliation.json",
+    "PS-099": "ps_executive_business.json",
+    "PS-100": "ps_executive_business.json",
+    "PS-101": "ps_executive_business.json",
+    "PS-102": "ps_executive_business.json",
+    "PS-103": "ps_integrity_reconciliation.json"
+  }
+}
