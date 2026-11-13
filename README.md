@@ -1,6 +1,8 @@
 # Excel_sense_v2 — Life Insurance Analytics
 
-Ask a life-insurance portfolio a question in plain English and get an executive answer that is **computed, not generated** — with the evidence, the formula and the row counts attached.
+Ask a life-insurance portfolio a question in plain English and get a short answer that is **computed, not generated**, with the evidence, the formula and the row counts attached. It runs on five synthetic CSVs (76,632 rows).
+
+This is the final version in `Graph_RAG_Learn`. `ThIrD_dRAfT` is the earlier v1, and the other folders hold data design and experiments.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
@@ -8,19 +10,19 @@ Ask a life-insurance portfolio a question in plain English and get an executive 
 ![Groq](https://img.shields.io/badge/LLM-Groq%20Llama%203.3%2070B-F55036?logo=groq&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-990%20passing-success)
 
+![Demo](Demo.gif)
+
+*Demo GIF coming soon.*
+
 ---
 
 ## The problem
 
-Ask a general-purpose LLM about your data and it will answer. That is the problem.
-
-It will produce a lapse rate that looks plausible, name a product that ranks highest, and explain *why* — fluently, confidently, and with no way for the reader to tell which parts were read from the data and which were composed. In a regulated domain that is not a rough draft. It is a liability.
-
-The failure is structural, not a matter of a better prompt: if the model is the thing producing the number, no amount of instruction makes the number trustworthy.
+An LLM asked about a dataset will give a plausible lapse rate, a top product and a reason, with no way to tell which parts came from the data and which it made up. A better prompt doesn't fix this: if the model produces the number, the number can't be trusted.
 
 ## The solution
 
-**Invert the relationship.** The model never touches the data and never performs a calculation.
+The model never touches the data and never calculates anything.
 
 A question selects one of **103 pre-written analyses**. Deterministic Python executes it against five CSVs, applying **18 declared formulas** and **15 business rules**. The result is an *evidence package* — figures, populations, row counts, and an explicit list of what the data **cannot** establish. Only then does the model see anything, and all it is asked to do is put the evidence into three sentences.
 
@@ -30,13 +32,11 @@ Then the answer is **validated back against the evidence**. A number that is not
 
 ## Business impact
 
-- **Answers are auditable** — every figure traces to a formula id, a population and a row count
-- **Refusal over invention** — 8 declared unanswerable domains; out-of-domain questions are refused, never estimated
-- **Governed by construction** — personal fields cannot leave the system, by any route
-- **Analyst time reclaimed** — 103 recurring portfolio questions answered without a hand-written query
-- **Safe to extend** — a committed regression baseline means adding analyses cannot silently move existing figures
-
----
+- **Every figure is auditable:** each number traces to a formula id, a population and a row count
+- **Fabricated numbers can't reach the user:** the validator rejects any figure that isn't in the computed evidence
+- **Refuses instead of guessing:** 8 declared unanswerable domains; 95.82% of 526 test questions routed correctly and the rest refused or clarified, never answered wrongly
+- **Recurring analysis without queries:** 103 portfolio questions answered in plain English, with charts and evidence tables
+- **Safe to extend:** 990 tests passing, including a regression baseline that stops new analyses from moving existing figures
 
 ## Key features
 
@@ -48,6 +48,7 @@ Then the answer is **validated back against the evidence**. A number that is not
 - **Refusal paths** — out-of-domain, unsupported-concept, invalid-entity and ambiguous questions all handled distinctly
 - **Prompt-injection defence** — screening, neutralisation, prompt framing, and the validator underneath
 - **Result caching** — fingerprinted on the loaded data, so a data change invalidates everything
+- **Personal data protection** — personal fields are dropped during execution and re-checked before every response
 
 ---
 
@@ -122,6 +123,7 @@ FInal_Run/
 │   ├── llm/               # prompt contract, summarizer, grounding validator
 │   ├── security/          # input guards, dataset isolation, audit log
 │   ├── api/               # chatbot orchestration & health checking
+│   ├── visualization/     # charts built from the evidence
 │   └── ui/                # Streamlit and terminal interfaces
 └── tests/                 # 990 tests, including regression and smoke suites
 ```
@@ -133,8 +135,8 @@ Non-obvious folders: **`config/`** is generated from code, never hand-edited —
 ## Quick start
 
 ```bash
-git clone https://github.com/SwayamAg/Graphical-RAG-Learn-.git
-cd Graphical-RAG-Learn-/FInal_Run
+git clone -b excel_sense_v2 https://github.com/SwayamAg/ExcelSense.git
+cd ExcelSense
 pip install -r requirements.txt
 
 streamlit run app.py              # web interface at localhost:8501
@@ -153,7 +155,10 @@ python app.py "Which product has the highest lapse rate?"   # one-shot answer
 python app.py                                               # terminal session
 python app.py "..." --json                                  # machine-readable
 pytest -q                                                   # the full suite
+docker compose up --build                                   # container on localhost:8501, with a health check
 ```
+
+Deployment details: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ---
 
@@ -205,7 +210,6 @@ The last paragraph is not boilerplate. It is generated because the data genuinel
 
 ## Roadmap
 
-- Deployment packaging — Dockerfile, health endpoint, startup validation
 - Authentication and per-user data scoping
 - Rate limiting
 - Streaming answers in the web interface
@@ -229,12 +233,10 @@ The last paragraph is not boilerplate. It is generated because the data genuinel
 
 **Swayam Agarwal**
 
+- LinkedIn: [linkedin.com/in/swayam-agarwal](https://www.linkedin.com/in/swayam-agarwal/)
 - GitHub: [@SwayamAg](https://github.com/SwayamAg)
-- LinkedIn: *(add your profile URL)*
-- Email: *(add your contact email)*
-
----
+- Email: [swayamagarwal19@gmail.com](mailto:swayamagarwal19@gmail.com)
 
 ## License
 
-*(License not yet specified — add MIT, Apache 2.0, or your chosen license before publishing.)*
+Not specified yet. No license file has been added.
